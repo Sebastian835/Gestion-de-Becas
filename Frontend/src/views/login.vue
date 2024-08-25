@@ -1,7 +1,41 @@
 <script setup>
 import { ref } from 'vue';
-const usuario = ref('');
-const contra = ref('');
+import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2'
+
+const usuarioDefinido = 'admin';
+const contraDefinid = 'admin';
+const router = useRouter();
+
+let usuario = ref('');
+let contra = ref('');
+
+const iniciarSesion = () => {
+    if (usuario.value === usuarioDefinido && contra.value === contraDefinid) {
+        Swal.fire({
+            icon: "success",
+            title: "Inicio de Sesión Exitoso",
+            showConfirmButton: false,
+            timer: 1500
+        }).then(() => {
+            usuario.value = '';
+            contra.value = '';
+            router.push('/home');
+        });
+    } else {
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Datos Incorrectos",
+        }).then(() => {
+            usuario.value = '';
+            contra.value = '';
+        });
+
+    }
+}
+
+
 </script>
 
 <template>
@@ -49,7 +83,7 @@ const contra = ref('');
                     </div>
 
                     <div>
-                        <button type="submit"
+                        <button @click="iniciarSesion" type="button"
                             class="group relative w-full flex justify-center py-3 px-6 border border-transparent text-lg font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500">
                             Iniciar Sesión
                         </button>
