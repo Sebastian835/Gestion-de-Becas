@@ -1,9 +1,9 @@
 <script setup>
 import { ref } from 'vue';
 
-import Sidebar from '../components/sidebar.vue'; 
-import Header from '../components/header.vue';
-import Footer from '../components/footer.vue';
+import Sidebar from '../components/layouts/sidebar.vue'; 
+import Header from '../components/layouts/header.vue';
+import Footer from '../components/layouts/footer.vue';
 </script>
 
 <template>
@@ -14,7 +14,7 @@ import Footer from '../components/footer.vue';
                 <Header />
             </nav>
             <div class="mt-12">
-               <!-- AQUI VA IR TODO EL CONTENIDO -->
+                <router-view />
             </div>
             <div class="text-blue-gray-600">
                 <Footer />

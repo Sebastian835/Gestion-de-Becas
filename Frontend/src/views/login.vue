@@ -1,28 +1,39 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
+import { login } from '../services/authService';
 
-const usuarioDefinido = 'admin';
-const contraDefinid = 'admin';
 const router = useRouter();
 
 let usuario = ref('');
 let contra = ref('');
 
-const iniciarSesion = () => {
-    if (usuario.value === usuarioDefinido && contra.value === contraDefinid) {
+const iniciarSesion = async () => {
+    try {
+        const response = await login(usuario.value, contra.value);
         Swal.fire({
             icon: "success",
             title: "Inicio de Sesión Exitoso",
             showConfirmButton: false,
             timer: 1500
         }).then(() => {
-            usuario.value = '';
-            contra.value = '';
-            router.push('/home');
+            if (usuario.value === 'admin') {
+                usuario.value = '';
+                contra.value = '';
+                router.push('/main/home');
+            } else if (usuario.value === 'estudiante') {
+                usuario.value = '';
+                contra.value = '';
+                router.push('/main/requisitos');
+            } else {
+                usuario.value = '';
+                contra.value = '';
+                console.log('Aqui toca el vicerrector');
+            }
+
         });
-    } else {
+    } catch (error) {
         Swal.fire({
             icon: "error",
             title: "Oops...",
@@ -31,12 +42,10 @@ const iniciarSesion = () => {
             usuario.value = '';
             contra.value = '';
         });
-
     }
 }
-
-
 </script>
+
 
 <template>
     <div class="min-h-screen flex flex-col md:flex-row">
@@ -58,7 +67,7 @@ const iniciarSesion = () => {
                 <div>
                     <h2 class="text-4xl font-extrabold text-gray-900">Inicio de Sesión</h2>
                 </div>
-                <form class="space-y-8">
+                <form class="space-y-8" @submit.prevent="iniciarSesion">
                     <div class="rounded-md shadow-sm space-y-4">
                         <div>
                             <label for="usuario" class="sr-only">Usuario</label>
@@ -83,10 +92,11 @@ const iniciarSesion = () => {
                     </div>
 
                     <div>
-                        <button @click="iniciarSesion" type="button"
+                        <button type="submit"
                             class="group relative w-full flex justify-center py-3 px-6 border border-transparent text-lg font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500">
                             Iniciar Sesión
                         </button>
+
                     </div>
                 </form>
             </div>
