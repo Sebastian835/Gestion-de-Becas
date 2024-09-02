@@ -16,9 +16,9 @@ import Footer from '../components/layouts/footer.vue';
             <div class="mt-12">
                 <router-view />
             </div>
-            <div class="text-blue-gray-600">
+            <!-- <div class="text-blue-gray-600">
                 <Footer />
-            </div>
+            </div> -->
         </div>
     </div>
 

@@ -3,7 +3,7 @@ import { ref } from 'vue';
 </script>
 
 <template>
-    <!-- <footer class="py-2">
+    <footer class="py-2">
         <div class="flex w-full flex-wrap items-center justify-center gap-6 px-2 md:justify-between">
             <p class="block antialiased font-sans text-sm leading-normal font-normal text-inherit">© 2023, made with
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
@@ -34,7 +34,7 @@ import { ref } from 'vue';
                 </li>
             </ul>
         </div>
-    </footer> -->
+    </footer>
 </template>
 
 <style scoped></style>
