@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.use(verifyToken);
 
-router.get("/tipoBeca", async (req, res) => {
+router.get("/", async (req, res) => {
   if (req.user.role !== "estudiante" && req.user.role !== "admin") {
     return res.status(403).json({ message: "Access denied" });
   }
@@ -14,14 +14,6 @@ router.get("/tipoBeca", async (req, res) => {
     res.json({ tiposBecas });
   } catch (error) {
     res.status(500).json({ message: error.message });
-  }
-});
-
-router.get('/usuario', verifyToken, (req, res) => {
-  try {
-      res.json(req.user);
-  } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
   }
 });
 

@@ -8,7 +8,6 @@ const selectedBeca = ref('');
 
 const fetchTiposBecas = async () => {
     tiposBecas.value = await getTiposBecas();
-    console.log(tiposBecas.value);
 };
 
 const validateForm = (event) => {

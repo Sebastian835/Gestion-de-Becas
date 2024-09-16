@@ -8,6 +8,19 @@ datasource db {
 }
 
 model istla_tipo_beca {
-  id        Int    @id @default(autoincrement())
-  tipo_beca String @db.VarChar(255)
+  id                     Int                      @id @default(autoincrement())
+  tipo_beca              String                   @db.VarChar(255)
+  istla_solicitudes_beca istla_solicitudes_beca[]
+}
+
+model istla_solicitudes_beca {
+  id              Int             @id @default(autoincrement())
+  fecha_hora      DateTime        @db.DateTime(0)
+  tipo_beca       Int
+  nombre          String          @db.VarChar(255)
+  apellido        String          @db.VarChar(255)
+  cedula          String          @db.VarChar(20)
+  istla_tipo_beca istla_tipo_beca @relation(fields: [tipo_beca], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "istla_solicitudes_beca_ibfk_1")
+
+  @@index([tipo_beca], map: "tipo_beca")
 }

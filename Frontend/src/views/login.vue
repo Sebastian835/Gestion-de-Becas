@@ -11,7 +11,8 @@ let contra = ref('');
 
 const iniciarSesion = async () => {
     try {
-        await login(usuario.value, contra.value);
+        const dataUser = await login(usuario.value, contra.value);
+
         Swal.fire({
             icon: "success",
             title: "Inicio de Sesión Exitoso",
@@ -22,7 +23,7 @@ const iniciarSesion = async () => {
                 usuario.value = '';
                 contra.value = '';
                 router.push('/main/home');
-            } else if (usuario.value === 'estudiante') {
+            } else if (dataUser.user.PERFIL=== 'ESTUDIANTE') {
                 usuario.value = '';
                 contra.value = '';
                 router.push('/main/requisitos');
@@ -31,7 +32,6 @@ const iniciarSesion = async () => {
                 contra.value = '';
                 console.log('Aqui toca el vicerrector');
             }
-
         });
     } catch (error) {
         Swal.fire({
