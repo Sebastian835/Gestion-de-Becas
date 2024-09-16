@@ -1,12 +1,26 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { getCurrentUser } from '../../services/authService';
+import { ref, computed, onMounted } from 'vue';
+import { getCurrentUser } from '../../services/user';
 
-const currentUser = ref(getCurrentUser());
+const currentUser = ref(null);
+
+const fetchCurrentUser = async () => {
+  try {
+    const user = await getCurrentUser();
+    currentUser.value = user;
+  } catch (error) {
+    console.error('Error fetching current user:', error);
+  }
+};
+
+onMounted(() => {
+  fetchCurrentUser();
+});
 
 const isAdmin = computed(() => currentUser.value?.role === 'admin');
 const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
 </script>
+
 
 <template>
   <aside

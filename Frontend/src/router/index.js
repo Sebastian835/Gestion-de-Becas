@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Layout from "../views/mainLayout.vue";
 import LoginView from "../views/login.vue";
 import NotFound from "../views/notFound.vue";
-import { getCurrentUser } from "../services/authService";
+import { getCurrentUser } from "../services/user";
 
 const routes = [
   {
@@ -58,23 +58,34 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
-  const user = getCurrentUser();
+router.beforeEach(async (to, from, next) => {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
-  if (requiresAuth && !user) {
-    next("/login");
-  } else if (requiresAuth && user) {
+  if (!requiresAuth) {
+    return next();
+  }
+
+  try {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return next("/login");
+    }
+
     const allowedRoles = to.meta.roles || [];
     if (allowedRoles.length && !allowedRoles.includes(user.role)) {
-      next("/not-found");
-    } else {
-      next();
+      return next("/not-found");
     }
-  } else {
+
     next();
+  } catch (error) {
+    console.error("Error fetching current user:", error);
+    return next("/login");
   }
 });
+
+
+
 
 
 export default router;

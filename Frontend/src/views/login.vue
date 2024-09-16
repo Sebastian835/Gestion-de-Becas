@@ -11,7 +11,7 @@ let contra = ref('');
 
 const iniciarSesion = async () => {
     try {
-        const response = await login(usuario.value, contra.value);
+        await login(usuario.value, contra.value);
         Swal.fire({
             icon: "success",
             title: "Inicio de Sesión Exitoso",
