@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Layout from "../views/mainLayout.vue";
 import LoginView from "../views/login.vue";
 import NotFound from "../views/notFound.vue";
-import { getCurrentUser } from "../services/user";
+import { getUser } from "../services/user";
 
 const routes = [
   {
@@ -66,7 +66,7 @@ router.beforeEach(async (to, from, next) => {
   }
 
   try {
-    const user = await getCurrentUser();
+    const user = await getUser();
 
     if (!user) {
       return next("/login");

@@ -1,12 +1,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { getCurrentUser } from '../../services/user';
+import { getUser } from '../../services/user';
 
 const currentUser = ref(null);
 
 const fetchCurrentUser = async () => {
   try {
-    const user = await getCurrentUser();
+    const user = await getUser();
     currentUser.value = user;
   } catch (error) {
     console.error('Error fetching current user:', error);
