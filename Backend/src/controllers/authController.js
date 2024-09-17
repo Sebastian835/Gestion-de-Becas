@@ -21,7 +21,7 @@ const login = async (req, res) => {
     const token = jwt.sign(
       { username, role: users[username].role },
       jwtConfig.secret,
-      { expiresIn: jwtConfig.expiresIn }
+      { expiresIn: "1h" }
     );
     res.cookie("token", token, {
       httpOnly: true,
@@ -44,16 +44,16 @@ const login = async (req, res) => {
 
     if (estudiante) {
       const token = jwt.sign(
-        { ...estudiante, role: 'estudiante' }, 
+        { ...estudiante, role: "estudiante" },
         jwtConfig.secret,
-        { expiresIn: jwtConfig.expiresIn }
-    );
-    
+        { expiresIn: "30m" }
+      );
+
       res.cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
-        maxAge: 3600000,
+        maxAge: 1800000,
       });
 
       return res.json({ message: "Login successful", user: estudiante });

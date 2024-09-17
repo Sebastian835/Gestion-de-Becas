@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const API_URL = 'http://localhost:3000/api/auth';
 
@@ -30,8 +31,15 @@ axios.interceptors.request.use(
 
 axios.interceptors.response.use(
     (response) => response,
-    (error) => {
+    async (error) => {
         if (error.response.status === 401) {
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Sesión Expirada',
+                text: 'Tu sesión está a punto de cerrarse.',
+                showConfirmButton: false,
+                timer: 3000 
+            });
             logout();
         }
         return Promise.reject(error);

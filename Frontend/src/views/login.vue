@@ -23,7 +23,7 @@ const iniciarSesion = async () => {
                 usuario.value = '';
                 contra.value = '';
                 router.push('/main/home');
-            } else if (dataUser.user.PERFIL=== 'ESTUDIANTE') {
+            } else if (dataUser.user.PERFIL === 'ESTUDIANTE') {
                 usuario.value = '';
                 contra.value = '';
                 router.push('/main/requisitos');
@@ -44,6 +44,7 @@ const iniciarSesion = async () => {
         });
     }
 }
+
 </script>
 
 
