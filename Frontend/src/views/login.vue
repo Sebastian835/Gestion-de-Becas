@@ -11,8 +11,15 @@ let contra = ref('');
 
 const iniciarSesion = async () => {
     try {
+        Swal.fire({
+            title: "Iniciando Sesión",
+            allowOutsideClick: false, 
+            didOpen: () => {
+                Swal.showLoading(); 
+            }
+        });
         const dataUser = await login(usuario.value, contra.value);
-
+        Swal.close();
         Swal.fire({
             icon: "success",
             title: "Inicio de Sesión Exitoso",
@@ -30,10 +37,11 @@ const iniciarSesion = async () => {
             } else {
                 usuario.value = '';
                 contra.value = '';
-                console.log('Aqui toca el vicerrector');
+                console.log('Aquí toca el vicerrector');
             }
         });
     } catch (error) {
+        Swal.close();
         Swal.fire({
             icon: "error",
             title: "Oops...",
@@ -44,6 +52,7 @@ const iniciarSesion = async () => {
         });
     }
 }
+
 
 </script>
 

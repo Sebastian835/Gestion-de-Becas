@@ -1,9 +1,10 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getTiposBecas } from '../../services/tiposBecas';
 import { getUser } from '../../services/user';
+import { getTiposBecas } from '../../services/tiposBecas';
 import { envioSolicitud } from '../../services/envioSolicitud';
 import Swal from 'sweetalert2';
+import { initFlowbite } from 'flowbite'
 
 const tiposBecas = ref([]);
 const selectedBeca = ref('');
@@ -74,7 +75,7 @@ const submitSolicitud = async () => {
                     icon: 'error',
                     confirmButtonText: 'Aceptar'
                 });
-                return; 
+                return;
             }
 
             try {
@@ -118,9 +119,14 @@ const submitSolicitud = async () => {
     }
 };
 
+
+
 onMounted(() => {
     fetchTiposBecas();
+    initFlowbite();
 });
+
+
 </script>
 
 <template>
@@ -134,7 +140,6 @@ onMounted(() => {
                 Una vez que lo hayas llenado y escaneado, súbelo a continuación.
             </p>
 
-            <!-- Botón para descargar el PDF -->
             <a href="https://www.istla.edu.ec/wp-content/uploads/2024/pdf/Bienestar-Estudiantil/Formulario-para-becas-actual.pdf"
                 download
                 class="mb-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded block text-center transition-all duration-200 ease-in-out transform hover:scale-105">
@@ -159,11 +164,14 @@ onMounted(() => {
 
             <!-- Botón para enviar la solicitud -->
             <button @click="submitSolicitud" type="button"
-                class="w-72 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-green-600">
+                class="w-72 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-green-600 mx-auto">
                 Enviar Solicitud
             </button>
         </form>
     </div>
+
+
+
 </template>
 
 <style scoped></style>
