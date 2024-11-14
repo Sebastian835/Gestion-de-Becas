@@ -61,7 +61,7 @@ const submitSolicitud = async () => {
     if (!validateForm()) return;
 
     const currentUser = await fetchCurrentUser();
-    const fechaHoraActual = new Date().toLocaleString();
+    const fechaActual = new Date();
     if (currentUser) {
         let fileBase64 = '';
 
@@ -86,9 +86,9 @@ const submitSolicitud = async () => {
         }
 
         const jsonData = {
-            fechaHora: fechaHoraActual,
+            fecha: fechaActual,
             becaSeleccionada: selectedBeca.value,
-            cedula: currentUser.DOCUMENTO_USUARIOS,
+            cedula_estudiante: currentUser.DOCUMENTO_USUARIOS,
             documento: fileBase64,
         };
 
