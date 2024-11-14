@@ -2,13 +2,17 @@
 import { ref, onMounted } from 'vue';
 import { getUser } from '../../services/user';
 import { getTiposBecas } from '../../services/tiposBecas';
-import { envioSolicitud } from '../../services/envioSolicitud';
+import { envioSolicitud } from '../../services/solicitudBeca';
+import { buscarSolicitud } from '../../services/solicitudBeca';
+import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
 import { initFlowbite } from 'flowbite'
 
 const tiposBecas = ref([]);
 const selectedBeca = ref('');
 const fileInput = ref(null);
+const solicitud = ref(false);
+const router = useRouter();
 
 const fetchTiposBecas = async () => {
     tiposBecas.value = await getTiposBecas();
@@ -25,7 +29,7 @@ const validateForm = () => {
         return false;
     }
 
-    if (!fileInput.value.files.length) {
+    if (fileInput.value && fileInput.value.files.length === 0) {
         Swal.fire({
             title: 'Advertencia',
             text: 'Por favor sube el formulario escaneado.',
@@ -65,7 +69,7 @@ const submitSolicitud = async () => {
     if (currentUser) {
         let fileBase64 = '';
 
-        if (fileInput.value.files.length > 0) {
+        if (fileInput.value && fileInput.value.files.length > 0) {
             const file = fileInput.value.files[0];
 
             if (file.size > 5 * 1024 * 1024) {
@@ -100,8 +104,7 @@ const submitSolicitud = async () => {
                 icon: 'success',
                 confirmButtonText: 'Aceptar'
             }).then(() => {
-                selectedBeca.value = '';
-                fileInput.value.value = '';
+                router.push('/main/requisitos');
             });
         } catch (error) {
             Swal.fire({
@@ -111,7 +114,7 @@ const submitSolicitud = async () => {
                 confirmButtonText: 'Aceptar'
             }).then(() => {
                 selectedBeca.value = '';
-                fileInput.value.value = '';
+                fileInput.value.value = '';  
             });
         }
     } else {
@@ -120,10 +123,27 @@ const submitSolicitud = async () => {
 };
 
 
+const solicitudPendiente = async () => {
+    const user = await fetchCurrentUser();
+    const existeSolicitud = await buscarSolicitud(user.DOCUMENTO_USUARIOS)
+    solicitud.value = true;
+    if (existeSolicitud.existe) {
+        Swal.fire({
+            title: 'Advertencia',
+            text: 'Usted ya tiene una solicitud enviada. Por favor, espere la respuesta del Coordinador de Becas.',
+            icon: 'warning',
+            confirmButtonText: 'Aceptar'
+        });
+    } else {
+        solicitud.value = false;
+        fetchTiposBecas();
+    }
+};
 
 onMounted(() => {
-    fetchTiposBecas();
     initFlowbite();
+    solicitudPendiente();
+
 });
 
 
@@ -148,7 +168,8 @@ onMounted(() => {
 
             <!-- Select para tipo de beca -->
             <label for="countries" class="block mb-2 text-sm font-medium text-gray-900">Tipo de Beca</label>
-            <select id="countries" v-model="selectedBeca"
+            <select id="countries" v-model="selectedBeca" :disabled="solicitud"
+                :class="solicitud ? 'opacity-50 cursor-not-allowed' : ''"
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 mb-6">
                 <option disabled value="">Selecciona una opción</option>
                 <option v-for="beca in tiposBecas" :key="beca.id" :value="beca.id">{{ beca.tipo_beca }}</option>
@@ -157,16 +178,20 @@ onMounted(() => {
             <!-- Subida de archivos -->
             <label for="file-upload" class="block mb-2 text-sm font-medium text-gray-900">Subir Formulario
                 Escaneado</label>
-            <input id="file-upload" type="file" accept="application/pdf"
-                class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer focus:outline-none mb-3"
-                ref="fileInput" />
+            <!-- Input para subir el archivo -->
+            <input id="file-upload" type="file" accept="application/pdf" :disabled="solicitud"
+                :class="solicitud ? 'opacity-50 cursor-not-allowed' : ''"
+                class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer focus:outline-none mb-3" />
             <p class="text-xs text-gray-500 mb-6">Formato permitido: PDF. Tamaño máximo: 5MB.</p>
 
             <!-- Botón para enviar la solicitud -->
-            <button @click="submitSolicitud" type="button"
+            <button @click="submitSolicitud" type="button" :disabled="solicitud"
+                :class="solicitud ? 'opacity-50 cursor-not-allowed' : ''"
                 class="w-72 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-green-600 mx-auto">
                 Enviar Solicitud
             </button>
+
+
         </form>
     </div>
 

@@ -15,3 +15,21 @@ export const envioSolicitud = async (data) => {
         throw error; 
     }
 };
+
+
+export const buscarSolicitud = async (cedula) => {
+    try {
+      const response = await axios.get(`${API_URL}/buscarSolicitud`, {
+        params: { cedula }, 
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error al buscar la solicitud:', error);
+      throw error;
+    }
+  };
+  
+

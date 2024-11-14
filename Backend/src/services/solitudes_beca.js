@@ -34,4 +34,26 @@ async function postSolicitudBeca(req, res) {
   }
 }
 
-module.exports = { postSolicitudBeca };
+async function getSolicitudId(req, res) {
+  const { cedula } = req.query; 
+
+  try {
+    const solicitud = await prisma.istla_solicitudes_beca.findFirst({
+      where: {
+        cedula_estudiante: cedula,
+        estado: 1
+      }
+    });
+
+    if (solicitud) {
+      return res.json({ existe: true });
+    } else {
+      return res.json({ existe: false });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error: ' + error.message });
+  }
+}
+
+
+module.exports = { postSolicitudBeca, getSolicitudId };
