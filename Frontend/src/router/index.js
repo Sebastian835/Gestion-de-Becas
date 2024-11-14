@@ -25,7 +25,7 @@ const routes = [
       },
       {
         path: "home",  
-        component: () => import("../components/home.vue"),
+        component: () => import("../components/admin/home.vue"),
         meta: { requiresAuth: true, roles: ["admin"] },
       },
       {

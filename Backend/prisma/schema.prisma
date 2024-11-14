@@ -14,21 +14,21 @@ model istla_tipo_beca {
 }
 
 model istla_solicitudes_beca {
-  id                        Int                         @id @default(autoincrement())
-  fecha_hora                DateTime                    @db.DateTime(0)
-  tipo_beca                 Int
-  cedula                    String                      @db.VarChar(20)
-  istla_documento_solicitud istla_documento_solicitud[]
-  istla_tipo_beca           istla_tipo_beca             @relation(fields: [tipo_beca], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "istla_solicitudes_beca_ibfk_1")
+  id                     Int                    @id @default(autoincrement())
+  tipo_beca              Int
+  cedula_estudiante      String?                @db.VarChar(20)
+  fecha                  DateTime               @db.Date
+  estado                 Int
+  documento_solicitud    Bytes
+  istla_tipo_beca        istla_tipo_beca        @relation(fields: [tipo_beca], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "istla_solicitudes_beca_ibfk_1")
+  istla_estado_solicitud istla_estado_solicitud @relation(fields: [estado], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "istla_solicitudes_beca_ibfk_2")
 
   @@index([tipo_beca], map: "tipo_beca")
+  @@index([estado], map: "estado")
 }
 
-model istla_documento_solicitud {
-  id                     Int                    @id @default(autoincrement())
-  id_solicitud_beca      Int
-  documento              Bytes?
-  istla_solicitudes_beca istla_solicitudes_beca @relation(fields: [id_solicitud_beca], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "istla_documento_solicitud_ibfk_1")
-
-  @@index([id_solicitud_beca], map: "id_solicitud_beca")
+model istla_estado_solicitud {
+  id                     Int                      @id @default(autoincrement())
+  estado                 String                   @db.VarChar(15)
+  istla_solicitudes_beca istla_solicitudes_beca[]
 }

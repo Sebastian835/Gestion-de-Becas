@@ -20,7 +20,7 @@ async function postSolicitudBeca(req, res) {
     await prisma.istla_solicitudes_beca.create({
       data: {        
         tipo_beca: data["becaSeleccionada"], 
-        cedula: data["cedula_estudiante"],       
+        cedula_estudiante: data["cedula_estudiante"],       
         fecha: new Date(fechaFormateada),
         estado: 1,
         documento_solicitud: documentoBuffer
