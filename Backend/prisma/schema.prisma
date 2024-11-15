@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["views"]
 }
 
 datasource db {
@@ -27,9 +28,17 @@ model istla_tipo_beca {
   istla_solicitudes_beca istla_solicitudes_beca[]
 }
 
-
 model istla_estado_solicitud {
   id                     Int                      @id @default(autoincrement())
   estado                 String                   @db.VarChar(15)
   istla_solicitudes_beca istla_solicitudes_beca[]
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view vista_solicitudes_beca_detalle {
+  cedula_estudiante   String  @unique @db.VarChar(20)
+  tipo_beca           String   @db.VarChar(255)
+  fecha               DateTime @db.Date
+  estado              String   @db.VarChar(15)
+  documento_solicitud Bytes
 }

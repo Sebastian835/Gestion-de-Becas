@@ -55,5 +55,14 @@ async function getSolicitudId(req, res) {
   }
 }
 
+async function getSolicitudes(res) {
+  try {
+    const solicitudes = await prisma.vista_solicitudes_beca_detalle.findMany();
+    res.data(solicitudes);
+  } catch (error) {
+    res.status(500).json({ error: 'Error: ' + error.message });
+  }
+}
 
-module.exports = { postSolicitudBeca, getSolicitudId };
+
+module.exports = { postSolicitudBeca, getSolicitudId, getSolicitudes };

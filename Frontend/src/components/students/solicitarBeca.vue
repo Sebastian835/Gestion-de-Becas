@@ -38,7 +38,6 @@ const validateForm = () => {
         });
         return false;
     }
-
     return true;
 };
 
@@ -114,14 +113,13 @@ const submitSolicitud = async () => {
                 confirmButtonText: 'Aceptar'
             }).then(() => {
                 selectedBeca.value = '';
-                fileInput.value.value = '';  
+                fileInput.value.value = '';
             });
         }
     } else {
         console.error('No se pudo obtener el usuario.');
     }
 };
-
 
 const solicitudPendiente = async () => {
     const user = await fetchCurrentUser();
@@ -143,7 +141,6 @@ const solicitudPendiente = async () => {
 onMounted(() => {
     initFlowbite();
     solicitudPendiente();
-
 });
 
 
@@ -179,7 +176,7 @@ onMounted(() => {
             <label for="file-upload" class="block mb-2 text-sm font-medium text-gray-900">Subir Formulario
                 Escaneado</label>
             <!-- Input para subir el archivo -->
-            <input id="file-upload" type="file" accept="application/pdf" :disabled="solicitud"
+            <input id="file-upload" type="file" accept="application/pdf" ref="fileInput" :disabled="solicitud"
                 :class="solicitud ? 'opacity-50 cursor-not-allowed' : ''"
                 class="block w-full text-sm text-gray-900 bg-gray-50 border border-gray-300 rounded-lg cursor-pointer focus:outline-none mb-3" />
             <p class="text-xs text-gray-500 mb-6">Formato permitido: PDF. Tamaño máximo: 5MB.</p>
