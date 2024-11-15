@@ -9,7 +9,10 @@ const app = createApp(App);
 
 app.use(PrimeVue, {
     theme: {
-        preset: Lara
+        preset: Lara,
+        options: {
+            darkModeSelector: false,
+        }
     }
 });
 
