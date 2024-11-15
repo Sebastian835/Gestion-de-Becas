@@ -65,16 +65,28 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
           </RouterLink>
         </li>
 
-        <div v-if="isAdmin">
-          <div class="text-center mt-auto mb-4" style="padding-top: 17rem;">
-            <div class="w-32 h-32 mx-auto mb-2 flex items-center justify-center">
-              <img class="w-32 h-32 object-contain" src="../../assets/logo_istla.png" alt="ISTLA Logo">
-            </div>
-            <h1 class="text-lg font-bold text-white mt-2">Instituto Superior Tecnológico</h1>
-            <h1 class="text-lg font-bold text-white mt-1">"Los Andes" ISTLA</h1>
-            <p class="mt-2 text-white text-xs">Gestión de Becas</p>
+        <li v-if="isAdmin">
+          <RouterLink to="/main/solicitudesBeca"
+            activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
+            <button
+              class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg text-white w-full flex items-center gap-4 px-4 capitalize"
+              type="button">
+              <i class="pi pi-file-pdf" style="font-size: 1rem"></i>
+              <p class="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
+                Solicitudes</p>
+            </button>
+          </RouterLink>
+        </li>
+
+        <div v-if="isAdmin" class="mt-auto mb-4 text-center">
+          <div class="w-32 h-32 mx-auto mb-2 flex items-center justify-center">
+            <img class="w-32 h-32 object-contain" src="../../assets/logo_istla.png" alt="ISTLA Logo">
           </div>
+          <h1 class="text-lg font-bold text-white mt-2">Instituto Superior Tecnológico</h1>
+          <h1 class="text-lg font-bold text-white mt-1">"Los Andes" ISTLA</h1>
+          <p class="mt-2 text-white text-xs">Gestión de Becas</p>
         </div>
+
 
 
         <!-- Estudiante -->

@@ -29,6 +29,11 @@ const routes = [
         meta: { requiresAuth: true, roles: ["admin"] },
       },
       {
+        path: "solicitudesBeca",  
+        component: () => import("../components/admin/solicitudes.vue"),
+        meta: { requiresAuth: true, roles: ["admin"] },
+      },
+      {
         path: "requisitos",  
         component: () => import("../components/students/requisitos.vue"),
         meta: { requiresAuth: true, roles: ["estudiante"] },
