@@ -1,11 +1,19 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { initFlowbite } from 'flowbite';
+import { solicitudes } from '../../services/solicitudBeca';
 
 import InputText from 'primevue/inputtext';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 
+const solicitudBeca = ref([]);
+
+
+const fetchSolicitudesBeca = async () => {
+    solicitudBeca.value = await solicitudes();
+    console.log(solicitudBeca.value);
+};
 
 const data = ref([
     { Nombre: 'Juan Pérez', Cedula: '1234567890', Beca: 'Académica', Fecha: '2024-11-01', Estado: 'Pendiente', Solicitud: 'Solicitud 1' },
@@ -27,6 +35,7 @@ watch(globalFilter, (newValue) => {
 });
 
 onMounted(() => {
+    fetchSolicitudesBeca();
     initFlowbite();
 });
 </script>

@@ -3,7 +3,8 @@ SELECT
   `tp`.`tipo_beca` AS `tipo_beca`,
   `sb`.`fecha` AS `fecha`,
   `es`.`estado` AS `estado`,
-  `sb`.`documento_solicitud` AS `documento_solicitud`
+  `sb`.`documento_solicitud` AS `documento_solicitud`,
+  `sb`.`nombre_estudiante` AS `nombre_estudiante`
 FROM
   (
     (

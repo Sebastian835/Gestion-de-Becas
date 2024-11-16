@@ -1,9 +1,9 @@
 <script setup>
 import { ref } from 'vue';
 
-import Sidebar from '../components/layouts/sidebar.vue';
-import Header from '../components/layouts/header.vue';
-import Footer from '../components/layouts/footer.vue';
+import Sidebar from '../components/sidebar.vue';
+import Header from '../components/header.vue';
+import Footer from '../components/footer.vue';
 
 
 </script>

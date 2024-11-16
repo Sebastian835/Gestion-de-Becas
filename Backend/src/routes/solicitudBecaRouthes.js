@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { verifyToken } = require("../middleware/auth");
-const { postSolicitudBeca } = require('../services/solitudes_beca');
-const { getSolicitudId } = require('../services/solitudes_beca');
-const { getSolicitudes } = require('../services/solitudes_beca');
+const { postSolicitudBeca, getSolicitudId, getSolicitudes } = require('../services/solitudes_beca');
 
 router.use(verifyToken);
 

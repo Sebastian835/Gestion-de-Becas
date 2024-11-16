@@ -93,6 +93,7 @@ const submitSolicitud = async () => {
             becaSeleccionada: selectedBeca.value,
             cedula_estudiante: currentUser.DOCUMENTO_USUARIOS,
             documento: fileBase64,
+            nombre_estudiante: currentUser.NOMBRES_USUARIOS + ' ' + currentUser.APELLIDOS_USUARIOS,
         };
 
         try {

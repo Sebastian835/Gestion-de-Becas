@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { getUser } from '../../services/user';
+import { getUser } from '../services/user';
 
 const currentUser = ref(null);
 
@@ -80,7 +80,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
 
         <div v-if="isAdmin" class="mt-auto mb-4 text-center">
           <div class="w-32 h-32 mx-auto mb-2 flex items-center justify-center">
-            <img class="w-32 h-32 object-contain" src="../../assets/logo_istla.png" alt="ISTLA Logo">
+            <img class="w-32 h-32 object-contain" src="../assets/logo_istla.png" alt="ISTLA Logo">
           </div>
           <h1 class="text-lg font-bold text-white mt-2">Instituto Superior Tecnológico</h1>
           <h1 class="text-lg font-bold text-white mt-1">"Los Andes" ISTLA</h1>
@@ -130,7 +130,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
         <div v-if="isEstudiante">
           <div class="text-center mt-auto mb-4" style="padding-top: 11rem;">
             <div class="w-32 h-32 mx-auto mb-2 flex items-center justify-center">
-              <img class="w-32 h-32 object-contain" src="../../assets/logo_istla.png" alt="ISTLA Logo">
+              <img class="w-32 h-32 object-contain" src="../assets/logo_istla.png" alt="ISTLA Logo">
             </div>
             <h1 class="text-lg font-bold text-white mt-2">Instituto Superior Tecnológico</h1>
             <h1 class="text-lg font-bold text-white mt-1">"Los Andes" ISTLA</h1>

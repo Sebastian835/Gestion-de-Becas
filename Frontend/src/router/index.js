@@ -25,27 +25,27 @@ const routes = [
       },
       {
         path: "home",  
-        component: () => import("../components/admin/home.vue"),
+        component: () => import("../views/admin/home.vue"),
         meta: { requiresAuth: true, roles: ["admin"] },
       },
       {
         path: "solicitudesBeca",  
-        component: () => import("../components/admin/solicitudes.vue"),
+        component: () => import("../views/admin/solicitudes.vue"),
         meta: { requiresAuth: true, roles: ["admin"] },
       },
       {
         path: "requisitos",  
-        component: () => import("../components/students/requisitos.vue"),
+        component: () => import("../views/students/requisitos.vue"),
         meta: { requiresAuth: true, roles: ["estudiante"] },
       },
       {
         path: "solicitud",  
-        component: () => import("../components/students/solicitarBeca.vue"),
+        component: () => import("../views/students/solicitarBeca.vue"),
         meta: { requiresAuth: true, roles: ["estudiante"] },
       },
       {
         path: "documentos",  
-        component: () => import("../components/students/documentosBeca.vue"),
+        component: () => import("../views/students/documentosBeca.vue"),
         meta: { requiresAuth: true, roles: ["estudiante"] },
       },
     ],

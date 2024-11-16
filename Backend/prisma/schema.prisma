@@ -11,10 +11,11 @@ datasource db {
 model istla_solicitudes_beca {
   id                     Int                    @id @default(autoincrement())
   tipo_beca              Int
-  cedula_estudiante      String?                @db.VarChar(20)
+  cedula_estudiante      String                 @db.VarChar(20)
   fecha                  DateTime               @db.Date
   estado                 Int
   documento_solicitud    Bytes
+  nombre_estudiante      String                 @db.VarChar(255)
   istla_tipo_beca        istla_tipo_beca        @relation(fields: [tipo_beca], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "istla_solicitudes_beca_ibfk_1")
   istla_estado_solicitud istla_estado_solicitud @relation(fields: [estado], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "istla_solicitudes_beca_ibfk_2")
 
@@ -36,9 +37,10 @@ model istla_estado_solicitud {
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 view vista_solicitudes_beca_detalle {
-  cedula_estudiante   String  @unique @db.VarChar(20)
+  cedula_estudiante   String   @unique @db.VarChar(20)
   tipo_beca           String   @db.VarChar(255)
   fecha               DateTime @db.Date
   estado              String   @db.VarChar(15)
   documento_solicitud Bytes
+  nombre_estudiante   String   @db.VarChar(255)
 }

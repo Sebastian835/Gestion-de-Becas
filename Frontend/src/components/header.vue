@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { logout } from '../../services/authService';
+import { logout } from '../services/authService';
 import { useRouter } from 'vue-router';
 import 'primeicons/primeicons.css';
 
