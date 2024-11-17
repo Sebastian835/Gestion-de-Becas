@@ -24,7 +24,6 @@ async function postSolicitudBeca(req, res) {
         fecha: new Date(fechaFormateada),
         estado: 1,
         documento_solicitud: documentoBuffer,
-        nombre_estudiante: data["nombre_estudiante"],
       },
     });
 
@@ -41,8 +40,8 @@ async function getSolicitudId(req, res) {
   try {
     const solicitud = await prisma.istla_solicitudes_beca.findFirst({
       where: {
-        cedula_estudiante: cedula,
-        estado: 1
+        CEDULA_ESTUDIANTE: cedula,
+        ESTADO: 1
       }
     });
 
@@ -58,7 +57,8 @@ async function getSolicitudId(req, res) {
 
 async function getSolicitudes(req, res) {
   try {
-    const solicitudes = await prisma.vista_solicitudes_beca_detalle.findMany();
+    const solicitudes = await prisma.vista_solicitud_beca_detalle.findMany();
+    console.log(solicitudes);
     res.json(solicitudes);
   } catch (error) {
     res.status(500).json({ error: 'Error: ' + error.message });
