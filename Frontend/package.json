@@ -12,6 +12,7 @@
     "@primevue/themes": "^4.2.2",
     "axios": "^1.7.5",
     "crypto-js": "^4.2.0",
+    "dayjs": "^1.11.13",
     "file-saver": "^2.0.5",
     "flowbite": "^2.5.1",
     "jquery": "^3.7.1",
