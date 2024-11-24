@@ -7,8 +7,8 @@ const baseURL = "https://www.istla-sigala.edu.ec/public";
 async function getToken() {
   try {
     const form = new FormData();
-    form.append("username", process.env.USERNAME_ITSLA);
-    form.append("password", process.env.PASSWORD_ITSLA);
+    form.append("username", process.env.USERNAME_ISTLA);
+    form.append("password", process.env.PASSWORD_ISTLA);
 
     const response = await axios.post(`${baseURL}/login-api`, form, {
       headers: form.getHeaders(),
@@ -33,7 +33,21 @@ async function getUsuarios() {
   }
 }
 
+async function getPeriodos(req, res) {
+  try {
+    const token = await getToken();
+    const response = await axios.get(`${baseURL}/ver-periodos`, {
+      headers: { Authorization: token },
+    });
+    res.status(200).json(response.data); 
+  } catch (error) {
+    console.error("Error obteniendo periodos:", error.message);
+    res.status(500).json({ error: "Error obteniendo los períodos." });
+  }
+}
+
+
 module.exports = {
-  getToken,
   getUsuarios,
+  getPeriodos,
 };

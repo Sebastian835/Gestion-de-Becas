@@ -5,16 +5,6 @@ const router = express.Router();
 
 router.use(verifyToken);
 
-router.get("/", async (req, res) => {
-  if (req.user.role !== "estudiante" && req.user.role !== "admin") {
-    return res.status(403).json({ message: "Access denied" });
-  }
-  try {
-    const tiposBecas = await getTiposBecas();
-    res.json({ tiposBecas });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.get('/becas', getTiposBecas);
 
 module.exports = router;

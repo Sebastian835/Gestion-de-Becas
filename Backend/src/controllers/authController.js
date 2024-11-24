@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const jwtConfig = require("../config/jwtConfig");
 const bcrypt = require("bcrypt");
-const { getUsuarios } = require("../services/usuarios_itstla");
+const { getUsuarios } = require("../services/api_istla");
 
 const users = {
   admin: { password: bcrypt.hashSync("admin", 10), role: "admin" },

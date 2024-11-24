@@ -154,10 +154,10 @@ function closeModal() {
                     class="transform transition duration-300 ease-in-out hover:scale-105 flex flex-col md:flex-row items-center bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
                     <img class="w-20 h-20 md:w-20 md:h-20 rounded-t-lg md:rounded-none"
                         src="../../assets/img/user_requisitos/clubDeportivo.svg"
-                        alt="Beca por pertenecer a club deportivodel ITSLA">
+                        alt="Beca por pertenecer a club deportivodel ISTLA">
                     <div class="p-4">
                         <h5 class="text-xl font-bold text-gray-900 dark:text-white">Beca por pertenecer a club
-                            deportivo del ITSLA</h5>
+                            deportivo del ISTLA</h5>
                     </div>
                 </button>
 
@@ -165,10 +165,10 @@ function closeModal() {
                     class="transform transition duration-300 ease-in-out hover:scale-105 flex flex-col md:flex-row items-center bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
                     <img class="w-20 h-20 md:w-20 md:h-20 rounded-t-lg md:rounded-none"
                         src="../../assets/img/user_requisitos/music.svg" alt="Beca por pertenecer a club cultural,
-                            artistico o academico del ITSLA">
+                            artistico o academico del ISTLA">
                     <div class="p-4">
                         <h5 class="text-xl font-bold text-gray-900 dark:text-white">Beca por pertenecer a club cultural,
-                            artistico o academico del ITSLA</h5>
+                            artistico o academico del ISTLA</h5>
                     </div>
                 </button>
             </div>
@@ -217,7 +217,7 @@ function closeModal() {
                             semestre.</h3>
                         <ul class="list-disc pl-5 mt-2">
                             <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
-                                del ITSLA.</li>
+                                del ISTLA.</li>
                         </ul>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-md mt-4">
@@ -259,7 +259,7 @@ function closeModal() {
                             semestre.</h3>
                         <ul class="list-disc pl-5 mt-2">
                             <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
-                                del ITSLA.</li>
+                                del ISTLA.</li>
                         </ul>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-md mt-4">
@@ -320,7 +320,7 @@ function closeModal() {
                             semestre.</h3>
                         <ul class="list-disc pl-5 mt-2">
                             <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
-                                del ITSLA.</li>
+                                del ISTLA.</li>
                         </ul>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-md mt-4">
@@ -378,7 +378,7 @@ function closeModal() {
                             semestre.</h3>
                         <ul class="list-disc pl-5 mt-2">
                             <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
-                                del ITSLA.</li>
+                                del ISTLA.</li>
                         </ul>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-md mt-4">
@@ -411,7 +411,7 @@ function closeModal() {
                 <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-white text-center">
                         Beca por pertenecer a club
-                        deportivo del ITSLA</h3>
+                        deportivo del ISTLA</h3>
                     <button type="button"
                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
                         data-modal-hide="clubDeportivo">
@@ -429,7 +429,7 @@ function closeModal() {
                             semestre.</h3>
                         <ul class="list-disc pl-5 mt-2">
                             <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
-                                del ITSLA.</li>
+                                del ISTLA.</li>
                         </ul>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-md mt-4">
@@ -442,7 +442,7 @@ function closeModal() {
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-md mt-4">
                         <h3 class="text-lg font-semibold">3. Pertenecer por lo menos un periodo
-                            a un club deportivo del ITSLA, debe
+                            a un club deportivo del ISTLA, debe
                             estar activo y legalizado, participar
                             activamente en las competiciones o
                             eventos que desarrolle el club con
@@ -470,7 +470,7 @@ function closeModal() {
                 <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                         Beca por pertenecer a club cultural,
-                        artistico o academico del ITSLA</h3>
+                        artistico o academico del ISTLA</h3>
                     <button type="button"
                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
                         data-modal-hide="clubCAA">
@@ -488,7 +488,7 @@ function closeModal() {
                             semestre.</h3>
                         <ul class="list-disc pl-5 mt-2">
                             <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
-                                del ITSLA.</li>
+                                del ISTLA.</li>
                         </ul>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-md mt-4">
@@ -501,7 +501,7 @@ function closeModal() {
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-md mt-4">
                         <h3 class="text-lg font-semibold">3. Pertenecer por lo menos un periodo
-                            a un club deportivo del ITSLA, debe
+                            a un club deportivo del ISTLA, debe
                             estar activo y legalizado, participar
                             activamente en las competiciones o
                             eventos que desarrolle el club con
@@ -548,7 +548,7 @@ function closeModal() {
                             semestre.</h3>
                         <ul class="list-disc pl-5 mt-2">
                             <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
-                                del ITSLA.</li>
+                                del ISTLA.</li>
                         </ul>
                     </div>
                     <div class="bg-white p-4 rounded-lg shadow-md mt-4">

@@ -2,8 +2,8 @@
 import { ref, onMounted } from 'vue';
 import { getUser } from '../../services/user';
 import { getTiposBecas } from '../../services/tiposBecas';
-import { envioSolicitud } from '../../services/solicitudBeca';
-import { buscarSolicitud } from '../../services/solicitudBeca';
+import { envioSolicitud, buscarSolicitud } from '../../services/solicitudBeca';
+import { getperiodosIstla } from '../../services/periodosIstla';
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
 import { initFlowbite } from 'flowbite'
@@ -13,9 +13,15 @@ const selectedBeca = ref('');
 const fileInput = ref(null);
 const solicitud = ref(false);
 const router = useRouter();
+const periodo = ref();
 
 const fetchTiposBecas = async () => {
     tiposBecas.value = await getTiposBecas();
+};
+
+const fetchPeriodosIstla= async () => {
+    const periodosArray = await getperiodosIstla();
+    periodo.value = periodosArray.sort((a, b) => b.ID_PERIODO - a.ID_PERIODO)[0];
 };
 
 const validateForm = () => {
@@ -92,8 +98,8 @@ const submitSolicitud = async () => {
             fecha: fechaActual,
             becaSeleccionada: selectedBeca.value,
             cedula_estudiante: currentUser.DOCUMENTO_USUARIOS,
+            periodo: periodo.value.ID_PERIODO,
             documento: fileBase64,
-            nombre_estudiante: currentUser.NOMBRES_USUARIOS + ' ' + currentUser.APELLIDOS_USUARIOS,
         };
 
         try {
@@ -136,12 +142,14 @@ const solicitudPendiente = async () => {
     } else {
         solicitud.value = false;
         fetchTiposBecas();
+        fetchPeriodosIstla();
     }
 };
 
 onMounted(() => {
     initFlowbite();
     solicitudPendiente();
+   
 });
 
 
@@ -170,7 +178,7 @@ onMounted(() => {
                 :class="solicitud ? 'opacity-50 cursor-not-allowed' : ''"
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 mb-6">
                 <option disabled value="">Selecciona una opción</option>
-                <option v-for="beca in tiposBecas" :key="beca.id" :value="beca.id">{{ beca.tipo_beca }}</option>
+                <option v-for="beca in tiposBecas" :key="beca.id" :value="beca.ID_TIPO_BECA">{{ beca.TIPO_BECA }}</option>
             </select>
 
             <!-- Subida de archivos -->
@@ -189,12 +197,11 @@ onMounted(() => {
                 Enviar Solicitud
             </button>
 
-
         </form>
     </div>
 
-
-
 </template>
 
-<style scoped></style>
+<style scoped>
+
+</style>
