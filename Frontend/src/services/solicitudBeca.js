@@ -35,7 +35,7 @@ export const buscarSolicitud = async (cedula) => {
 
 export const solicitudes = async () => {
   try {
-    const response = await axios.get(`${API_URL}/solicitudes`,{
+    const response = await axios.get(`${API_URL}/solicitudes`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -48,4 +48,36 @@ export const solicitudes = async () => {
   }
 };
 
+export const aprobarSolicitud = async (id) => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/aprobarSolicitud`,
+      { id },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al aprobar la solicitud:", error);
+    throw error;
+  }
+};
 
+export const rechazarSolicitud = async (id) => {
+  try {
+    const response = await axios.delete(`${API_URL}/rechazarSolicitud/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error al rechazar la solicitud:", error);
+    throw error;
+  }
+};

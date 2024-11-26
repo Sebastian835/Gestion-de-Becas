@@ -24,7 +24,7 @@ async function postSolicitudBeca(req, res) {
       data: {
         ID_TIPO_BECA: data["becaSeleccionada"],
         CEDULA_ESTUDIANTE: data["cedula_estudiante"],
-        ID_PERIODO : data["periodo"],
+        ID_PERIODO: data["periodo"],
         FECHA: new Date(fechaFormateada),
         ESTADO: 1,
         DOCUMENTO_SOLICITUD: documentoBuffer,
@@ -88,4 +88,43 @@ async function getSolicitudes(req, res) {
   }
 }
 
-module.exports = { postSolicitudBeca, getSolicitudId, getSolicitudes };
+async function aprobarSolicitud(req, res) {
+  const { id } = req.query;
+
+  try {
+    await prisma.istla_solicitudes_beca.update({
+      where: {
+        ID_SOLICITUD: id,
+      },
+      data: {
+        ESTADO: 2,
+      },
+    });
+    res.status(200).json();
+  } catch (error) {
+    res.status(500).json({ error: "Error: " + error.message });
+  }
+}
+
+async function rechazarSolicitud(req, res) {
+  const { id } = req.params;
+  const idFormat = parseInt(id, 10);
+  try {
+    await prisma.istla_solicitudes_beca.delete({
+      where: {
+        ID_SOLICITUD: idFormat,
+      },
+    });
+    res.status(200).json();
+  } catch (error) {
+    res.status(500).json({ error: "Error: " + error.message });
+  }
+}
+
+module.exports = {
+  postSolicitudBeca,
+  getSolicitudId,
+  getSolicitudes,
+  aprobarSolicitud,
+  rechazarSolicitud,
+};
