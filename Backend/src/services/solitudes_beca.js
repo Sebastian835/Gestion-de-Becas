@@ -1,7 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const dayjs = require("dayjs");
 const getUsuarios = require("./api_istla");
+const dayjs = require("dayjs");
 var customParseFormat = require("dayjs/plugin/customParseFormat");
 
 dayjs.extend(customParseFormat);
@@ -33,29 +33,7 @@ async function postSolicitudBeca(req, res) {
 
     res.status(200).json();
   } catch (error) {
-    console.error("Error en la solicitud:", error);
     res.status(500).json({ error: "Error en el servidor" });
-  }
-}
-
-async function getSolicitudId(req, res) {
-  const { cedula } = req.query;
-
-  try {
-    const solicitud = await prisma.istla_solicitudes_beca.findFirst({
-      where: {
-        CEDULA_ESTUDIANTE: cedula,
-        ESTADO: 1,
-      },
-    });
-
-    if (solicitud) {
-      return res.json({ existe: true });
-    } else {
-      return res.json({ existe: false });
-    }
-  } catch (error) {
-    res.status(500).json({ error: "Error: " + error.message });
   }
 }
 
@@ -83,26 +61,67 @@ async function getSolicitudes(req, res) {
 
     res.json(solicitudesDetalles);
   } catch (error) {
-    console.error("Error al obtener solicitudes:", error);
+    res.status(500).json({ error: "Error: " + error.message });
+  }
+}
+
+async function getSolicitudId(req, res) {
+  const { cedula } = req.query;
+
+  try {
+    const solicitud = await prisma.istla_solicitudes_beca.findFirst({
+      where: {
+        CEDULA_ESTUDIANTE: cedula,
+        ESTADO: {
+          in: [1, 2],
+        },
+      },
+    });
+
+    if (solicitud) {
+      return res.json({ existe: true });
+    } else {
+      return res.json({ existe: false });
+    }
+  } catch (error) {
     res.status(500).json({ error: "Error: " + error.message });
   }
 }
 
 async function aprobarSolicitud(req, res) {
-  const { id } = req.query;
+  const { id } = req.params;
+  const idFormat = parseInt(id, 10);
 
   try {
-    await prisma.istla_solicitudes_beca.update({
-      where: {
-        ID_SOLICITUD: id,
-      },
+    const transaction = await prisma.$transaction([
+      prisma.istla_solicitudes_beca.update({
+        where: { ID_SOLICITUD: idFormat },
+        data: { ESTADO: 2 },
+      }),
+
+      prisma.istla_documentos_obligatorios.create({
+        data: {
+          ID_SOLICITUD: idFormat,
+          ESTADO: 1,
+        },
+      }),
+    ]);
+
+    const registroDocumento = transaction[1];
+
+    await prisma.istla_documentos_detalle.create({
       data: {
-        ESTADO: 2,
+        ID_DOCUMENTOS_OBLIGATORIOS: registroDocumento.ID_DOCUMENTOS,
       },
     });
-    res.status(200).json();
+
+    res.status(200).json({
+      message: "Solicitud aprobada",
+    });
   } catch (error) {
-    res.status(500).json({ error: "Error: " + error.message });
+    res
+      .status(500)
+      .json({ error: "Error al aprobar la solicitud: " + error.message });
   }
 }
 

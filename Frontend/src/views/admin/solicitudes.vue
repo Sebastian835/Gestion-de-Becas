@@ -2,7 +2,12 @@
 import { ref, onMounted, watch } from 'vue';
 import { initFlowbite } from 'flowbite';
 import { getperiodosIstla } from '../../services/api_Istla';
-import { solicitudes, envioSolicitud, aprobarSolicitud, rechazarSolicitud } from '../../services/solicitudBeca';
+import {
+  solicitudes,
+  envioSolicitud,
+  aprobarSolicitud,
+  rechazarSolicitud
+} from '../../services/solicitudBeca';
 import { getUsuariosIstla } from '../../services/api_Istla';
 import { getTiposBecas } from '../../services/tiposBecas';
 
@@ -186,8 +191,31 @@ const crearSolicitud = async () => {
 
 };
 
-const aceptarSolicitud = async () => {
-  const response = await aceptarSolicitud();
+const aceptarSolicitud = async (id) => {
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: 'Se aprobará la solicitud del estudiante.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Aceptar',
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await aprobarSolicitud(id);
+        Swal.fire({
+          title: 'Solicitud aprobada',
+          text: 'Se emitirá el correo al estudiante.',
+          icon: 'success',
+        }).then(() => {
+          refreshData();
+        });
+      } catch (error) {
+        console.error('Error aprobando la solicitud:', error);
+      }
+    }
+  });
 
 };
 
@@ -214,7 +242,6 @@ const rechazoSolicitud = async (id) => {
       } catch (error) {
         console.error('Error rechazando la solicitud:', error);
       }
-
     }
   });
 };
@@ -259,8 +286,12 @@ onMounted(() => {
       <Column field="FECHA" header="Fecha de Solicitud" sortable />
       <Column header="ESTADO">
         <template #body="slotProps">
-          <Tag icon="pi pi-spin pi-spinner" :value="slotProps.data.ESTADO" severity="warn" />
+          <Tag v-if="slotProps.data.ESTADO === 'Pendiente'" icon="pi pi-spin pi-spinner" :value="slotProps.data.ESTADO"
+            severity="warn" />
+          <Tag v-if="slotProps.data.ESTADO === 'Aprobada'" icon="pi pi-verified" :value="slotProps.data.ESTADO"
+            severity="info" />
         </template>
+
       </Column>
       <Column header="Solicitud">
         <template #body="slotProps">
@@ -270,7 +301,9 @@ onMounted(() => {
       </Column>
       <Column header="Acciones">
         <template #body="slotProps">
-          <Button @click="aceptarSolicitud()" unstyled class="zoom-button" style="margin-bottom: 0.5rem;">
+          <Button @click="aceptarSolicitud(slotProps.data.ID_SOLICITUD)" unstyled class="zoom-button"
+            :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.ESTADO === 'Aprobada' }"
+            :disabled="slotProps.data.ESTADO === 'Aprobada'" style="margin-bottom: 0.5rem;">
             <Tag icon="pi pi-check" severity="success" value="Aprobar"></Tag>
           </Button>
           <Button @click="rechazoSolicitud(slotProps.data.ID_SOLICITUD)" unstyled class="zoom-button">

@@ -50,16 +50,12 @@ export const solicitudes = async () => {
 
 export const aprobarSolicitud = async (id) => {
   try {
-    const response = await axios.put(
-      `${API_URL}/aprobarSolicitud`,
-      { id },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      }
-    );
+    const response = await axios.put(`${API_URL}/aprobarSolicitud/${id}`, {}, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true, 
+    });
     return response.data;
   } catch (error) {
     console.error("Error al aprobar la solicitud:", error);

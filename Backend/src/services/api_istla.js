@@ -33,13 +33,13 @@ async function getUsuarios() {
   }
 }
 
-async function getPeriodos(req, res) {
+async function getPeriodos() {
   try {
     const token = await getToken();
     const response = await axios.get(`${baseURL}/ver-periodos`, {
       headers: { Authorization: token },
     });
-    res.status(200).json(response.data); 
+   return response.data;
   } catch (error) {
     console.error("Error obteniendo periodos:", error.message);
     res.status(500).json({ error: "Error obteniendo los períodos." });

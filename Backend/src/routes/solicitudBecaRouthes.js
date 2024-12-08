@@ -12,9 +12,12 @@ const {
 router.use(verifyToken);
 
 router.post("/envioSolicitud", postSolicitudBeca);
+
 router.get("/buscarSolicitud", getSolicitudId);
 router.get("/solicitudes", getSolicitudes);
-router.put("/aprobarSolicitud", aprobarSolicitud);
+
+router.put("/aprobarSolicitud/:id", aprobarSolicitud);
+
 router.delete("/rechazarSolicitud/:id", rechazarSolicitud);
 
 module.exports = router;

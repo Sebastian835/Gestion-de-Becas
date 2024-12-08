@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { getUser } from '../../services/user';
 import { getTiposBecas } from '../../services/tiposBecas';
 import { envioSolicitud, buscarSolicitud } from '../../services/solicitudBeca';
-import { getperiodosIstla } from '../../services/periodosIstla';
+import { getperiodosIstla } from '../../services/api_Istla';
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
 import { initFlowbite } from 'flowbite'
@@ -149,7 +149,6 @@ const solicitudPendiente = async () => {
 onMounted(() => {
     initFlowbite();
     solicitudPendiente();
-   
 });
 
 
