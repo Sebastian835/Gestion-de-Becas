@@ -6,7 +6,7 @@ async function getTiposBecas() {
     const tiposBecas = await prisma.istla_tipo_beca.findMany();
     return tiposBecas;
   } catch (error) {
-    res.status(500).json({ error: "Error: " + error.message });
+    throw new Error("Error al obtener documentos: " + error.message); 
   }
 }
 

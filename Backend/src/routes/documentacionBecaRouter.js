@@ -5,14 +5,19 @@ const {
   getEstadoDocumentos,
   postDocumentos,
 } = require("../services/documentacionBeca");
+const {
+  getDocumentosController,
+} = require("../controllers/documentos_becasController");
+const path = require("path");
 const { upload } = require("../config/multerConfig");
 
 router.use(verifyToken);
 
 router.get("/obtenerEstadoDocumentos", getEstadoDocumentos);
 
-router.post('/guardarDocumentos',
-  upload.fields([ 
+router.post(
+  "/guardarDocumentos",
+  upload.fields([
     { name: "CERTIFICADO_MATRICULA" },
     { name: "COPIA_CEDULA" },
     { name: "CERTIFICADO_ASISTENCIA" },
@@ -38,6 +43,30 @@ router.post('/guardarDocumentos',
     { name: "CARNE_MSP" },
   ]),
   postDocumentos
+);
+
+router.get("/documentosBeca", getDocumentosController);
+
+router.use(
+  "/accesoDocumentosBecas", 
+  (req, res, next) => {    
+    const decodedUrl = decodeURIComponent(req.url);
+    
+    if (decodedUrl.toLowerCase().endsWith('.pdf')) {
+      res.set('Content-Type', 'application/pdf');
+      res.set('Content-Disposition', 'inline; filename="documento.pdf"');
+    }
+    
+    next();
+  },
+  express.static(path.join(process.cwd(), "Documentos_Becas"), {
+    setHeaders: (res, filePath) => {
+      if (path.extname(filePath).toLowerCase() === '.pdf') {
+        res.set('Content-Type', 'application/pdf');
+        res.set('Content-Disposition', 'inline; filename="documento.pdf"');
+      }
+    }
+  })
 );
 
 module.exports = router;

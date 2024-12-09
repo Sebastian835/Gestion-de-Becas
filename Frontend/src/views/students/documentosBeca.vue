@@ -4,7 +4,7 @@ import { initFlowbite } from 'flowbite'
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
 import { getUser } from '../../services/user';
-import { buscarDocumentos, guardarDocumentos } from '../../services/documentacionBeca';
+import { getDocumentosExistentes, postDocumentos } from '../../services/documentacionBeca';
 
 const router = useRouter();
 
@@ -27,7 +27,7 @@ const fetchCurrentUser = async () => {
 
 const documentosPendientes = async () => {
     const user = await fetchCurrentUser();
-    const existeSolicitud = await buscarDocumentos(user.DOCUMENTO_USUARIOS)
+    const existeSolicitud = await getDocumentosExistentes(user.DOCUMENTO_USUARIOS)
     if (existeSolicitud.existeSolicitud === false) {
         Swal.fire({
             title: 'Advertencia',
@@ -221,21 +221,31 @@ const validarDocumentos = async () => {
             });
         }
         const user = await fetchCurrentUser();
-        formData.append('usuario', user.APELLIDOS_USUARIOS + '_' + user.NOMBRES_USUARIOS + '_' + user.DOCUMENTO_USUARIOS);  
+        formData.append('usuario', user.APELLIDOS_USUARIOS + '_' + user.NOMBRES_USUARIOS + '_' + user.DOCUMENTO_USUARIOS);
         formData.append('id_documento_pendiente', datosSolicitud.value.id_documento_pendiente);
-    
+
         try {
-            await guardarDocumentos(formData);
+            Swal.fire({
+                title: "Enviando Documentos",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            await postDocumentos(formData);
+            Swal.close();
             Swal.fire({
                 title: '¡Éxito!',
-                text: 'Tu solicitud ha sido enviada correctamente. Sera notificado por correo electrónico cuando se haya procesado su solicitud.',
+                text: 'La documentación ha sido enviada correctamente.',
                 icon: 'success',
                 confirmButtonText: 'Aceptar'
+            }).then(() => {
+                router.push('/main/requisitos');
             });
         } catch (error) {
             Swal.fire({
                 title: 'Error',
-                text: 'Hubo un problema al enviar la solicitud.',
+                text: 'Hubo un problema al enviar los documentos.',
                 icon: 'error',
                 confirmButtonText: 'Aceptar'
             });

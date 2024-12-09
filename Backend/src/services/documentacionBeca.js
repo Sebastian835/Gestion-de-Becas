@@ -116,6 +116,8 @@ async function postDocumentos(req, res) {
           },
           data: {
             [fieldname]: file.path,
+            ESTADO: 4,
+            FECHA: new Date(),
           },
         });
       }
@@ -167,6 +169,32 @@ async function postDocumentos(req, res) {
   }
 }
 
-module.exports = postDocumentos;
+async function getDocumentos() {
+  try {
+    const documentos = await prisma.istla_documentos_obligatorios.findMany({
+      include: {
+        istla_documentos_detalle: true,
+        istla_estado_solicitud: {
+          select: {
+            ESTADO: true,
+          },
+        },
+        istla_solicitudes_beca: {
+          select: {
+            CEDULA_ESTUDIANTE: true,
+            istla_tipo_beca: {
+              select: {
+                TIPO_BECA: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return documentos;
+  } catch (error) {
+    throw new Error("Error al obtener documentos: " + error.message);
+  }
+}
 
-module.exports = { getEstadoDocumentos, postDocumentos };
+module.exports = { getEstadoDocumentos, postDocumentos, getDocumentos };

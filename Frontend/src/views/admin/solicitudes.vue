@@ -3,10 +3,10 @@ import { ref, onMounted, watch } from 'vue';
 import { initFlowbite } from 'flowbite';
 import { getperiodosIstla } from '../../services/api_Istla';
 import {
-  solicitudes,
-  envioSolicitud,
-  aprobarSolicitud,
-  rechazarSolicitud
+  getSolicitudes,
+  postSolicitud,
+  postAprobarSolicitud,
+  postRechazarSolicitud
 } from '../../services/solicitudBeca';
 import { getUsuariosIstla } from '../../services/api_Istla';
 import { getTiposBecas } from '../../services/tiposBecas';
@@ -22,7 +22,9 @@ import Dialog from 'primevue/dialog';
 import Button from 'primevue/button';
 import Select from 'primevue/select';
 import AutoComplete from 'primevue/autocomplete';
+import Skeleton from 'primevue/skeleton';
 
+const loading = ref(true)
 const globalFilter = ref('');
 const pdfDialogVisible = ref(false);
 const pdfUrl = ref('');
@@ -51,7 +53,8 @@ const filters = ref({
 });
 
 const fetchSolicitudesBeca = async () => {
-  const solicitudesBecas = await solicitudes();
+  const solicitudesBecas = await getSolicitudes();
+  loading.value = false;
   solicitudesBecaFormatead.value = solicitudesBecas.map((solicitud) => ({
     ...solicitud,
     FECHA: dayjs(solicitud.FECHA).format('YYYY-MM-DD'),
@@ -166,7 +169,7 @@ const crearSolicitud = async () => {
   };
 
   try {
-    await envioSolicitud(jsonData);
+    await postSolicitud(jsonData);
     visibleCrear.value = false;
     Swal.fire({
       title: '¡Éxito!',
@@ -203,7 +206,7 @@ const aceptarSolicitud = async (id) => {
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
-        await aprobarSolicitud(id);
+        await postAprobarSolicitud(id);
         Swal.fire({
           title: 'Solicitud aprobada',
           text: 'Se emitirá el correo al estudiante.',
@@ -231,7 +234,7 @@ const rechazoSolicitud = async (id) => {
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
-        await rechazarSolicitud(id);
+        await postRechazarSolicitud(id);
         Swal.fire({
           title: 'Solicitud rechazada',
           text: 'Se emitirá el correo al estudiante.',
@@ -277,41 +280,89 @@ onMounted(() => {
 
     </div>
 
-    <DataTable :value="solicitudesBecaFormatead" :filters="filters" :paginator="true" :rows="5"
+    <DataTable :value="solicitudesBecaFormatead" :loading="loading" :filters="filters" :paginator="true" :rows="5"
       :globalFilterFields="['NOMBRES_USUARIOS', 'CEDULA_ESTUDIANTE', 'TIPO_BECA', 'FECHA', 'ESTADO']"
       :rowsPerPageOptions="[5, 10, 20]" :emptyMessage="'No hay datos disponibles'">
-      <Column field="NOMBRES_USUARIOS" header="Nombre" sortable />
-      <Column field="CEDULA_ESTUDIANTE" header="Cédula" sortable />
-      <Column field="TIPO_BECA" header="Tipo de Beca" sortable />
-      <Column field="FECHA" header="Fecha de Solicitud" sortable />
+ 
+      <Column field="NOMBRES_USUARIOS" header="Nombre" sortable>
+        <template #body="slotProps">
+          <Skeleton v-if="loading">
+            <div class="h-8 w-full"></div>
+          </Skeleton>
+          <span v-else>{{ slotProps.data.NOMBRES_USUARIOS }}</span>
+        </template>
+      </Column>
+
+      <Column field="CEDULA_ESTUDIANTE" header="Cédula" sortable>
+        <template #body="slotProps">
+          <Skeleton v-if="loading">
+            <div class="h-8 w-full"></div>
+          </Skeleton>
+          <span v-else>{{ slotProps.data.CEDULA_ESTUDIANTE }}</span>
+        </template>
+      </Column>
+
+      <Column field="TIPO_BECA" header="Tipo de Beca" sortable>
+        <template #body="slotProps">
+          <Skeleton v-if="loading">
+            <div class="h-8 w-full"></div>
+          </Skeleton>
+          <span v-else>{{ slotProps.data.TIPO_BECA }}</span>
+        </template>
+      </Column>
+
+      <Column field="FECHA" header="Fecha de Solicitud" sortable>
+        <template #body="slotProps">
+          <Skeleton v-if="loading">
+            <div class="h-8 w-full"></div>
+          </Skeleton>
+          <span v-else>{{ slotProps.data.FECHA }}</span>
+        </template>
+      </Column>
+
       <Column header="ESTADO">
         <template #body="slotProps">
-          <Tag v-if="slotProps.data.ESTADO === 'Pendiente'" icon="pi pi-spin pi-spinner" :value="slotProps.data.ESTADO"
-            severity="warn" />
-          <Tag v-if="slotProps.data.ESTADO === 'Aprobada'" icon="pi pi-verified" :value="slotProps.data.ESTADO"
-            severity="info" />
+          <Skeleton v-if="loading">
+            <div class="h-8 w-full"></div>
+          </Skeleton>
+          <Tag v-else-if="slotProps.data.ESTADO === 'Pendiente'" icon="pi pi-spin pi-spinner"
+            :value="slotProps.data.ESTADO" severity="warn" />
+          <Tag v-else-if="slotProps.data.ESTADO === 'Aprobada'" icon="pi pi-verified" :value="slotProps.data.ESTADO"
+            severity="success" />
         </template>
+      </Column>
 
-      </Column>
-      <Column header="Solicitud">
+      <Column header="Solicitud" sortable>
         <template #body="slotProps">
-          <Button severity="contrast" rounded icon="pi pi-file-pdf"
-            @click="openPdfDialog(slotProps.data.DOCUMENTO_SOLICITUD)" />
+          <Skeleton v-if="loading">
+            <div class="h-8 w-full"></div>
+          </Skeleton>
+          <span v-else><Button severity="contrast" rounded icon="pi pi-file-pdf"
+              @click="openPdfDialog(slotProps.data.DOCUMENTO_SOLICITUD)" /></span>
         </template>
       </Column>
+
+      <!-- Columnas de Acciones -->
       <Column header="Acciones">
         <template #body="slotProps">
-          <Button @click="aceptarSolicitud(slotProps.data.ID_SOLICITUD)" unstyled class="zoom-button"
-            :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.ESTADO === 'Aprobada' }"
-            :disabled="slotProps.data.ESTADO === 'Aprobada'" style="margin-bottom: 0.5rem;">
-            <Tag icon="pi pi-check" severity="success" value="Aprobar"></Tag>
-          </Button>
-          <Button @click="rechazoSolicitud(slotProps.data.ID_SOLICITUD)" unstyled class="zoom-button">
-            <Tag icon="pi pi-times" severity="danger" value="Rechazar"></Tag>
-          </Button>
+          <Skeleton v-if="loading" class="mb-2">
+            <div class="h-8 w-full"></div>
+          </Skeleton>
+          <div v-else>
+            <Button @click="aceptarSolicitud(slotProps.data.ID_SOLICITUD)" unstyled class="zoom-button"
+              :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.ESTADO === 'Aprobada' }"
+              :disabled="slotProps.data.ESTADO === 'Aprobada'" style="margin-bottom: 0.5rem;">
+              <Tag icon="pi pi-check" severity="success" value="Aprobar"></Tag>
+            </Button>
+            <Button @click="rechazoSolicitud(slotProps.data.ID_SOLICITUD)" unstyled class="zoom-button"
+              :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.ESTADO === 'Aprobada' }"
+              :disabled="slotProps.data.ESTADO === 'Aprobada'" style="margin-bottom: 0.5rem;">
+              <Tag icon="pi pi-times" severity="danger" value="Rechazar"></Tag>
+            </Button>
+          </div>
         </template>
-
       </Column>
+
     </DataTable>
   </div>
 

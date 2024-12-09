@@ -2,7 +2,7 @@ import axios from "axios";
 
 const API_URL = "http://localhost:3000/api/solicitudBeca";
 
-export const envioSolicitud = async (data) => {
+export const postSolicitud = async (data) => {
   try {
     const response = await axios.post(`${API_URL}/envioSolicitud`, data, {
       headers: {
@@ -17,7 +17,7 @@ export const envioSolicitud = async (data) => {
   }
 };
 
-export const buscarSolicitud = async (cedula) => {
+export const getBuscarSolicitud = async (cedula) => {
   try {
     const response = await axios.get(`${API_URL}/buscarSolicitud`, {
       params: { cedula },
@@ -33,7 +33,7 @@ export const buscarSolicitud = async (cedula) => {
   }
 };
 
-export const solicitudes = async () => {
+export const getSolicitudes = async () => {
   try {
     const response = await axios.get(`${API_URL}/solicitudes`, {
       headers: {
@@ -48,7 +48,7 @@ export const solicitudes = async () => {
   }
 };
 
-export const aprobarSolicitud = async (id) => {
+export const postAprobarSolicitud = async (id) => {
   try {
     const response = await axios.put(`${API_URL}/aprobarSolicitud/${id}`, {}, {
       headers: {
@@ -63,7 +63,7 @@ export const aprobarSolicitud = async (id) => {
   }
 };
 
-export const rechazarSolicitud = async (id) => {
+export const postRechazarSolicitud = async (id) => {
   try {
     const response = await axios.delete(`${API_URL}/rechazarSolicitud/${id}`, {
       headers: {

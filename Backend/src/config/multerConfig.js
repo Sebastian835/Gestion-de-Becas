@@ -1,5 +1,5 @@
 const multer = require('multer');
-const fs = require('fs');  
+const fs = require('fs');
 const path = require('path');
 
 const storage = multer.diskStorage({
@@ -13,7 +13,10 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const filename = `${Date.now()}-${file.originalname}`;
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000); 
+    const ext = path.extname(file.originalname);
+    const baseName = path.basename(file.originalname, ext);
+    const filename = `${baseName}-${randomSuffix}${ext}`;
     cb(null, filename);
   }
 });

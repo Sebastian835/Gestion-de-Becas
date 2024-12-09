@@ -38,14 +38,14 @@ axios.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response.status === 401) {
-      // await Swal.fire({
-      //     icon: 'warning',
-      //     title: 'Sesión Expirada',
-      //     text: 'Tu sesión está a punto de cerrarse.',
-      //     showConfirmButton: false,
-      //     timer: 3000
-      // });
-      logout();
+      Swal.fire({
+        icon: "warning",
+        title: "Sesión Expirada",
+        text: "Tu sesión está a punto de cerrarse.",
+        confirmButtonText: "Aceptar",
+      }).then(() => {
+        logout();
+      });
     }
     return Promise.reject(error);
   }

@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { getUser } from '../../services/user';
 import { getTiposBecas } from '../../services/tiposBecas';
-import { envioSolicitud, buscarSolicitud } from '../../services/solicitudBeca';
+import { postSolicitud, getBuscarSolicitud } from '../../services/solicitudBeca';
 import { getperiodosIstla } from '../../services/api_Istla';
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
@@ -19,7 +19,7 @@ const fetchTiposBecas = async () => {
     tiposBecas.value = await getTiposBecas();
 };
 
-const fetchPeriodosIstla= async () => {
+const fetchPeriodosIstla = async () => {
     const periodosArray = await getperiodosIstla();
     periodo.value = periodosArray.sort((a, b) => b.ID_PERIODO - a.ID_PERIODO)[0];
 };
@@ -103,7 +103,7 @@ const submitSolicitud = async () => {
         };
 
         try {
-            await envioSolicitud(jsonData);
+            await postSolicitud(jsonData);
             Swal.fire({
                 title: '¡Éxito!',
                 text: 'Tu solicitud ha sido enviada correctamente. Sera notificado por correo electrónico cuando se haya procesado su solicitud.',
@@ -130,7 +130,7 @@ const submitSolicitud = async () => {
 
 const solicitudPendiente = async () => {
     const user = await fetchCurrentUser();
-    const existeSolicitud = await buscarSolicitud(user.DOCUMENTO_USUARIOS)
+    const existeSolicitud = await getBuscarSolicitud(user.DOCUMENTO_USUARIOS)
     solicitud.value = true;
     if (existeSolicitud.existe) {
         Swal.fire({
@@ -177,7 +177,8 @@ onMounted(() => {
                 :class="solicitud ? 'opacity-50 cursor-not-allowed' : ''"
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 mb-6">
                 <option disabled value="">Selecciona una opción</option>
-                <option v-for="beca in tiposBecas" :key="beca.id" :value="beca.ID_TIPO_BECA">{{ beca.TIPO_BECA }}</option>
+                <option v-for="beca in tiposBecas" :key="beca.id" :value="beca.ID_TIPO_BECA">{{ beca.TIPO_BECA }}
+                </option>
             </select>
 
             <!-- Subida de archivos -->
@@ -201,6 +202,4 @@ onMounted(() => {
 
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>
