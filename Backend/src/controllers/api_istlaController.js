@@ -5,7 +5,7 @@ async function getUsuariosController(req, res) {
     const usuarios = await getUsuarios(); 
     res.status(200).json(usuarios); 
   } catch (error) {
-    res.status(500).json({ error: "Error obteniendo los usuairos." });
+    res.status(500).json({ error: "Error obteniendo los usuarios." });
   }
 }
 

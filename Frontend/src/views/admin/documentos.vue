@@ -2,7 +2,12 @@
 import {
   ref, onMounted, watch
 } from 'vue';
-import { getDocumentos } from '../../services/documentacionBeca';
+import Swal from 'sweetalert2';
+import {
+  getDocumentos, postAprobarDocumentacion,
+  putDocumentacionReenvio, deleteRechazarDocumentacion
+} from '../../services/documentacionBeca';
+
 
 import Dialog from 'primevue/dialog';
 import DataTable from 'primevue/datatable';
@@ -50,7 +55,6 @@ const fetchDocumentos = async () => {
   try {
     const response = await getDocumentos();
 
-    console.log(response);
     documentos.value = response.map(doc => {
       const updatedDoc = { ...doc };
       const fieldsToConvert = [
@@ -125,6 +129,108 @@ const getCertificadosOptions = (data) => {
     }));
 };
 
+const aceptarDocumentacion = async (id) => {
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: 'Se aprobará la documentacion del estudiante. Y se creará la beca solicitada',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Aceptar',
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        await postAprobarDocumentacion(id);
+        Swal.fire({
+          title: 'Docuemntacion aprobada',
+          text: 'Se emitirá el correo al estudiante.',
+          icon: 'success',
+        }).then(() => {
+          refreshData();
+        });
+      } catch (error) {
+        console.error('Error aprobando la documentacion:', error);
+      }
+    }
+  });
+
+};
+
+const rechazarDocumentacion = async (id) => {
+  Swal.fire({
+    title: 'Rechazar solicitud de beca',
+    html: `
+      <p>Elige qué acción deseas realizar con esta documentación:</p>
+      <br>
+      <strong>Actualizar documentos:</strong> El estudiante podrá volver a subir y enviar sus documentos.
+      <br>
+      <strong>Eliminar solicitud:</strong> La solicitud de beca será rechazada completamente.
+    `,
+    icon: 'question',
+    showCancelButton: true,
+    showDenyButton: true,
+    confirmButtonText: 'Actualizar documentos',
+    denyButtonText: 'Eliminar solicitud',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#3085d6',
+    denyButtonColor: '#d33',
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      const { value: motivo } = await Swal.fire({
+        title: 'Motivo de actualización',
+        input: 'textarea',
+        inputLabel: 'Por favor, ingrese el motivo para la actualización de documentos',
+        inputPlaceholder: 'Escriba aquí el motivo...',
+        inputAttributes: {
+          'aria-label': 'Motivo de actualización'
+        },
+        showCancelButton: true,
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Necesitas escribir un motivo'
+          }
+        }
+      });
+      if (motivo) {
+        try {
+          await putDocumentacionReenvio(id, motivo);
+          Swal.fire({
+            title: 'Documentos listos para reenvío',
+            text: 'Se ha habilitado nuevamente la carga de documentos para el estudiante',
+            icon: 'success'
+          }).then(() => {
+            refreshData();
+          });
+        } catch (error) {
+          Swal.fire({
+            title: 'Error',
+            text: 'No se pudo habilitar el reenvío de documentos',
+            icon: 'error'
+          });
+        }
+      }
+    } else if (result.isDenied) {
+      try {
+         await deleteRechazarDocumentacion(id);
+        Swal.fire({
+          title: 'Solicitud rechazada',
+          text: 'La solicitud de beca ha sido rechazada completamente',
+          icon: 'success'
+        }).then(() => {
+          refreshData();
+        });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo rechazar la solicitud',
+          icon: 'error'
+        });
+      }
+    }
+  });
+};
+
 onMounted(() => {
   fetchDocumentos();
 });
@@ -164,13 +270,13 @@ onMounted(() => {
         </template>
       </Column>
 
-      <Column header="Cerificados" class="text-center">
+      <Column header="Certificados" class="text-center" :style="{ width: '130px' }"> 
         <template #body="{ data }">
           <div class="flex justify-center items-center gap-2">
-            <Select v-if="getCertificadosOptions(data).length > 0" v-model="selectedCertificado"
+            <Select v-if="data.istla_estado_solicitud.ESTADO != 'Pendiente'" v-model="selectedCertificado"
               :options="getCertificadosOptions(data)" optionLabel="label" optionValue="value"
               placeholder="Seleccionar documento" class="w-full md:w-56" @change="openPdfModal(selectedCertificado)" />
-            <span v-else class="flex justify-center">
+            <span v-if="data.istla_estado_solicitud.ESTADO === 'Pendiente'">
               <Tag severity="secondary" value="En espera" icon="pi pi-hourglass"></Tag>
             </span>
           </div>
@@ -193,12 +299,15 @@ onMounted(() => {
       <Column header="Acciones">
         <template #body="slotProps">
           <div>
-            <Button @click="aceptarSolicitud(slotProps.data.ID_SOLICITUD)" unstyled class="zoom-button"
-              :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.ESTADO === 'Aprobada' }"
-              :disabled="slotProps.data.ESTADO === 'Aprobada'" style="margin-bottom: 0.5rem;">
+            <Button @click="aceptarDocumentacion(slotProps.data.ID_DOCUMENTOS)" unstyled class="zoom-button"
+              :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.istla_estado_solicitud.ESTADO === 'Aprobada' || slotProps.data.istla_estado_solicitud.ESTADO === 'Pendiente' }"
+              :disabled="slotProps.data.istla_estado_solicitud.ESTADO === 'Aprobada' || slotProps.data.istla_estado_solicitud.ESTADO === 'Pendiente'"
+              style="margin-bottom: 0.5rem;">
               <Tag icon="pi pi-check" severity="success" value="Aprobar"></Tag>
             </Button>
-            <Button @click="rechazoSolicitud(slotProps.data.ID_SOLICITUD)" unstyled class="zoom-button">
+            <Button @click="rechazarDocumentacion(slotProps.data.ID_DOCUMENTOS)" unstyled class="zoom-button"
+              :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.istla_estado_solicitud.ESTADO === 'Aprobada' }"
+              :disabled="slotProps.data.istla_estado_solicitud.ESTADO === 'Aprobada'" style="margin-bottom: 0.5rem;">
               <Tag icon="pi pi-times" severity="danger" value="Rechazar"></Tag>
             </Button>
           </div>

@@ -77,7 +77,6 @@ router.beforeEach(async (to, from, next) => {
 
   try {
     const user = await getUser();
-
     if (!user) {
       return next("/login");
     }
@@ -89,13 +88,9 @@ router.beforeEach(async (to, from, next) => {
 
     next();
   } catch (error) {
-    console.error("Error fetching current user:", error);
     return next("/login");
   }
 });
-
-
-
 
 
 export default router;

@@ -7,4 +7,5 @@ router.use(verifyToken);
 
 router.get('/becas', getTiposBecasController);
 
+
 module.exports = router;

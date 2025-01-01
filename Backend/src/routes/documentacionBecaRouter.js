@@ -7,6 +7,9 @@ const {
 } = require("../services/documentacionBeca");
 const {
   getDocumentosController,
+  putAceptarDocumentacionController,
+  putReenviarDocumentacionController,
+  deleteDocumentacionController,
 } = require("../controllers/documentos_becasController");
 const path = require("path");
 const { upload } = require("../config/multerConfig");
@@ -68,5 +71,12 @@ router.use(
     }
   })
 );
+
+router.put("/aprobarDocumentacion/:id", putAceptarDocumentacionController);
+
+router.put("/reenvioDocumentacion/:id", putReenviarDocumentacionController);
+
+router.delete("/rechazarDocumentacion/:id", deleteDocumentacionController);
+
 
 module.exports = router;

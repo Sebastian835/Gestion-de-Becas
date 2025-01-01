@@ -48,7 +48,7 @@ export const getSolicitudes = async () => {
   }
 };
 
-export const postAprobarSolicitud = async (id) => {
+export const putAprobarSolicitud = async (id) => {
   try {
     const response = await axios.put(`${API_URL}/aprobarSolicitud/${id}`, {}, {
       headers: {
@@ -63,7 +63,7 @@ export const postAprobarSolicitud = async (id) => {
   }
 };
 
-export const postRechazarSolicitud = async (id) => {
+export const deleteRechazarSolicitud = async (id) => {
   try {
     const response = await axios.delete(`${API_URL}/rechazarSolicitud/${id}`, {
       headers: {

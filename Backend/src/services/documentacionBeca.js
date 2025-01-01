@@ -4,6 +4,24 @@ const fs = require("fs");
 const path = require("path");
 const { getPeriodos } = require("./api_istla");
 
+const eliminarCarpetaEstudiante = async (rutaCarpeta) => {
+  try {
+    const carpetaCompleta = path.join(
+      "Documentos_Becas",
+      "OCTUBRE2024MARZO2025",
+      rutaCarpeta
+    );
+    await fs.promises.rm(carpetaCompleta, {
+      recursive: true,
+      force: true,
+    });
+    return true;
+  } catch (error) {
+    console.error("Error al eliminar la carpeta:", error);
+    return false;
+  }
+};
+
 async function getEstadoDocumentos(req, res) {
   const { cedula } = req.query;
 
@@ -11,12 +29,12 @@ async function getEstadoDocumentos(req, res) {
     const solicitud = await prisma.istla_solicitudes_beca.findFirst({
       where: {
         CEDULA_ESTUDIANTE: cedula,
-        ESTADO: 2,
+        ID_ESTADO: 2,
       },
       include: {
         istla_documentos_obligatorios: {
           where: {
-            ESTADO: 1,
+            ID_ESTADO: 1,
           },
         },
         istla_tipo_beca: true,
@@ -53,17 +71,22 @@ async function postDocumentos(req, res) {
       include: {
         istla_solicitudes_beca: {
           select: {
-            ID_PERIODO: true,
             CEDULA_ESTUDIANTE: true,
+            istla_vigencia_beca: { 
+              select: {
+                ID_PERIODO: true,
+              },
+            },
           },
         },
       },
     });
-
+    
+  
     const periodos = await getPeriodos();
     const uploadDir = "./Documentos_Becas";
-    const idPeriodo = documento.istla_solicitudes_beca.ID_PERIODO;
-    const periodoEncontrado = periodos.find((p) => p.ID_PERIODO === idPeriodo);
+    const idPeriodo = documento.istla_solicitudes_beca.istla_vigencia_beca.ID_PERIODO;
+    const periodoEncontrado = periodos.find((p) => p.ID_PERIODO === String(idPeriodo));
     const periodoFormat = periodoEncontrado.NOMBRE_PERIODO.replace(/\s+/g, "");
 
     const periodoDir = path.join(uploadDir, periodoFormat);
@@ -116,7 +139,7 @@ async function postDocumentos(req, res) {
           },
           data: {
             [fieldname]: file.path,
-            ESTADO: 4,
+            ID_ESTADO: 4,
             FECHA: new Date(),
           },
         });
@@ -197,4 +220,121 @@ async function getDocumentos() {
   }
 }
 
-module.exports = { getEstadoDocumentos, postDocumentos, getDocumentos };
+async function putAprobarDocumentacion(id) {
+  try {
+    const estado = await prisma.istla_estado_solicitud.findFirst({
+      where: {
+        ESTADO: "Aprobada",
+      },
+    });
+
+    const document = await prisma.istla_documentos_obligatorios.update({
+      where: {
+        ID_DOCUMENTOS: parseInt(id, 10),
+      },
+      data: {
+        ID_ESTADO: estado.ID_ESTADO,
+      },
+    });
+
+    return {
+      status: 200,
+      message: "Documentación aprobada",
+    };
+  } catch (error) {
+    return {
+      status: 500,
+      error: "Error al aprobar la solicitud: " + error.message,
+    };
+  }
+}
+
+async function putReenviarDocumentacion(id, motivo) {
+  try {
+    const estado = await prisma.istla_estado_solicitud.findFirst({
+      where: {
+        ESTADO: "Pendiente",
+      },
+    });
+
+    const document = await prisma.istla_documentos_obligatorios.update({
+      where: {
+        ID_DOCUMENTOS: parseInt(id, 10),
+      },
+      data: {
+        ID_ESTADO: estado.ID_ESTADO,
+      },
+    });
+
+    const carpetaEstudiante = document.CERTIFICADO_MATRICULA.split("\\")[2];
+    await eliminarCarpetaEstudiante(carpetaEstudiante);
+
+    return {
+      status: 200,
+      message: "Documentación aprobada para reevnio",
+    };
+  } catch (error) {
+    return {
+      status: 500,
+      error: "Error al aprobar reenvio de solicitud: " + error.message,
+    };
+  }
+}
+
+async function deleteDocumentacion(id) {
+  try {
+    const result = await prisma.$transaction(async (prisma) => {
+      const document = await prisma.istla_documentos_obligatorios.findUnique({
+        where: {
+          ID_DOCUMENTOS: parseInt(id, 10),
+        },
+        include: {
+          istla_documentos_detalle: true,
+        },
+      });
+
+      const carpetaEstudiante = document.CERTIFICADO_MATRICULA.split("\\")[2];
+      await eliminarCarpetaEstudiante(carpetaEstudiante);
+
+      await prisma.istla_documentos_detalle.delete({
+        where: {
+          ID_DETALLE: document.istla_documentos_detalle[0].ID_DETALLE,
+        },
+      });
+
+      await prisma.istla_documentos_obligatorios.delete({
+        where: {
+          ID_DOCUMENTOS: parseInt(id, 10),
+        },
+      });
+
+      await prisma.istla_solicitudes_beca.delete({
+        where: {
+          ID_SOLICITUD: parseInt(document.ID_SOLICITUD, 10),
+        },
+      });
+
+      return {
+        status: 200,
+        message: "Documentación eliminada",
+      };
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Error al eliminar la solicitud:", error.message);
+    return {
+      status: 500,
+      error: "Error al eliminar la solicitud: " + error.message,
+    };
+  }
+}
+
+module.exports = {
+  getEstadoDocumentos,
+  postDocumentos,
+  getDocumentos,
+  putAprobarDocumentacion,
+  putReenviarDocumentacion,
+  deleteDocumentacion,
+};

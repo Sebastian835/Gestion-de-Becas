@@ -22,11 +22,11 @@ async function postSolicitudBeca(req, res) {
 
     await prisma.istla_solicitudes_beca.create({
       data: {
-        ID_TIPO_BECA: data["becaSeleccionada"],
         CEDULA_ESTUDIANTE: data["cedula_estudiante"],
-        ID_PERIODO: data["periodo"],
+        ID_TIPO_BECA: data["becaSeleccionada"], 
+        ID_VIGENCIA: data["periodoBeca"],
         FECHA: new Date(fechaFormateada),
-        ESTADO: 1,
+        ID_ESTADO: 1,
         DOCUMENTO_SOLICITUD: documentoBuffer,
       },
     });
@@ -67,12 +67,11 @@ async function getSolicitudes(req, res) {
 
 async function getSolicitudId(req, res) {
   const { cedula } = req.query;
-
   try {
     const solicitud = await prisma.istla_solicitudes_beca.findFirst({
       where: {
         CEDULA_ESTUDIANTE: cedula,
-        ESTADO: {
+        ID_ESTADO: {
           in: [1, 2],
         },
       },
@@ -96,13 +95,13 @@ async function aprobarSolicitud(req, res) {
     const transaction = await prisma.$transaction([
       prisma.istla_solicitudes_beca.update({
         where: { ID_SOLICITUD: idFormat },
-        data: { ESTADO: 2 },
+        data: { ID_ESTADO: 2 },
       }),
 
       prisma.istla_documentos_obligatorios.create({
         data: {
           ID_SOLICITUD: idFormat,
-          ESTADO: 1,
+          ID_ESTADO: 1,
         },
       }),
     ]);
@@ -131,6 +130,7 @@ async function rechazarSolicitud(req, res) {
   try {
     await prisma.istla_solicitudes_beca.delete({
       where: {
+        
         ID_SOLICITUD: idFormat,
       },
     });

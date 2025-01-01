@@ -268,11 +268,7 @@ onMounted(() => {
 
         <!-- Selección del tipo de beca -->
         <label for="tipoBeca" class="block text-sm font-medium text-gray-900 mb-2">Tipo de beca</label>
-        <!-- <select id="tipoBeca" v-model="tipoBecaSeleccionado"
-            class="block w-full sm:w-1/2 p-2.5 mb-6 rounded-lg border border-gray-300 text-gray-900">
-            <option value="" disabled>Seleccione un tipo de beca</option>
-            <option v-for="tipo in tiposBeca" :key="tipo.id" :value="tipo.id">{{ tipo.nombre }}</option>
-        </select> -->
+      
 
         <select id="tipoBeca" v-model="selectedBeca" :disabled="isReadonly"
             class="block w-full sm:w-1/2 p-2.5 mb-6 rounded-lg border border-gray-300 text-gray-900">

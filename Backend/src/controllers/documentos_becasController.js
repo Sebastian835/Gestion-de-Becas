@@ -1,4 +1,9 @@
-const { getDocumentos } = require("../services/documentacionBeca");
+const {
+  getDocumentos,
+  putAprobarDocumentacion,
+  putReenviarDocumentacion,
+  deleteDocumentacion
+} = require("../services/documentacionBeca");
 
 const baseURL =
   "http://localhost:3000/api/documentacionBeca/accesoDocumentosBecas";
@@ -59,7 +64,40 @@ function construirURLDocumento(baseURL, archivo) {
   return `${baseURL}/${rutaRelativa.replace(/\\/g, "/")}`;
 }
 
+async function putAceptarDocumentacionController(req, res) {
+  try {
+    const result = await putAprobarDocumentacion(req.params.id);
+
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ error: "Error actualizando el estado." });
+  }
+}
+
+async function putReenviarDocumentacionController(req, res) {
+  try {
+    const result = await putReenviarDocumentacion(req.params.id, req.body.motivo);
+
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ error: "Error al permitir el reenviar documentos" });
+  }
+}
+
+async function deleteDocumentacionController(req, res) {
+  try {
+    const result = await deleteDocumentacion(req.params.id);
+
+    res.status(result.status).json(result);
+  } catch (error) {
+    res.status(500).json({ error: "Error elimnando los registros" });
+  }
+}
+
 
 module.exports = {
   getDocumentosController,
+  putAceptarDocumentacionController,
+  putReenviarDocumentacionController,
+  deleteDocumentacionController
 };

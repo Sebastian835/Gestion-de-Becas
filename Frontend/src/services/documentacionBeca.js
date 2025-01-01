@@ -44,3 +44,48 @@ export const getDocumentos = async () => {
       throw new Error(error.response?.data?.message || 'Error en la petición');
   }
 };
+
+export const postAprobarDocumentacion= async (id) => {
+  try {
+    const response = await axios.put(`${API_URL}/aprobarDocumentacion/${id}`, {}, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true, 
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error al aprobar la solicitud:", error);
+    throw error;
+  }
+};
+
+export const putDocumentacionReenvio = async (id, motivo) => {
+  try {
+    const response = await axios.put(`${API_URL}/reenvioDocumentacion/${id}`, {motivo}, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true, 
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error al aprobar la solicitud:", error);
+    throw error;
+  }
+};
+
+export const deleteRechazarDocumentacion= async (id) => {
+  try {
+    const response = await axios.delete(`${API_URL}/rechazarDocumentacion/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error al rechazar la solicitud:", error);
+    throw error;
+  }
+};

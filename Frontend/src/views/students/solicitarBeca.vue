@@ -3,6 +3,8 @@ import { ref, onMounted } from 'vue';
 import { getUser } from '../../services/user';
 import { getTiposBecas } from '../../services/tiposBecas';
 import { postSolicitud, getBuscarSolicitud } from '../../services/solicitudBeca';
+import { getPlazoBecasActivas } from '../../services/vigenciaBecas';
+
 import { getperiodosIstla } from '../../services/api_Istla';
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
@@ -14,6 +16,21 @@ const fileInput = ref(null);
 const solicitud = ref(false);
 const router = useRouter();
 const periodo = ref();
+const vigenciaBecas = ref();
+
+const fecthPeriodoBecas = async () => {
+    vigenciaBecas.value = await getPlazoBecasActivas();
+    if (vigenciaBecas.value.length === 0) {
+        Swal.fire({
+            title: 'Advertencia',
+            text: 'El plazo para solicitar becas ha finalizado. Por favor, espere a la próxima convocatoria.',
+            icon: 'warning',
+            confirmButtonText: 'Aceptar'
+        }).then(() => {
+            router.push('/main/requisitos');
+        });
+    }
+};
 
 const fetchTiposBecas = async () => {
     tiposBecas.value = await getTiposBecas();
@@ -100,6 +117,7 @@ const submitSolicitud = async () => {
             cedula_estudiante: currentUser.DOCUMENTO_USUARIOS,
             periodo: periodo.value.ID_PERIODO,
             documento: fileBase64,
+            periodoBeca: vigenciaBecas.value[0].ID_VIGENCIA
         };
 
         try {
@@ -138,6 +156,8 @@ const solicitudPendiente = async () => {
             text: 'Usted ya tiene una solicitud enviada. Por favor, espere la respuesta del Coordinador de Becas.',
             icon: 'warning',
             confirmButtonText: 'Aceptar'
+        }).then(() => {
+            router.push('/main/requisitos');
         });
     } else {
         solicitud.value = false;
@@ -148,6 +168,7 @@ const solicitudPendiente = async () => {
 
 onMounted(() => {
     initFlowbite();
+    fecthPeriodoBecas();
     solicitudPendiente();
 });
 

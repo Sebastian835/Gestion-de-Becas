@@ -13,22 +13,25 @@ model istla_estado_solicitud {
   ESTADO                        String                          @db.VarChar(15)
   istla_documentos_obligatorios istla_documentos_obligatorios[]
   istla_solicitudes_beca        istla_solicitudes_beca[]
+  istla_vigencia_beca           istla_vigencia_beca[]
 }
 
 model istla_solicitudes_beca {
   ID_SOLICITUD                  Int                             @id @default(autoincrement())
   CEDULA_ESTUDIANTE             String                          @db.VarChar(20)
   ID_TIPO_BECA                  Int
-  ID_PERIODO                    String                          @db.VarChar(20)
+  ID_VIGENCIA                   Int
   FECHA                         DateTime                        @db.Date
-  ESTADO                        Int
+  ID_ESTADO                     Int
   DOCUMENTO_SOLICITUD           Bytes
   istla_documentos_obligatorios istla_documentos_obligatorios[]
   istla_tipo_beca               istla_tipo_beca                 @relation(fields: [ID_TIPO_BECA], references: [ID_TIPO_BECA], onUpdate: Restrict, map: "istla_solicitudes_beca_ibfk_1")
-  istla_estado_solicitud        istla_estado_solicitud          @relation(fields: [ESTADO], references: [ID_ESTADO], onUpdate: Restrict, map: "istla_solicitudes_beca_ibfk_2")
+  istla_estado_solicitud        istla_estado_solicitud          @relation(fields: [ID_ESTADO], references: [ID_ESTADO], onUpdate: Restrict, map: "istla_solicitudes_beca_ibfk_2")
+  istla_vigencia_beca           istla_vigencia_beca             @relation(fields: [ID_VIGENCIA], references: [ID_VIGENCIA], onUpdate: Restrict, map: "istla_solicitudes_beca_ibfk_3")
 
-  @@index([ESTADO], map: "estado")
+  @@index([ID_ESTADO], map: "estado")
   @@index([ID_TIPO_BECA], map: "tipo_beca")
+  @@index([ID_VIGENCIA], map: "istla_solicitudes_beca_ibfk_3")
 }
 
 model istla_tipo_beca {
@@ -41,7 +44,7 @@ model istla_documentos_obligatorios {
   ID_DOCUMENTOS            Int                        @id @default(autoincrement())
   ID_SOLICITUD             Int
   FECHA                    DateTime?                  @db.Date
-  ESTADO                   Int
+  ID_ESTADO                Int
   CERTIFICADO_MATRICULA    String?                    @db.VarChar(255)
   COPIA_CEDULA             String?                    @db.VarChar(255)
   CERTIFICADO_ASISTENCIA   String?                    @db.VarChar(255)
@@ -49,9 +52,9 @@ model istla_documentos_obligatorios {
   CERTIFICADO_DISCIPLINA   String?                    @db.VarChar(255)
   istla_documentos_detalle istla_documentos_detalle[]
   istla_solicitudes_beca   istla_solicitudes_beca     @relation(fields: [ID_SOLICITUD], references: [ID_SOLICITUD], onDelete: NoAction, onUpdate: NoAction, map: "istla_documentos_obligatorios_ibfk_1")
-  istla_estado_solicitud   istla_estado_solicitud     @relation(fields: [ESTADO], references: [ID_ESTADO], onDelete: NoAction, onUpdate: NoAction, map: "istla_documentos_obligatorios_ibfk_2")
+  istla_estado_solicitud   istla_estado_solicitud     @relation(fields: [ID_ESTADO], references: [ID_ESTADO], onDelete: NoAction, onUpdate: NoAction, map: "istla_documentos_obligatorios_ibfk_2")
 
-  @@index([ESTADO], map: "ESTADO")
+  @@index([ID_ESTADO], map: "ESTADO")
   @@index([ID_SOLICITUD], map: "ID_SOLICITUD")
 }
 
@@ -81,12 +84,24 @@ model istla_documentos_detalle {
   @@index([ID_DOCUMENTOS_OBLIGATORIOS], map: "ID_DOCUMENTOS_OBLIGATORIOS")
 }
 
+model istla_vigencia_beca {
+  ID_VIGENCIA            Int                      @id @default(autoincrement())
+  ID_PERIODO             Int
+  FECHA_INICIO           DateTime                 @db.Date
+  FECHA_FIN              DateTime                 @db.Date
+  ID_ESTADO              Int
+  istla_solicitudes_beca istla_solicitudes_beca[]
+  istla_estado_solicitud istla_estado_solicitud   @relation(fields: [ID_ESTADO], references: [ID_ESTADO], onUpdate: Restrict, map: "istla_vigencia_beca_ibfk_1")
+
+  @@index([ID_ESTADO], map: "istla_vigencia_beca_ibfk_1")
+}
+
 view vista_solicitud_beca_detalle {
-  ESTADO              String   @unique @db.VarChar(15)
-  TIPO_BECA           String   @db.VarChar(255)
+  ID_SOLICITUD        Int      @unique @default(0)
   CEDULA_ESTUDIANTE   String   @db.VarChar(20)
   FECHA               DateTime @db.Date
+  TIPO_BECA           String   @db.VarChar(255)
   DOCUMENTO_SOLICITUD Bytes
-  ID_PERIODO          String   @db.VarChar(20)
-  ID_SOLICITUD        Int      @default(0)
+  ESTADO              String   @db.VarChar(15)
+  ID_PERIODO          Int
 }

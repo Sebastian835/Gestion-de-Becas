@@ -19,6 +19,7 @@ const iniciarSesion = async () => {
             }
         });
         const dataUser = await login(usuario.value, contra.value);
+        console.log(dataUser);
         Swal.close();
         Swal.fire({
             icon: "success",

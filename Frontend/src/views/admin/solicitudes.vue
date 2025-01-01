@@ -5,11 +5,12 @@ import { getperiodosIstla } from '../../services/api_Istla';
 import {
   getSolicitudes,
   postSolicitud,
-  postAprobarSolicitud,
-  postRechazarSolicitud
+  putAprobarSolicitud,
+  deleteRechazarSolicitud
 } from '../../services/solicitudBeca';
 import { getUsuariosIstla } from '../../services/api_Istla';
 import { getTiposBecas } from '../../services/tiposBecas';
+import { getPlazoBecasActivas } from '../../services/vigenciaBecas';
 
 import dayjs from 'dayjs';
 import Swal from 'sweetalert2';
@@ -41,6 +42,7 @@ const visibleCrear = ref(false);
 const fileInput = ref(null);
 const selectedBeca = ref('');
 const selectedPeriodoCrear = ref('');
+const vigenciaBecas = ref();
 
 const filters = ref({
   global: { value: null, matchMode: 'contains' },
@@ -59,6 +61,7 @@ const fetchSolicitudesBeca = async () => {
     ...solicitud,
     FECHA: dayjs(solicitud.FECHA).format('YYYY-MM-DD'),
   }));
+
 };
 
 const fetchPeriodosIstla = async () => {
@@ -101,11 +104,6 @@ const validateForm = () => {
     isValid = false;
   }
 
-  if (selectedPeriodoCrear.value === '') {
-    errorMessages.value.push('Por favor selecciona un periodo.');
-    isValid = false;
-  }
-
   if (selectedBeca.value === '') {
     errorMessages.value.push('Por favor selecciona un tipo de beca.');
     isValid = false;
@@ -134,6 +132,10 @@ const searchAlumnos = (event) => {
   );
 };
 
+const fecthPeriodoBecas = async () => {
+  vigenciaBecas.value = await getPlazoBecasActivas();
+};
+
 const crearSolicitud = async () => {
   if (!validateForm()) return;
 
@@ -152,20 +154,18 @@ const crearSolicitud = async () => {
       });
       return;
     }
-
-    try {
-      fileBase64 = await readFileAsBase64(file);
-    } catch (error) {
-      console.error('Error leyendo el archivo:', error);
-    }
+    fileBase64 = await readFileAsBase64(file);
   }
+
+  
 
   const jsonData = {
     fecha: fechaActual,
     becaSeleccionada: selectedBeca.value,
     cedula_estudiante: selectedAlumno.value.value,
-    periodo: selectedPeriodoCrear.value,
     documento: fileBase64,
+    periodoBeca: vigenciaBecas.value[0].ID_VIGENCIA
+
   };
 
   try {
@@ -206,7 +206,7 @@ const aceptarSolicitud = async (id) => {
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
-        await postAprobarSolicitud(id);
+        await putAprobarSolicitud(id);
         Swal.fire({
           title: 'Solicitud aprobada',
           text: 'Se emitirá el correo al estudiante.',
@@ -234,7 +234,7 @@ const rechazoSolicitud = async (id) => {
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
-        await postRechazarSolicitud(id);
+        await deleteRechazarSolicitud(id);
         Swal.fire({
           title: 'Solicitud rechazada',
           text: 'Se emitirá el correo al estudiante.',
@@ -258,6 +258,7 @@ watch(periodo, (newValue) => {
 });
 
 onMounted(() => {
+  fecthPeriodoBecas();
   fetchSolicitudesBeca();
   fetchPeriodosIstla();
   initFlowbite();
@@ -283,7 +284,7 @@ onMounted(() => {
     <DataTable :value="solicitudesBecaFormatead" :loading="loading" :filters="filters" :paginator="true" :rows="5"
       :globalFilterFields="['NOMBRES_USUARIOS', 'CEDULA_ESTUDIANTE', 'TIPO_BECA', 'FECHA', 'ESTADO']"
       :rowsPerPageOptions="[5, 10, 20]" :emptyMessage="'No hay datos disponibles'">
- 
+
       <Column field="NOMBRES_USUARIOS" header="Nombre" sortable>
         <template #body="slotProps">
           <Skeleton v-if="loading">
@@ -371,9 +372,9 @@ onMounted(() => {
   </Dialog>
 
 
-  <Dialog v-model:visible="visibleCrear" header="Solicitud de Beca" :style="{ width: '50rem' }"
-    pt:mask:class="backdrop-blur-sm" style="background-color: #f8f8f8">
-    <div style="background-color: #f8f8f8; padding: 2rem; border-radius: 0.5rem;">
+  <Dialog v-model:visible="visibleCrear" header="Solicitud de Beca" pt:mask:class="backdrop-blur-sm"
+    style="background-color: #f8f8f8">
+    <div style="background-color: #f8f8f8; padding: 1rem; border-radius: 0.5rem;">
 
       <!-- Alumno -->
       <div style="margin-bottom: 1.5rem;">
@@ -383,18 +384,6 @@ onMounted(() => {
           class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2" />
         <p v-if="errorMessages.includes('Por favor selecciona un alumno.')" class="text-red-500 text-sm mt-1">Por favor
           selecciona un alumno.</p>
-      </div>
-
-      <!-- Periodo -->
-      <div style="margin-bottom: 1.5rem;">
-        <label for="periodos" class="block mb-3 text-base font-semibold text-gray-900">Periodo</label>
-        <select id="periodos" v-model="selectedPeriodoCrear"
-          class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-base rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2">
-          <option disabled value="">Selecciona una opción</option>
-          <option v-for="periodo in periodos" :key="periodo.id" :value="periodo.value">{{ periodo.label }}</option>
-        </select>
-        <p v-if="errorMessages.includes('Por favor selecciona un periodo.')" class="text-red-500 text-sm mt-1">Por favor
-          selecciona un periodo.</p>
       </div>
 
       <!-- Tipo de Beca -->

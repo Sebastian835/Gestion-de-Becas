@@ -71,7 +71,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
             <button
               class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg text-white w-full flex items-center gap-4 px-4 capitalize"
               type="button">
-              <i class="pi pi-file-pdf" style="font-size: 1rem"></i>
+              <i class="pi pi-file-plus" style="font-size: 1rem"></i>
               <p class="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
                 Solicitudes</p>
             </button>

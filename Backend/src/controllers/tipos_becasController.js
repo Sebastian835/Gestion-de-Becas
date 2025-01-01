@@ -5,7 +5,7 @@ async function getTiposBecasController(req, res) {
     const becas = await getTiposBecas(); 
     res.status(200).json(becas); 
   } catch (error) {
-    res.status(500).json({ error: "Error obteniendo los usuairos." });
+    res.status(500).json({ error: "Error obteniendo las becas" });
   }
 }
 

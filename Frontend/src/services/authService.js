@@ -17,12 +17,7 @@ export const login = async (username, password) => {
 };
 
 export const logout = () => {
-  axios
-    .post(`${API_URL}/logout`, {}, { withCredentials: true })
-    .then(() => {})
-    .catch((error) => {
-      console.error("Logout failed:", error);
-    });
+  axios.post(`${API_URL}/logout`, {}, { withCredentials: true }).then(() => {});
 };
 
 axios.interceptors.request.use(
@@ -37,6 +32,7 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   (response) => response,
   async (error) => {
+    
     if (error.response.status === 401) {
       Swal.fire({
         icon: "warning",
