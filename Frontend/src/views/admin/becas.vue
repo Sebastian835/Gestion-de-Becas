@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { getBecasOtorgadas, updateSincronizar } from '../../services/becasOtorgadas';
 import { getTiposBecas } from '../../services/tiposBecas';
 import { getperiodosIstla } from '../../services/api_Istla';
@@ -16,9 +16,6 @@ import Divider from 'primevue/divider';
 import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 
-
-
-
 const toast = useToast();
 const becas = ref([]);
 const tiposBecas = ref([]);
@@ -32,6 +29,26 @@ const filterBecaInicio = ref(null);
 
 const selectedBeca = ref(null);
 const showDialog = ref(false);
+
+const currentPage = ref(0);
+const rows = ref(8);
+const first = ref(0);
+
+const paginatedBecas = computed(() => {
+    const start = first.value;
+    const end = start + rows.value;
+    return filteredBecas.value.slice(start, end);
+});
+
+const totalRecords = computed(() => {
+    return filteredBecas.value.length;
+});
+
+const onPageChange = (event) => {
+    first.value = event.first;
+    rows.value = event.rows;
+    currentPage.value = event.page;
+};
 
 const states = [
     { label: 'Activo', value: 1 },
@@ -80,6 +97,8 @@ const filterBecas = () => {
 
         return matchesQuery && matchesState && matchesTipoBeca && matchesBecaInicio;
     });
+    first.value = 0;
+    currentPage.value = 0;
 };
 
 const openEditDialog = (beca) => {
@@ -91,8 +110,6 @@ const saveChanges = () => {
     console.log('Guardando cambios:', selectedBeca.value);
     showDialog.value = false;
 };
-
-onMounted(fetchBecas);
 
 onMounted(() => {
     fetchBecas();
@@ -127,9 +144,9 @@ onMounted(() => {
             v-tooltip.left="'Sincroniza el periodo de caducida de la beca'" />
     </div>
 
-    <!-- Card -->
+    <!-- Card Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
-        <Card v-for="beca in filteredBecas" :key="beca.ID_BECA"
+        <Card v-for="beca in paginatedBecas" :key="beca.ID_BECA"
             class="transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
             <template #header>
                 <div class="relative">
@@ -157,7 +174,6 @@ onMounted(() => {
                     <div class="flex items-center gap-2">
                         <i class="pi pi-percentage text-green-500"></i>
                         <ProgressBar :value="beca.PORCENTAJE" :showValue="true" class="w-full" />
-
                     </div>
 
                     <Divider />
@@ -187,7 +203,10 @@ onMounted(() => {
             </template>
         </Card>
     </div>
-    <Paginator :rows="10" :totalRecords="120" :rowsPerPageOptions="[10, 20, 30]"></Paginator>
+
+    <!-- Paginador -->
+    <Paginator v-model:first="first" v-model:rows="rows" :totalRecords="totalRecords" :rowsPerPageOptions="[8, 16, 24]"
+        @page="onPageChange" class="mt-4" />
 
     <!-- Modal -->
     <Dialog v-model:visible="showDialog" :header="'Editar Beca'" pt:mask:class="backdrop-blur-sm"
@@ -195,7 +214,7 @@ onMounted(() => {
         <template #default>
             <div class="mt-4">
                 <label class="block mb-2">Porcentaje de Beca</label>
-                <InputText v-model="selectedBeca.PORCENTAJE" type="number" class=" w-full" />
+                <InputText v-model="selectedBeca.PORCENTAJE" type="number" class="w-full" />
             </div>
             <div class="mt-4">
                 <Select v-model="selectedBeca.ESTADO" :options="states" optionLabel="label" placeholder="Estado" />

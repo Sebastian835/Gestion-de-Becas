@@ -1,10 +1,36 @@
 <script setup>
 import { ref } from 'vue';
+import Chart from 'primevue/chart';
 
 const becasTotal = ref(25);
 const becasCompletas = ref(15);
 const becasMitad = ref(10);
 const otrasBecas = ref(5);
+
+const chartData = ref({
+  labels: ['Becas Completas', 'Becas del 50%', 'Otras Becas'],
+  datasets: [
+    {
+      data: [15, 10, 5],
+      backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726'],
+      hoverBackgroundColor: ['#64B5F6', '#81C784', '#FFB74D'],
+    },
+  ],
+});
+
+const chartOptions = ref({
+  plugins: {
+    legend: {
+      labels: {
+        color: '#495057',
+      },
+    },
+  },
+  animation: {
+    duration: 1500, 
+    easing: 'easeInOutQuad', 
+  },
+});
 
 </script>
 
@@ -162,6 +188,13 @@ const otrasBecas = ref(5);
             </div>
         </div>
     </div>
+
+    <div class="p-4">
+    <div class="text-center mb-4">
+      <h2 class="font-bold text-lg">Distribución de Becas</h2>
+    </div>
+    <Chart type="pie" :data="chartData" :options="chartOptions" />
+  </div>
 </template>
 
 <style scoped></style>
