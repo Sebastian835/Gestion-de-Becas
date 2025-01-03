@@ -7,7 +7,13 @@ const cookieParser = require("cookie-parser");
 const app = express();
 
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: (origin, callback) => {
+    if (!origin || origin.startsWith('http://localhost')) {
+      callback(null, true);  
+    } else {
+      callback(new Error('No permitido'), false);
+    }
+  },
   credentials: true,
 };
 
