@@ -26,7 +26,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
   <aside
     class="bg-gradient-to-br from-gray-800 to-gray-900 -translate-x-80 fixed inset-0 z-50 my-4 ml-4 h-[calc(100vh-32px)] w-72 rounded-xl transition-transform duration-300 xl:translate-x-0">
     <div class="relative border-b border-white/20">
-      <a class="flex items-center gap-4 py-6 px-8" href="#/">
+      <a class="flex items-center gap-4 py-6 px-8" href="/main/home">
         <h6 class="block antialiased tracking-normal font-sans text-base font-semibold leading-relaxed text-white">
           Gestión de Becas ISTLA</h6>
       </a>
@@ -66,6 +66,19 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
         </li>
 
         <li v-if="isAdmin">
+          <RouterLink to="/main/periodos"
+            activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
+            <button
+              class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg text-white w-full flex items-center gap-4 px-4 capitalize"
+              type="button">
+              <i class="pi pi-calendar-clock" style="font-size: 1rem"></i>
+              <p class="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
+                Periodos</p>
+            </button>
+          </RouterLink>
+        </li>
+
+        <li v-if="isAdmin">
           <RouterLink to="/main/solicitudesBeca"
             activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
             <button
@@ -84,12 +97,39 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
             <button
               class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg text-white w-full flex items-center gap-4 px-4 capitalize"
               type="button">
-              <i class="pi pi-file-pdf" style="font-size: 1rem"></i>
+              <i class="pi pi-file-check" style="font-size: 1rem"></i>
               <p class="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
                 Documentacion</p>
             </button>
           </RouterLink>
         </li>
+
+        <li v-if="isAdmin">
+          <RouterLink to="/main/becas"
+            activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
+            <button
+              class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg text-white w-full flex items-center gap-4 px-4 capitalize"
+              type="button">
+              <i class="pi pi-graduation-cap" style="font-size: 1rem"></i>
+              <p class="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
+                Becas</p>
+            </button>
+          </RouterLink>
+        </li>
+
+        <li v-if="isAdmin">
+          <RouterLink to="/main/reportes"
+            activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
+            <button
+              class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg text-white w-full flex items-center gap-4 px-4 capitalize"
+              type="button">
+              <i class="pi pi-file-pdf" style="font-size: 1rem"></i>
+              <p class="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
+                Reportes</p>
+            </button>
+          </RouterLink>
+        </li>
+
 
         <div v-if="isAdmin" class="mt-auto mb-4 text-center">
           <div class="w-32 h-32 mx-auto mb-2 flex items-center justify-center">
@@ -97,7 +137,6 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
           </div>
           <h1 class="text-lg font-bold text-white mt-2">Instituto Superior Tecnológico</h1>
           <h1 class="text-lg font-bold text-white mt-1">"Los Andes" ISTLA</h1>
-          <p class="mt-2 text-white text-xs">Gestión de Becas</p>
         </div>
 
 

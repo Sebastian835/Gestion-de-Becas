@@ -5,7 +5,7 @@ const solicitudBecaRouthes = require("./solicitudBecaRouthes");
 const istlaRouthes = require("./istlaRouthes");
 const documentacionBecaRouthes = require("./documentacionBecaRouter");
 const vigenciaBecasRouther = require("./vigenciaBecasRouther");
-
+const becas_Otorgadas = require("./becasOtorgadasRouther");
 
 module.exports = {
   "/auth": authRoutes,
@@ -15,4 +15,5 @@ module.exports = {
   "/istla": istlaRouthes,
   "/documentacionBeca": documentacionBecaRouthes,
   "/vigenciaBecas": vigenciaBecasRouther,
+  "/becasOtorgadas": becas_Otorgadas,
 };

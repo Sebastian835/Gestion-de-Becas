@@ -45,9 +45,9 @@ export const getDocumentos = async () => {
   }
 };
 
-export const postAprobarDocumentacion= async (id) => {
+export const postAprobarDocumentacion= async (id, porcentaje) => {
   try {
-    const response = await axios.put(`${API_URL}/aprobarDocumentacion/${id}`, {}, {
+    const response = await axios.put(`${API_URL}/aprobarDocumentacion/${id}`, {porcentaje}, {
       headers: {
         "Content-Type": "application/json",
       },

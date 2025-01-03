@@ -57,11 +57,17 @@ const filters = ref({
 const fetchSolicitudesBeca = async () => {
   const solicitudesBecas = await getSolicitudes();
   loading.value = false;
-  solicitudesBecaFormatead.value = solicitudesBecas.map((solicitud) => ({
-    ...solicitud,
-    FECHA: dayjs(solicitud.FECHA).format('YYYY-MM-DD'),
-  }));
 
+  solicitudesBecaFormatead.value = solicitudesBecas
+    .map((solicitud) => ({
+      ...solicitud,
+      FECHA: dayjs(solicitud.FECHA).format('YYYY-MM-DD'),
+    }))
+    .sort((a, b) => {
+      if (a.ESTADO === 'Pendiente') return -1;
+      if (b.ESTADO === 'Pendiente') return 1;
+      return 0;
+    });
 };
 
 const fetchPeriodosIstla = async () => {
@@ -157,7 +163,7 @@ const crearSolicitud = async () => {
     fileBase64 = await readFileAsBase64(file);
   }
 
-  
+
 
   const jsonData = {
     fecha: fechaActual,
@@ -269,102 +275,104 @@ onMounted(() => {
 
 <template>
   <div>
-    <h2 class="text-xl font-semibold mb-4">Solicitudes de Beca</h2>
-    <div class="flex items-center gap-4 mb-4">
+    <h2 class="text-xl font-semibold mb-4" style="margin-bottom: 25px; font-size:25px;">Solictudes de Becas</h2>
+    <div class="flex items-center gap-4 mb-4" style="margin-bottom: 25px; ">
       <InputText v-model="globalFilter" placeholder="Buscar..." class="w-1/4" />
       <Select v-model="periodo" :options="periodos" optionLabel="label" placeholder="Selecciona un período"
         class="w-full md:w-56" />
 
-      <Button icon="pi pi-eraser" label="Limpiar Filtros" @click="clearFilters" severity="secondary" />
-      <Button icon="pi pi-file-plus" label="Crear Solicitud" @click="openCrearDialog" severity="secondary" />
-      <Button icon="pi pi-refresh" label="Refrescar" @click="refreshData" severity="secondary" />
+      <Button icon="pi pi-eraser" label="Limpiar Filtros" @click="clearFilters" severity="secondary" raised />
+      <Button icon="pi pi-file-plus" label="Crear Solicitud" @click="openCrearDialog" severity="secondary" raised />
+      <Button icon="pi pi-refresh" label="Refrescar" @click="refreshData" severity="secondary" raised />
 
     </div>
 
-    <DataTable :value="solicitudesBecaFormatead" :loading="loading" :filters="filters" :paginator="true" :rows="5"
-      :globalFilterFields="['NOMBRES_USUARIOS', 'CEDULA_ESTUDIANTE', 'TIPO_BECA', 'FECHA', 'ESTADO']"
-      :rowsPerPageOptions="[5, 10, 20]" :emptyMessage="'No hay datos disponibles'">
+    <div class="rounded-lg overflow-hidden shadow-lg">
+      <DataTable :value="solicitudesBecaFormatead" :loading="loading" :filters="filters" :paginator="true" :rows="5"
+        :globalFilterFields="['NOMBRES_USUARIOS', 'CEDULA_ESTUDIANTE', 'TIPO_BECA', 'FECHA', 'ESTADO']"
+        :rowsPerPageOptions="[5, 10, 20]" :emptyMessage="'No hay datos disponibles'">
 
-      <Column field="NOMBRES_USUARIOS" header="Nombre" sortable>
-        <template #body="slotProps">
-          <Skeleton v-if="loading">
-            <div class="h-8 w-full"></div>
-          </Skeleton>
-          <span v-else>{{ slotProps.data.NOMBRES_USUARIOS }}</span>
-        </template>
-      </Column>
+        <Column field="NOMBRES_USUARIOS" header="Nombre" sortable>
+          <template #body="slotProps">
+            <Skeleton v-if="loading">
+              <div class="h-8 w-full"></div>
+            </Skeleton>
+            <span v-else>{{ slotProps.data.NOMBRES_USUARIOS }}</span>
+          </template>
+        </Column>
 
-      <Column field="CEDULA_ESTUDIANTE" header="Cédula" sortable>
-        <template #body="slotProps">
-          <Skeleton v-if="loading">
-            <div class="h-8 w-full"></div>
-          </Skeleton>
-          <span v-else>{{ slotProps.data.CEDULA_ESTUDIANTE }}</span>
-        </template>
-      </Column>
+        <Column field="CEDULA_ESTUDIANTE" header="Cédula" sortable>
+          <template #body="slotProps">
+            <Skeleton v-if="loading">
+              <div class="h-8 w-full"></div>
+            </Skeleton>
+            <span v-else>{{ slotProps.data.CEDULA_ESTUDIANTE }}</span>
+          </template>
+        </Column>
 
-      <Column field="TIPO_BECA" header="Tipo de Beca" sortable>
-        <template #body="slotProps">
-          <Skeleton v-if="loading">
-            <div class="h-8 w-full"></div>
-          </Skeleton>
-          <span v-else>{{ slotProps.data.TIPO_BECA }}</span>
-        </template>
-      </Column>
+        <Column field="TIPO_BECA" header="Tipo de Beca" sortable>
+          <template #body="slotProps">
+            <Skeleton v-if="loading">
+              <div class="h-8 w-full"></div>
+            </Skeleton>
+            <span v-else>{{ slotProps.data.TIPO_BECA }}</span>
+          </template>
+        </Column>
 
-      <Column field="FECHA" header="Fecha de Solicitud" sortable>
-        <template #body="slotProps">
-          <Skeleton v-if="loading">
-            <div class="h-8 w-full"></div>
-          </Skeleton>
-          <span v-else>{{ slotProps.data.FECHA }}</span>
-        </template>
-      </Column>
+        <Column field="FECHA" header="Fecha de Solicitud" sortable>
+          <template #body="slotProps">
+            <Skeleton v-if="loading">
+              <div class="h-8 w-full"></div>
+            </Skeleton>
+            <span v-else>{{ slotProps.data.FECHA }}</span>
+          </template>
+        </Column>
 
-      <Column header="ESTADO">
-        <template #body="slotProps">
-          <Skeleton v-if="loading">
-            <div class="h-8 w-full"></div>
-          </Skeleton>
-          <Tag v-else-if="slotProps.data.ESTADO === 'Pendiente'" icon="pi pi-spin pi-spinner"
-            :value="slotProps.data.ESTADO" severity="warn" />
-          <Tag v-else-if="slotProps.data.ESTADO === 'Aprobada'" icon="pi pi-verified" :value="slotProps.data.ESTADO"
-            severity="success" />
-        </template>
-      </Column>
+        <Column header="ESTADO">
+          <template #body="slotProps">
+            <Skeleton v-if="loading">
+              <div class="h-8 w-full"></div>
+            </Skeleton>
+            <Tag v-else-if="slotProps.data.ESTADO === 'Pendiente'" icon="pi pi-spin pi-spinner"
+              :value="slotProps.data.ESTADO" severity="warn" />
+            <Tag v-else-if="slotProps.data.ESTADO === 'Aprobada'" icon="pi pi-verified" :value="slotProps.data.ESTADO"
+              severity="success" />
+          </template>
+        </Column>
 
-      <Column header="Solicitud" sortable>
-        <template #body="slotProps">
-          <Skeleton v-if="loading">
-            <div class="h-8 w-full"></div>
-          </Skeleton>
-          <span v-else><Button severity="contrast" rounded icon="pi pi-file-pdf"
-              @click="openPdfDialog(slotProps.data.DOCUMENTO_SOLICITUD)" /></span>
-        </template>
-      </Column>
+        <Column header="Solicitud" sortable>
+          <template #body="slotProps">
+            <Skeleton v-if="loading">
+              <div class="h-8 w-full"></div>
+            </Skeleton>
+            <span v-else><Button severity="contrast" rounded icon="pi pi-file-pdf"
+                @click="openPdfDialog(slotProps.data.DOCUMENTO_SOLICITUD)" /></span>
+          </template>
+        </Column>
 
-      <!-- Columnas de Acciones -->
-      <Column header="Acciones">
-        <template #body="slotProps">
-          <Skeleton v-if="loading" class="mb-2">
-            <div class="h-8 w-full"></div>
-          </Skeleton>
-          <div v-else>
-            <Button @click="aceptarSolicitud(slotProps.data.ID_SOLICITUD)" unstyled class="zoom-button"
-              :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.ESTADO === 'Aprobada' }"
-              :disabled="slotProps.data.ESTADO === 'Aprobada'" style="margin-bottom: 0.5rem;">
-              <Tag icon="pi pi-check" severity="success" value="Aprobar"></Tag>
-            </Button>
-            <Button @click="rechazoSolicitud(slotProps.data.ID_SOLICITUD)" unstyled class="zoom-button"
-              :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.ESTADO === 'Aprobada' }"
-              :disabled="slotProps.data.ESTADO === 'Aprobada'" style="margin-bottom: 0.5rem;">
-              <Tag icon="pi pi-times" severity="danger" value="Rechazar"></Tag>
-            </Button>
-          </div>
-        </template>
-      </Column>
+        <!-- Columnas de Acciones -->
+        <Column header="Acciones">
+          <template #body="slotProps">
+            <Skeleton v-if="loading" class="mb-2">
+              <div class="h-8 w-full"></div>
+            </Skeleton>
+            <div v-else>
+              <Button @click="aceptarSolicitud(slotProps.data.ID_SOLICITUD)" unstyled class="zoom-button"
+                :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.ESTADO === 'Aprobada' }"
+                :disabled="slotProps.data.ESTADO === 'Aprobada'" style="margin-bottom: 0.5rem;">
+                <Tag icon="pi pi-check" severity="success" value="Aprobar"></Tag>
+              </Button>
+              <Button @click="rechazoSolicitud(slotProps.data.ID_SOLICITUD)" unstyled class="zoom-button"
+                :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.ESTADO === 'Aprobada' }"
+                :disabled="slotProps.data.ESTADO === 'Aprobada'" style="margin-bottom: 0.5rem;">
+                <Tag icon="pi pi-times" severity="danger" value="Rechazar"></Tag>
+              </Button>
+            </div>
+          </template>
+        </Column>
 
-    </DataTable>
+      </DataTable>
+    </div>
   </div>
 
   <Dialog header="Solicitud" v-model:visible="pdfDialogVisible" style="width: 80vw" pt:mask:class="backdrop-blur-sm">

@@ -1,9 +1,7 @@
 <script setup>
-import { ref } from 'vue';
 </script>
 
 <template>
-
 	<body>
 		<div class="background">
 			<div class="ground"></div>

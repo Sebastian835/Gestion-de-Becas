@@ -13,13 +13,12 @@ const iniciarSesion = async () => {
     try {
         Swal.fire({
             title: "Iniciando Sesión",
-            allowOutsideClick: false, 
+            allowOutsideClick: false,
             didOpen: () => {
-                Swal.showLoading(); 
+                Swal.showLoading();
             }
         });
         const dataUser = await login(usuario.value, contra.value);
-        console.log(dataUser);
         Swal.close();
         Swal.fire({
             icon: "success",
@@ -35,10 +34,6 @@ const iniciarSesion = async () => {
                 usuario.value = '';
                 contra.value = '';
                 router.push('/main/requisitos');
-            } else {
-                usuario.value = '';
-                contra.value = '';
-                console.log('Aquí toca el vicerrector');
             }
         });
     } catch (error) {

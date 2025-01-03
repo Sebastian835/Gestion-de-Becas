@@ -29,6 +29,11 @@ const routes = [
         meta: { requiresAuth: true, roles: ["admin"] },
       },
       {
+        path: "periodos",  
+        component: () => import("../views/admin/periodos.vue"),
+        meta: { requiresAuth: true, roles: ["admin"] },
+      },
+      {
         path: "solicitudesBeca",  
         component: () => import("../views/admin/solicitudes.vue"),
         meta: { requiresAuth: true, roles: ["admin"] },
@@ -36,6 +41,16 @@ const routes = [
       {
         path: "documentosBeca",  
         component: () => import("../views/admin/documentos.vue"),
+        meta: { requiresAuth: true, roles: ["admin"] },
+      },
+      {
+        path: "becas",  
+        component: () => import("../views/admin/becas.vue"),
+        meta: { requiresAuth: true, roles: ["admin"] },
+      },
+      {
+        path: "reportes",  
+        component: () => import("../views/admin/reportes.vue"),
         meta: { requiresAuth: true, roles: ["admin"] },
       },
       {

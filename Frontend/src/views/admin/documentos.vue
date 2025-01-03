@@ -55,7 +55,7 @@ const fetchDocumentos = async () => {
   try {
     const response = await getDocumentos();
 
-    documentos.value = response.map(doc => {
+    const processedDocs = response.map(doc => {
       const updatedDoc = { ...doc };
       const fieldsToConvert = [
         'CERTIFICADO_MATRICULA',
@@ -70,6 +70,15 @@ const fetchDocumentos = async () => {
         }
       });
       return updatedDoc;
+    });
+
+    documentos.value = processedDocs.sort((a, b) => {
+      const estadoA = a.istla_estado_solicitud.ESTADO;
+      const estadoB = b.istla_estado_solicitud.ESTADO;
+
+      if (estadoA === 'Pendiente') return -1;
+      if (estadoB === 'Pendiente') return 1;
+      return 0;
     });
   } catch (error) {
     console.error(error);
@@ -132,28 +141,49 @@ const getCertificadosOptions = (data) => {
 const aceptarDocumentacion = async (id) => {
   Swal.fire({
     title: '¿Estás seguro?',
-    text: 'Se aprobará la documentacion del estudiante. Y se creará la beca solicitada',
+    text: 'Se aprobará la documentación del estudiante y se creará la beca solicitada.',
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
     cancelButtonColor: '#d33',
     confirmButtonText: 'Aceptar',
+    cancelButtonText: 'Cancelar',
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
-        await postAprobarDocumentacion(id);
-        Swal.fire({
-          title: 'Docuemntacion aprobada',
-          text: 'Se emitirá el correo al estudiante.',
-          icon: 'success',
-        }).then(() => {
-          refreshData();
+        const rangeResult = await Swal.fire({
+          title: 'Selecciona el porcentaje de beca',
+          input: 'range',
+          inputAttributes: {
+            min: 0,
+            max: 100,
+            step: 1,
+          },
+          inputValue: 50,
+          showCancelButton: true,
+          confirmButtonText: 'Aceptar',
+          cancelButtonText: 'Cancelar',
         });
+
+        if (rangeResult.isConfirmed) {
+          const porcentaje = rangeResult.value;
+
+          await postAprobarDocumentacion(id, porcentaje);
+
+          await Swal.fire({
+            title: 'Beca creada',
+            text: `Se asigno la beca del ${porcentaje}%. Se emitirá el correo al estudiante.`,
+            icon: 'success',
+          });
+
+          refreshData();
+        }
       } catch (error) {
-        console.error('Error aprobando la documentacion:', error);
+        console.error('Error aprobando la documentación:', error);
       }
     }
   });
+
 
 };
 
@@ -212,7 +242,7 @@ const rechazarDocumentacion = async (id) => {
       }
     } else if (result.isDenied) {
       try {
-         await deleteRechazarDocumentacion(id);
+        await deleteRechazarDocumentacion(id);
         Swal.fire({
           title: 'Solicitud rechazada',
           text: 'La solicitud de beca ha sido rechazada completamente',
@@ -239,82 +269,85 @@ onMounted(() => {
 
 <template>
   <div>
-    <h2 class="text-xl font-semibold mb-4">Documentos de Becas</h2>
-    <div class="flex items-center gap-4 mb-4">
+    <h2 class="text-xl font-semibold mb-4" style="margin-bottom: 25px; font-size:25px;">Documentos de Becas</h2>
+    <div class="flex items-center gap-4 mb-4" style="margin-bottom: 25px;">
       <InputText v-model="globalFilter" placeholder="Buscar..." class="w-1/4" />
-
-      <Button icon="pi pi-eraser" label="Limpiar Filtros" @click="clearFilters" severity="secondary" />
-      <Button icon="pi pi-refresh" label="Refrescar" @click="refreshData" severity="secondary" />
-
+      <Button icon="pi pi-eraser" label="Limpiar Filtros" @click="clearFilters" severity="secondary" raised />
+      <Button icon="pi pi-refresh" label="Refrescar" @click="refreshData" severity="secondary" raised />
     </div>
-    <DataTable :value="documentos" :filters="filters" :globalFilterFields="[
-      'istla_solicitudes_beca.CEDULA_ESTUDIANTE',
-      'istla_solicitudes_beca.istla_tipo_beca.TIPO_BECA',
-      'istla_estado_solicitud.ESTADO'
-    ]" :paginator="true" :rows="5" :rowsPerPageOptions="[5, 10, 20]" :emptyMessage="'No hay datos disponibles'"
-      responsiveLayout="scroll" class="text-center">
 
-      <Column field="istla_solicitudes_beca.CEDULA_ESTUDIANTE" header="Cédula Estudiante" sortable
-        class="text-center" />
+    <div class="rounded-lg overflow-hidden shadow-lg">
+      <DataTable :value="documentos" :filters="filters" :globalFilterFields="[
+        'istla_solicitudes_beca.CEDULA_ESTUDIANTE',
+        'istla_solicitudes_beca.istla_tipo_beca.TIPO_BECA',
+        'istla_estado_solicitud.ESTADO'
+      ]" :paginator="true" :rows="5" :rowsPerPageOptions="[5, 10, 20]" :emptyMessage="'No hay datos disponibles'"
+        responsiveLayout="scroll" class="text-center" sortField="istla_estado_solicitud.ESTADO" :sortOrder="-1">
 
-      <Column field="istla_solicitudes_beca.istla_tipo_beca.TIPO_BECA" header="Tipo de Beca" sortable
-        class="text-center" />
+        <Column field="istla_solicitudes_beca.CEDULA_ESTUDIANTE" header="Cédula Estudiante" sortable
+          class="text-center" />
 
-      <Column header="Estado" sortable class="text-center">
-        <template #body="slotProps">
-          <div class="flex justify-center">
-            <Tag :icon="getEstadoIcon(slotProps.data.istla_estado_solicitud.ESTADO)"
-              :value="slotProps.data.istla_estado_solicitud.ESTADO"
-              :severity="getEstadoSeverity(slotProps.data.istla_estado_solicitud.ESTADO)" />
-          </div>
-        </template>
-      </Column>
+        <Column field="istla_solicitudes_beca.istla_tipo_beca.TIPO_BECA" header="Tipo de Beca" sortable
+          class="text-center" />
 
-      <Column header="Certificados" class="text-center" :style="{ width: '130px' }"> 
-        <template #body="{ data }">
-          <div class="flex justify-center items-center gap-2">
-            <Select v-if="data.istla_estado_solicitud.ESTADO != 'Pendiente'" v-model="selectedCertificado"
-              :options="getCertificadosOptions(data)" optionLabel="label" optionValue="value"
-              placeholder="Seleccionar documento" class="w-full md:w-56" @change="openPdfModal(selectedCertificado)" />
-            <span v-if="data.istla_estado_solicitud.ESTADO === 'Pendiente'">
-              <Tag severity="secondary" value="En espera" icon="pi pi-hourglass"></Tag>
-            </span>
-          </div>
-        </template>
-      </Column>
+        <Column header="Estado" sortable class="text-center">
+          <template #body="slotProps">
+            <div class="flex justify-center">
+              <Tag :icon="getEstadoIcon(slotProps.data.istla_estado_solicitud.ESTADO)"
+                :value="slotProps.data.istla_estado_solicitud.ESTADO"
+                :severity="getEstadoSeverity(slotProps.data.istla_estado_solicitud.ESTADO)" />
+            </div>
+          </template>
+        </Column>
 
-      <Column header="Documentos Específicos" class="text-center">
-        <template #body="{ data }">
-          <div class="flex justify-center items-center gap-2">
-            <Select v-if="data.istla_estado_solicitud.ESTADO != 'Pendiente'" v-model="selectDocumentDetail"
-              :options="getDocumentOptions(data.istla_documentos_detalle)" optionLabel="label" optionValue="value"
-              placeholder="Seleccionar documento" class="w-full md:w-56" @change="openPdfModal(selectDocumentDetail)" />
-            <span v-if="data.istla_estado_solicitud.ESTADO === 'Pendiente'">
-              <Tag severity="secondary" value="En espera" icon="pi pi-hourglass"></Tag>
-            </span>
-          </div>
-        </template>
-      </Column>
+        <Column header="Certificados" class="text-center" :style="{ width: '130px' }">
+          <template #body="{ data }">
+            <div class="flex justify-center items-center gap-2">
+              <Select v-if="data.istla_estado_solicitud.ESTADO != 'Pendiente'" v-model="selectedCertificado"
+                :options="getCertificadosOptions(data)" optionLabel="label" optionValue="value"
+                placeholder="Seleccionar documento" class="w-full md:w-56"
+                @change="openPdfModal(selectedCertificado)" />
+              <span v-if="data.istla_estado_solicitud.ESTADO === 'Pendiente'">
+                <Tag severity="secondary" value="En espera" icon="pi pi-hourglass"></Tag>
+              </span>
+            </div>
+          </template>
+        </Column>
 
-      <Column header="Acciones">
-        <template #body="slotProps">
-          <div>
-            <Button @click="aceptarDocumentacion(slotProps.data.ID_DOCUMENTOS)" unstyled class="zoom-button"
-              :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.istla_estado_solicitud.ESTADO === 'Aprobada' || slotProps.data.istla_estado_solicitud.ESTADO === 'Pendiente' }"
-              :disabled="slotProps.data.istla_estado_solicitud.ESTADO === 'Aprobada' || slotProps.data.istla_estado_solicitud.ESTADO === 'Pendiente'"
-              style="margin-bottom: 0.5rem;">
-              <Tag icon="pi pi-check" severity="success" value="Aprobar"></Tag>
-            </Button>
-            <Button @click="rechazarDocumentacion(slotProps.data.ID_DOCUMENTOS)" unstyled class="zoom-button"
-              :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.istla_estado_solicitud.ESTADO === 'Aprobada' }"
-              :disabled="slotProps.data.istla_estado_solicitud.ESTADO === 'Aprobada'" style="margin-bottom: 0.5rem;">
-              <Tag icon="pi pi-times" severity="danger" value="Rechazar"></Tag>
-            </Button>
-          </div>
-        </template>
-      </Column>
+        <Column header="Documentos Específicos" class="text-center">
+          <template #body="{ data }">
+            <div class="flex justify-center items-center gap-2">
+              <Select v-if="data.istla_estado_solicitud.ESTADO != 'Pendiente'" v-model="selectDocumentDetail"
+                :options="getDocumentOptions(data.istla_documentos_detalle)" optionLabel="label" optionValue="value"
+                placeholder="Seleccionar documento" class="w-full md:w-56"
+                @change="openPdfModal(selectDocumentDetail)" />
+              <span v-if="data.istla_estado_solicitud.ESTADO === 'Pendiente'">
+                <Tag severity="secondary" value="En espera" icon="pi pi-hourglass"></Tag>
+              </span>
+            </div>
+          </template>
+        </Column>
 
-    </DataTable>
+        <Column header="Acciones">
+          <template #body="slotProps">
+            <div>
+              <Button @click="aceptarDocumentacion(slotProps.data.ID_DOCUMENTOS)" unstyled class="zoom-button"
+                :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.istla_estado_solicitud.ESTADO === 'Aprobada' || slotProps.data.istla_estado_solicitud.ESTADO === 'Pendiente' }"
+                :disabled="slotProps.data.istla_estado_solicitud.ESTADO === 'Aprobada' || slotProps.data.istla_estado_solicitud.ESTADO === 'Pendiente'"
+                style="margin-bottom: 0.5rem;">
+                <Tag icon="pi pi-check" severity="success" value="Aprobar"></Tag>
+              </Button>
+              <Button @click="rechazarDocumentacion(slotProps.data.ID_DOCUMENTOS)" unstyled class="zoom-button"
+                :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.istla_estado_solicitud.ESTADO === 'Aprobada' }"
+                :disabled="slotProps.data.istla_estado_solicitud.ESTADO === 'Aprobada'" style="margin-bottom: 0.5rem;">
+                <Tag icon="pi pi-times" severity="danger" value="Rechazar"></Tag>
+              </Button>
+            </div>
+          </template>
+        </Column>
+
+      </DataTable>
+    </div>
 
     <!-- Modal para mostrar el PDF -->
     <Dialog header="Solicitud" v-model:visible="displayModal" style="width: 80vw" pt:mask:class="backdrop-blur-sm">

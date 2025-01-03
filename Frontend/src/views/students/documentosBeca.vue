@@ -284,7 +284,7 @@ onMounted(() => {
                     <div v-if="!documento.opciones">
                         <label :for="documento.campo" class="block text-sm font-medium text-gray-900 mb-2">{{
                             documento.nombre }}:</label>
-                        <input type="file" :id="documento.campo" :name="documento.campo"
+                        <input type="file" accept="application/pdf" :id="documento.campo" :name="documento.campo"
                             class="block w-full p-2.5 rounded-lg border border-gray-300" />
                     </div>
                 </div>
@@ -294,7 +294,7 @@ onMounted(() => {
             <div v-if="tipoBecaSeleccionado === 7" class="m|t-4">
                 <label for="documentoOpcional" class="block text-sm font-medium text-gray-900 mb-2">Seleccione un
                     documento opcional:</label>
-                <select v-model="documentoSeleccionadoOpcional" @change="seleccionarDocumentoOpcional"
+                <select v-model="documentoSeleccionadoOpcional" @change="seleccionarDocumentoOpcional" 
                     class="block w-full sm:w-1/2 p-2.5 mb-6 rounded-lg border border-gray-300 text-gray-900">
                     <option value="" disabled>Seleccione un documento adicional</option>
                     <option v-for="(opcion, idx) in documentosOpcionalesSituacionesCalamitosas" :key="idx"
@@ -306,7 +306,7 @@ onMounted(() => {
                     <div class="w-full">
                         <label :for="documentoSeleccionadoOpcional"
                             class="block text-sm font-medium text-gray-900 mb-2">Subir archivo:</label>
-                        <input type="file" :id="documentoSeleccionadoOpcional" :name="documentoSeleccionadoOpcional"
+                        <input type="file" accept="application/pdf" :id="documentoSeleccionadoOpcional" :name="documentoSeleccionadoOpcional"
                             class="block w-full p-2.5 rounded-lg border border-gray-300" />
                     </div>
                 </div>
@@ -314,7 +314,7 @@ onMounted(() => {
             <div class="flex justify-center mt-4">
                 <button @click="validarDocumentos" type="button"
                     class="w-72 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-green-600">
-                    Enviar Solicitud
+                    Enviar Documentos
                 </button>
             </div>
         </form>

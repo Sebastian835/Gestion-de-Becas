@@ -3,6 +3,7 @@ const prisma = new PrismaClient();
 const fs = require("fs");
 const path = require("path");
 const { getPeriodos } = require("./api_istla");
+const { postBecas } = require("./becas_Otorgadas")
 
 const eliminarCarpetaEstudiante = async (rutaCarpeta) => {
   try {
@@ -220,7 +221,7 @@ async function getDocumentos() {
   }
 }
 
-async function putAprobarDocumentacion(id) {
+async function putAprobarDocumentacion(id, porcentaje) {
   try {
     const estado = await prisma.istla_estado_solicitud.findFirst({
       where: {
@@ -237,6 +238,8 @@ async function putAprobarDocumentacion(id) {
       },
     });
 
+    await postBecas(id, porcentaje)
+    
     return {
       status: 200,
       message: "Documentación aprobada",
@@ -329,6 +332,7 @@ async function deleteDocumentacion(id) {
     };
   }
 }
+
 
 module.exports = {
   getEstadoDocumentos,

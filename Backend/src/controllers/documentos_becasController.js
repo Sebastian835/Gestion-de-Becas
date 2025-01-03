@@ -66,7 +66,7 @@ function construirURLDocumento(baseURL, archivo) {
 
 async function putAceptarDocumentacionController(req, res) {
   try {
-    const result = await putAprobarDocumentacion(req.params.id);
+    const result = await putAprobarDocumentacion(req.params.id, req.body.porcentaje);
 
     res.status(result.status).json(result);
   } catch (error) {

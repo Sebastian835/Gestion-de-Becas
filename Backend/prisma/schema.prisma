@@ -24,6 +24,7 @@ model istla_solicitudes_beca {
   FECHA                         DateTime                        @db.Date
   ID_ESTADO                     Int
   DOCUMENTO_SOLICITUD           Bytes
+  istla_becas_otorgadas         istla_becas_otorgadas[]
   istla_documentos_obligatorios istla_documentos_obligatorios[]
   istla_tipo_beca               istla_tipo_beca                 @relation(fields: [ID_TIPO_BECA], references: [ID_TIPO_BECA], onUpdate: Restrict, map: "istla_solicitudes_beca_ibfk_1")
   istla_estado_solicitud        istla_estado_solicitud          @relation(fields: [ID_ESTADO], references: [ID_ESTADO], onUpdate: Restrict, map: "istla_solicitudes_beca_ibfk_2")
@@ -96,6 +97,17 @@ model istla_vigencia_beca {
   @@index([ID_ESTADO], map: "istla_vigencia_beca_ibfk_1")
 }
 
+model istla_becas_otorgadas {
+  ID_BECA                Int                     @id @default(autoincrement())
+  ID_SOLICITUD           Int?
+  PORCENTAJE             Int?
+  PERIODO_CADUCIDAD      String?                 @db.VarChar(255)
+  ESTADO                 Int?                    @db.TinyInt
+  istla_solicitudes_beca istla_solicitudes_beca? @relation(fields: [ID_SOLICITUD], references: [ID_SOLICITUD], onDelete: NoAction, onUpdate: NoAction, map: "istla_becas_otorgadas_ibfk_1")
+
+  @@index([ID_SOLICITUD], map: "ID_SOLICITUD")
+}
+
 view vista_solicitud_beca_detalle {
   ID_SOLICITUD        Int      @unique @default(0)
   CEDULA_ESTUDIANTE   String   @db.VarChar(20)
@@ -104,4 +116,14 @@ view vista_solicitud_beca_detalle {
   DOCUMENTO_SOLICITUD Bytes
   ESTADO              String   @db.VarChar(15)
   ID_PERIODO          Int
+}
+
+view vista_becas_otorgadas {
+  ID_BECA           Int     @default(0)
+  CEDULA_ESTUDIANTE String  @unique @db.VarChar(20)
+  TIPO_BECA         String  @db.VarChar(255)
+  PORCENTAJE        Int?
+  ID_PERIODO        Int
+  PERIODO_CADUCIDAD String? @db.VarChar(255)
+  ESTADO            Int?    @db.TinyInt
 }

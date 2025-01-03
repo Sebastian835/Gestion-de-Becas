@@ -15,7 +15,6 @@ async function getToken() {
     });
     return response.data.token;
   } catch (error) {
-    console.error("Error obteniendo token:", error.message);
     throw error;
   }
 }
@@ -28,7 +27,6 @@ async function getUsuarios() {
     });
     return response.data;
   } catch (error) {
-    console.error("Error obteniendo usuarios:", error.message);
     throw error;
   }
 }
@@ -39,13 +37,11 @@ async function getPeriodos() {
     const response = await axios.get(`${baseURL}/ver-periodos`, {
       headers: { Authorization: token },
     });
-   return response.data;
+    return response.data;
   } catch (error) {
-    console.error("Error obteniendo periodos:", error.message);
-    res.status(500).json({ error: "Error obteniendo los períodos." });
+    throw error;
   }
 }
-
 
 module.exports = {
   getUsuarios,
