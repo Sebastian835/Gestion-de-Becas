@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/vigenciaBecas";
+const API_URL = `${import.meta.env.VITE_API_URL}/vigenciaBecas`;
 
 export const postCrearPlazoBecas = async (data) => {
   try {
