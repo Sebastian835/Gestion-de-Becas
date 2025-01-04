@@ -1,13 +1,15 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
 import { login } from '../services/authService';
+import { getUser } from '../services/user';
 
 const router = useRouter();
 
 let usuario = ref('');
 let contra = ref('');
+const currentUser = ref(null);
 
 const iniciarSesion = async () => {
     try {
@@ -48,6 +50,25 @@ const iniciarSesion = async () => {
         });
     }
 }
+
+const fetchCurrentUser = async () => {
+    try {
+        const user = await getUser();
+        if (user) {
+            if (user.role === 'admin') {
+                router.push('/main/home');
+            } else if (user.role === 'estudiante') {
+                router.push('/main/requisitos');
+            }
+        }
+    } catch (error) {
+
+    }
+};
+
+onMounted(() => {
+    fetchCurrentUser();
+});
 
 
 </script>

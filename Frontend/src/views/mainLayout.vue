@@ -2,10 +2,14 @@
 import Sidebar from '../components/sidebar.vue';
 import Header from '../components/header.vue';
 import Footer from '../components/footer.vue';
+import { useSidebarStore } from '../stores/sidebarStore';
+const sidebarStore = useSidebarStore();
+
 </script>
 
 <template>
     <div class="animated-background min-h-screen">
+        <div v-if="sidebarStore.isOpen" @click="sidebarStore.toggleSidebar" class="fixed inset-0 " />
         <Sidebar />
         <div class="p-4 xl:ml-80">
             <nav
@@ -24,7 +28,7 @@ import Footer from '../components/footer.vue';
 
 <style>
 .animated-background {
-    background: linear-gradient(270deg, #e0f7fa, #c9edf0, #e0f7fa);
+    background: linear-gradient(270deg, #c9edf0, #c9edf0, #c9edf0);
     background-size: 400% 400%;
     animation: moveGradient 8s ease infinite;
 }

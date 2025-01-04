@@ -46,3 +46,14 @@ axios.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 403) {
+            return Promise.resolve(); 
+        }
+        return Promise.reject(error); 
+    }
+);
+

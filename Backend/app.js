@@ -8,13 +8,18 @@ const app = express();
 
 const corsOptions = {
   origin: (origin, callback) => {
-    if (!origin || origin.startsWith('http://localhost')) {
-      callback(null, true);  
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://tesis.apps-sebas.org'
+    ];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
     } else {
-      callback(new Error('No permitido'), false);
+      callback(new Error('No permitido por CORS'), false);
     }
   },
-  credentials: true,
+  credentials: true
 };
 
 app.use(express.json({ limit: "5mb" }));

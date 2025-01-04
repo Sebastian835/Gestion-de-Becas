@@ -145,7 +145,7 @@ onMounted(() => {
     </div>
 
     <!-- Card Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
         <Card v-for="beca in paginatedBecas" :key="beca.ID_BECA"
             class="transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
             <template #header>
@@ -204,6 +204,8 @@ onMounted(() => {
         </Card>
     </div>
 
+    
+
     <!-- Paginador -->
     <Paginator v-model:first="first" v-model:rows="rows" :totalRecords="totalRecords" :rowsPerPageOptions="[8, 16, 24]"
         @page="onPageChange" class="mt-4" />
@@ -227,4 +229,10 @@ onMounted(() => {
     </Dialog>
 </template>
 
-<style scoped></style>
+<style scoped>
+@media (min-width: 768px) and (max-width: 1279px) {
+    .grid {
+        @apply grid-cols-3 !important;
+    }
+}
+</style>

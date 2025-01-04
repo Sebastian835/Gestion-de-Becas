@@ -8,28 +8,28 @@ const becasMitad = ref(10);
 const otrasBecas = ref(5);
 
 const chartData = ref({
-  labels: ['Becas Completas', 'Becas del 50%', 'Otras Becas'],
-  datasets: [
-    {
-      data: [15, 10, 5],
-      backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726'],
-      hoverBackgroundColor: ['#64B5F6', '#81C784', '#FFB74D'],
-    },
-  ],
+    labels: ['Becas Completas', 'Becas del 50%', 'Otras Becas'],
+    datasets: [
+        {
+            data: [15, 10, 5],
+            backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726'],
+            hoverBackgroundColor: ['#64B5F6', '#81C784', '#FFB74D'],
+        },
+    ],
 });
 
 const chartOptions = ref({
-  plugins: {
-    legend: {
-      labels: {
-        color: '#495057',
-      },
+    plugins: {
+        legend: {
+            labels: {
+                color: '#495057',
+            },
+        },
     },
-  },
-  animation: {
-    duration: 1500, 
-    easing: 'easeInOutQuad', 
-  },
+    animation: {
+        duration: 1500,
+        easing: 'easeInOutQuad',
+    },
 });
 
 </script>
@@ -189,12 +189,23 @@ const chartOptions = ref({
         </div>
     </div>
 
-    <div class="p-4">
-    <div class="text-center mb-4">
-      <h2 class="font-bold text-lg">Distribución de Becas</h2>
-    </div>
-    <Chart type="pie" :data="chartData" :options="chartOptions" />
-  </div>
+
 </template>
 
-<style scoped></style>
+
+<style scoped>
+@media (min-width: 768px) and (max-width: 1279px) {
+    .grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+    
+    /* Centrar el SVG */
+    .place-items-center {
+        @apply flex justify-center items-center !important;
+    }
+
+    .place-items-center svg {
+        @apply w-10 h-10 mx-auto !important;
+    }
+}
+</style>

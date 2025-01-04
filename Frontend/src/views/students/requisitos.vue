@@ -2,6 +2,9 @@
 import { ref, onMounted } from 'vue';
 import { initFlowbite } from 'flowbite'
 
+import Dialog from 'primevue/dialog';
+import Button from 'primevue/button';
+
 onMounted(() => {
     initFlowbite();
 })
@@ -32,7 +35,6 @@ function leave(el) {
     el.style.maxHeight = '0';
 }
 
-
 const isModalOpen = ref(false);
 
 function openModal() {
@@ -42,6 +44,14 @@ function openModal() {
 function closeModal() {
     isModalOpen.value = false;
 }
+
+const distincionAcademica = ref(false);
+const deportistasAltoRendimiento = ref(false);
+const heroesNacionales = ref(false);
+const discapacidad = ref(false);
+const clubDeportivo = ref(false);
+const clubCAA = ref(false);
+const socioeconomicas = ref(false);
 
 </script>
 
@@ -104,11 +114,10 @@ function closeModal() {
                 </transition>
             </section>
         </main>
-
         <!-- Becas -->
         <section class="p-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <button data-modal-target="distincionAcademica" data-modal-toggle="distincionAcademica"
+                <button @click="distincionAcademica = true"
                     class="transform transition duration-300 ease-in-out hover:scale-105 flex flex-col md:flex-row items-center bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
                     <img class="w-20 h-20 md:w-20 md:h-20 rounded-t-lg md:rounded-none"
                         src="../../assets/img/user_requisitos/distincionAcademica.svg"
@@ -118,7 +127,7 @@ function closeModal() {
                     </div>
                 </button>
 
-                <button data-modal-target="deportistasAltoRendimiento" data-modal-toggle="deportistasAltoRendimiento"
+                <button @click="deportistasAltoRendimiento = true"
                     class="transform transition duration-300 ease-in-out hover:scale-105 flex flex-col md:flex-row items-center bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
                     <img class="w-20 h-20 md:w-20 md:h-20 rounded-t-lg md:rounded-none"
                         src="../../assets/img/user_requisitos/deportista.svg" alt="Beca a deportistas de alto">
@@ -129,7 +138,7 @@ function closeModal() {
                     </div>
                 </button>
 
-                <button data-modal-target="heroesNacionales" data-modal-toggle="heroesNacionales"
+                <button @click="heroesNacionales = true"
                     class="transform transition duration-300 ease-in-out hover:scale-105 flex flex-col md:flex-row items-center bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
                     <img class="w-20 h-20 md:w-20 md:h-20 rounded-t-lg md:rounded-none"
                         src="../../assets/img/user_requisitos/heroes.svg" alt="Beca a heroes o heroinas nacionales">
@@ -139,7 +148,7 @@ function closeModal() {
                     </div>
                 </button>
 
-                <button data-modal-target="discapacidad" data-modal-toggle="discapacidad"
+                <button @click="discapacidad = true"
                     class="transform transition duration-300 ease-in-out hover:scale-105 flex flex-col md:flex-row items-center bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
                     <img class="w-20 h-20 md:w-20 md:h-20 rounded-t-lg md:rounded-none"
                         src="../../assets/img/user_requisitos/discapacidad.svg"
@@ -150,7 +159,7 @@ function closeModal() {
                     </div>
                 </button>
 
-                <button data-modal-target="clubDeportivo" data-modal-toggle="clubDeportivo"
+                <button @click="clubDeportivo = true"
                     class="transform transition duration-300 ease-in-out hover:scale-105 flex flex-col md:flex-row items-center bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
                     <img class="w-20 h-20 md:w-20 md:h-20 rounded-t-lg md:rounded-none"
                         src="../../assets/img/user_requisitos/clubDeportivo.svg"
@@ -161,7 +170,7 @@ function closeModal() {
                     </div>
                 </button>
 
-                <button data-modal-target="clubCAA" data-modal-toggle="clubCAA"
+                <button @click="clubCAA = true"
                     class="transform transition duration-300 ease-in-out hover:scale-105 flex flex-col md:flex-row items-center bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
                     <img class="w-20 h-20 md:w-20 md:h-20 rounded-t-lg md:rounded-none"
                         src="../../assets/img/user_requisitos/music.svg" alt="Beca por pertenecer a club cultural,
@@ -175,7 +184,7 @@ function closeModal() {
 
             <div class="flex justify-center items-center py-4">
                 <div class="grid grid-cols-1 sm:grid-cols-1 gap-1">
-                    <button data-modal-target="socioeconomicas" data-modal-toggle="socioeconomicas"
+                    <button @click="socioeconomicas = true"
                         class="transform transition duration-300 ease-in-out hover:scale-105 flex flex-col md:flex-row items-center bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
                         <img class="w-20 h-20 md:w-20 md:h-20 rounded-t-lg md:rounded-none"
                             src="../../assets/img/user_requisitos/socioeconmicas.svg"
@@ -192,413 +201,284 @@ function closeModal() {
     </div>
 
     <!-- Modal Distincion Academica -->
-    <div id="distincionAcademica" tabindex="-1" aria-hidden="true"
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-        <div class="relative p-4 w-full max-w-2xl max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white text-center">
-                        Beca por distinción académica
-                    </h3>
-                    <button type="button"
-                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                        data-modal-hide="distincionAcademica">
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                        </svg>
-                        <span class="sr-only">Close modal</span>
-                    </button>
-                </div>
-                <div class="p-4 md:p-5 space-y-4">
-                    <div class="bg-white p-4 rounded-lg shadow-md">
-                        <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
-                            semestre.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
-                                del ISTLA.</li>
-                        </ul>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                        <h3 class="text-lg font-semibold">2. Contar con un promedio final de nueve sobre diez.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Certificado de notas otorgado por el departamento de secretaria indicando que el
-                                aspirante se encuentra en la media del promedio indicado en el presente reglamento.
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+    <Dialog v-model:visible="distincionAcademica" modal header="Beca por distinción académica"
+        :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask="true">
+        <div class="p-4 md:p-5 space-y-4">
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
+                    semestre.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
+                        del ISTLA.</li>
+                </ul>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-lg font-semibold">2. Contar con un promedio final de nueve sobre diez.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Certificado de notas otorgado por el departamento de secretaria indicando que el
+                        aspirante se encuentra en la media del promedio indicado en el presente reglamento.
+                    </li>
+                </ul>
             </div>
         </div>
-    </div>
+    </Dialog>
 
     <!-- Modal Deportistas de alto rendimiento -->
-    <div id="deportistasAltoRendimiento" tabindex="-1" aria-hidden="true"
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-        <div class="relative p-4 w-full max-w-2xl max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white text-center">
-                        Beca a deportistas de alto rendimiento
-                    </h3>
-                    <button type="button"
-                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                        data-modal-hide="deportistasAltoRendimiento">
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                        </svg>
-                        <span class="sr-only">Close modal</span>
-                    </button>
-                </div>
-                <div class="p-4 md:p-5 space-y-4">
-                    <div class="bg-white p-4 rounded-lg shadow-md">
-                        <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
-                            semestre.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
-                                del ISTLA.</li>
-                        </ul>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                        <h3 class="text-lg font-semibold">2. Contar con un promedio final de nueve sobre diez.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Certificado de notas otorgado por el departamento de secretaria indicando que el
-                                aspirante se encuentra en la media del promedio indicado en el presente reglamento.
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                        <h3 class="text-lg font-semibold">3. Ser deportista, o haber sido
-                            deportista de alto rendimiento y
-                            haber obtenido reconocimientos o
-                            premios especiales en eventos
-                            internacionales.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Hoja de vida sobre la trayectoria
-                                deportiva, logros, títulos, medallas o
-                                distinciones alcanzadas, con
-                                documentación justificativa de soporte.
-                            </li>
-                            <li>-Informe del Comité Olímpico
-                                Ecuatoriano o la Federación Deportiva
-                                Nacional o Provincial, donde acredite
-                                la calidad de deportista de alto
-                                rendimiento.
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+    <Dialog v-model:visible="deportistasAltoRendimiento" modal header="Beca a deportistas de alto rendimiento"
+        :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask="true">
+        <div class="p-4 md:p-5 space-y-4">
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
+                    semestre.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
+                        del ISTLA.</li>
+                </ul>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-lg font-semibold">2. Contar con un promedio final de nueve sobre diez.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Certificado de notas otorgado por el departamento de secretaria indicando que el
+                        aspirante se encuentra en la media del promedio indicado en el presente reglamento.
+                    </li>
+                </ul>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-lg font-semibold">3. Ser deportista, o haber sido
+                    deportista de alto rendimiento y
+                    haber obtenido reconocimientos o
+                    premios especiales en eventos
+                    internacionales.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Hoja de vida sobre la trayectoria
+                        deportiva, logros, títulos, medallas o
+                        distinciones alcanzadas, con
+                        documentación justificativa de soporte.
+                    </li>
+                    <li>-Informe del Comité Olímpico
+                        Ecuatoriano o la Federación Deportiva
+                        Nacional o Provincial, donde acredite
+                        la calidad de deportista de alto
+                        rendimiento.
+                    </li>
+                </ul>
             </div>
         </div>
-    </div>
+    </Dialog>
 
     <!-- Modal Heroes o Heroias Nacionales -->
-    <div id="heroesNacionales" tabindex="-1" aria-hidden="true"
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-        <div class="relative p-4 w-full max-w-2xl max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white text-center">
-                        Beca a heroes o heroinas nacionales </h3>
-                    <button type="button"
-                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                        data-modal-hide="heroesNacionales">
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                        </svg>
-                        <span class="sr-only">Close modal</span>
-                    </button>
-                </div>
-                <div class="p-4 md:p-5 space-y-4">
-                    <div class="bg-white p-4 rounded-lg shadow-md">
-                        <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
-                            semestre.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
-                                del ISTLA.</li>
-                        </ul>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                        <h3 class="text-lg font-semibold">2. Contar con un promedio final de nueve sobre diez.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Certificado de notas otorgado por el departamento de secretaria indicando que el
-                                aspirante se encuentra en la media del promedio indicado en el presente reglamento.
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                        <h3 class="text-lg font-semibold">3. Haber obtenido la calidad de héroe o
-                            heroína nacional de conformidad a lo
-                            establecido en la Ley de
-                            Reconocimiento a los Héroes y
-                            Heroínas nacionales, o ser familiar
-                            directo en primer grado de
-                            consanguinidad o afinidad.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Fotocopia de la declaratoria de
-                                reconocimiento de héroe o heroína
-                                nacional del postulante padres o
-                                esposos, otorgados por el órgano
-                                competente.
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+    <Dialog v-model:visible="heroesNacionales" modal header="Beca a heroes o heroinas nacionales"
+        :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask="true">
+        <div class="p-4 md:p-5 space-y-4">
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
+                    semestre.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
+                        del ISTLA.</li>
+                </ul>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-lg font-semibold">2. Contar con un promedio final de nueve sobre diez.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Certificado de notas otorgado por el departamento de secretaria indicando que el
+                        aspirante se encuentra en la media del promedio indicado en el presente reglamento.
+                    </li>
+                </ul>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-lg font-semibold">3. Haber obtenido la calidad de héroe o
+                    heroína nacional de conformidad a lo
+                    establecido en la Ley de
+                    Reconocimiento a los Héroes y
+                    Heroínas nacionales, o ser familiar
+                    directo en primer grado de
+                    consanguinidad o afinidad.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Fotocopia de la declaratoria de
+                        reconocimiento de héroe o heroína
+                        nacional del postulante padres o
+                        esposos, otorgados por el órgano
+                        competente.
+                    </li>
+                </ul>
             </div>
         </div>
-    </div>
+    </Dialog>
 
     <!-- Modal Estudiantes con Discapacidad -->
-    <div id="discapacidad" tabindex="-1" aria-hidden="true"
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-        <div class="relative p-4 w-full max-w-2xl max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white text-center">
-                        Beca a estudiantes con discapacidad </h3>
-                    <button type="button"
-                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                        data-modal-hide="discapacidad">
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                        </svg>
-                        <span class="sr-only">Close modal</span>
-                    </button>
-                </div>
-                <div class="p-4 md:p-5 space-y-4">
-                    <div class="bg-white p-4 rounded-lg shadow-md">
-                        <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
-                            semestre.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
-                                del ISTLA.</li>
-                        </ul>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                        <h3 class="text-lg font-semibold">2. Contar con un promedio final de nueve sobre diez.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Certificado de notas otorgado por el departamento de secretaria indicando que el
-                                aspirante se encuentra en la media del promedio indicado en el presente reglamento.
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                        <h3 class="text-lg font-semibold">3. Tener discapacidad certificada por el
-                            MSP, y por lo tanto contar con el carné
-                            emitido por esta institución.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Fotocopia del carné emitido por el MSP.
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+    <Dialog v-model:visible="discapacidad" modal header="Beca a estudiantes con discapacidad"
+        :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask="true">
+        <div class="p-4 md:p-5 space-y-4">
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
+                    semestre.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
+                        del ISTLA.</li>
+                </ul>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-lg font-semibold">2. Contar con un promedio final de nueve sobre diez.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Certificado de notas otorgado por el departamento de secretaria indicando que el
+                        aspirante se encuentra en la media del promedio indicado en el presente reglamento.
+                    </li>
+                </ul>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-lg font-semibold">3. Tener discapacidad certificada por el
+                    MSP, y por lo tanto contar con el carné
+                    emitido por esta institución.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Fotocopia del carné emitido por el MSP.
+                    </li>
+                </ul>
             </div>
         </div>
-    </div>
+    </Dialog>
 
     <!-- Modal Club Deportivo -->
-    <div id="clubDeportivo" tabindex="-1" aria-hidden="true"
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-        <div class="relative p-4 w-full max-w-2xl max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white text-center">
-                        Beca por pertenecer a club
-                        deportivo del ISTLA</h3>
-                    <button type="button"
-                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                        data-modal-hide="clubDeportivo">
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                        </svg>
-                        <span class="sr-only">Close modal</span>
-                    </button>
-                </div>
-                <div class="p-4 md:p-5 space-y-4">
-                    <div class="bg-white p-4 rounded-lg shadow-md">
-                        <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
-                            semestre.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
-                                del ISTLA.</li>
-                        </ul>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                        <h3 class="text-lg font-semibold">2. Contar con un promedio final de nueve sobre diez.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Certificado de notas otorgado por el departamento de secretaria indicando que el
-                                aspirante se encuentra en la media del promedio indicado en el presente reglamento.
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                        <h3 class="text-lg font-semibold">3. Pertenecer por lo menos un periodo
-                            a un club deportivo del ISTLA, debe
-                            estar activo y legalizado, participar
-                            activamente en las competiciones o
-                            eventos que desarrolle el club con
-                            documentación justificada que
-                            indique minino el 90% de asistencia
-                            al mismo.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Informe general de las actividades o
-                                presentaciones de los clubes por parte
-                                del Director/encargado de deportes del
-                                ISTLA.
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+    <Dialog v-model:visible="clubDeportivo" modal header="Beca por pertenecer a club
+                        deportivo del ISTLA" :style="{ width: '50rem' }"
+        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask="true">
+        <div class="p-4 md:p-5 space-y-4">
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
+                    semestre.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
+                        del ISTLA.</li>
+                </ul>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-lg font-semibold">2. Contar con un promedio final de nueve sobre diez.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Certificado de notas otorgado por el departamento de secretaria indicando que el
+                        aspirante se encuentra en la media del promedio indicado en el presente reglamento.
+                    </li>
+                </ul>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-lg font-semibold">3. Pertenecer por lo menos un periodo
+                    a un club deportivo del ISTLA, debe
+                    estar activo y legalizado, participar
+                    activamente en las competiciones o
+                    eventos que desarrolle el club con
+                    documentación justificada que
+                    indique minino el 90% de asistencia
+                    al mismo.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Informe general de las actividades o
+                        presentaciones de los clubes por parte
+                        del Director/encargado de deportes del
+                        ISTLA.
+                    </li>
+                </ul>
             </div>
         </div>
-    </div>
+    </Dialog>
 
     <!-- Modal Club cultural, artistico o academico -->
-    <div id="clubCAA" tabindex="-1" aria-hidden="true"
-        class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-        <div class="relative p-4 w-full max-w-2xl max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                        Beca por pertenecer a club cultural,
-                        artistico o academico del ISTLA</h3>
-                    <button type="button"
-                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                        data-modal-hide="clubCAA">
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                        </svg>
-                        <span class="sr-only">Close modal</span>
-                    </button>
-                </div>
-                <div class="p-4 md:p-5 space-y-4">
-                    <div class="bg-white p-4 rounded-lg shadow-md">
-                        <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
-                            semestre.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
-                                del ISTLA.</li>
-                        </ul>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                        <h3 class="text-lg font-semibold">2. Contar con un promedio final de nueve sobre diez.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Certificado de notas otorgado por el departamento de secretaria indicando que el
-                                aspirante se encuentra en la media del promedio indicado en el presente reglamento.
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                        <h3 class="text-lg font-semibold">3. Pertenecer por lo menos un periodo
-                            a un club deportivo del ISTLA, debe
-                            estar activo y legalizado, participar
-                            activamente en las competiciones o
-                            eventos que desarrolle el club con
-                            documentación justificada que
-                            indique minino el 90% de asistencia
-                            al mismo.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Informe general de soporte emitido por el
-                                Coordinador de Bienestar Estudiantil, del
-                                instructor del club correspondiente, sobre
-                                el aporte y el rendimiento dentro del club
-                                del interesado\a.
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+    <Dialog v-model:visible="clubCAA" modal header="Beca por pertenecer a club cultural,
+                        artistico o academico del ISTLA" :style="{ width: '50rem' }"
+        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask="true">
+        <div class="p-4 md:p-5 space-y-4">
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
+                    semestre.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
+                        del ISTLA.</li>
+                </ul>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-lg font-semibold">2. Contar con un promedio final de nueve sobre diez.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Certificado de notas otorgado por el departamento de secretaria indicando que el
+                        aspirante se encuentra en la media del promedio indicado en el presente reglamento.
+                    </li>
+                </ul>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-lg font-semibold">3. Pertenecer por lo menos un periodo
+                    a un club deportivo del ISTLA, debe
+                    estar activo y legalizado, participar
+                    activamente en las competiciones o
+                    eventos que desarrolle el club con
+                    documentación justificada que
+                    indique minino el 90% de asistencia
+                    al mismo.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Informe general de soporte emitido por el
+                        Coordinador de Bienestar Estudiantil, del
+                        instructor del club correspondiente, sobre
+                        el aporte y el rendimiento dentro del club
+                        del interesado\a.
+                    </li>
+                </ul>
             </div>
         </div>
-    </div>
+    </Dialog>
 
     <!-- Modal limitaciones socioeconomicas -->
-    <div id="socioeconomicas" tabindex="-1"
-        class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
-        <div class="relative w-full max-w-4xl max-h-full">
-            <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-                    <h3 class="text-xl font-medium text-gray-900 dark:text-white">
-                        Beca a estudiantes con
-                        limitaciones socioeconomicas </h3>
-                    <button type="button"
-                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                        data-modal-hide="socioeconomicas">
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                        </svg>
-                        <span class="sr-only">Close modal</span>
-                    </button>
-                </div>
-                <div class="p-4 md:p-5 space-y-4">
-                    <div class="bg-white p-4 rounded-lg shadow-md">
-                        <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
-                            semestre.</h3>
+    <Dialog v-model:visible="socioeconomicas" modal header="Beca a estudiantes con
+                        limitaciones socioeconomicas" :style="{ width: '50rem' }"
+        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask="true">
+        <div class="p-4 md:p-5 space-y-4">
+            <div class="bg-white p-4 rounded-lg shadow-md">
+                <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
+                    semestre.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
+                        del ISTLA.</li>
+                </ul>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-lg font-semibold">2. Contar con un promedio final de nueve sobre diez.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Certificado de notas otorgado por el departamento de secretaria indicando que el
+                        aspirante se encuentra en la media del promedio indicado en el presente reglamento.
+                    </li>
+                </ul>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-md mt-4">
+                <h3 class="text-lg font-semibold">3. Pertenecer al grupo de vulnerabilidad, haber sido
+                    víctima de eventos graves, encontrarse atravesando calamidad doméstica, situaciones
+                    fortuitas y/o de fuerza mayor, debidamente comprometan el ingreso familiar y/o
+                    encontrarse el estudiante atravesando una situación económica adversa.</h3>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Ficha socio-económica.</li>
+                    <li>Mecanizado del IESS de miembros que aportan al grupo familiar.</li>
+                    <li>Certificado de no aportar al IESS de los miembros del grupo familiar menores de 25
+                        años.</li>
+                    <li>Declaración del impuesto a la renta del anterior periodo fiscal de los miembros
+                        computables del grupo familiar que lo sustentan.</li>
+                    <li>
+                        Cualquiera de los certificados o documentos descritos a continuación que demuestren
+                        la situación especial o de vulnerabilidad que se encuentra atravesando el/la
+                        postulante o su familia, tales como:
                         <ul class="list-disc pl-5 mt-2">
-                            <li>Certificado de aprobación de semestre, otorgado por el departamento de secretaria
-                                del ISTLA.</li>
-                        </ul>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                        <h3 class="text-lg font-semibold">2. Contar con un promedio final de nueve sobre diez.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Certificado de notas otorgado por el departamento de secretaria indicando que el
-                                aspirante se encuentra en la media del promedio indicado en el presente reglamento.
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-                        <h3 class="text-lg font-semibold">3. Pertenecer al grupo de vulnerabilidad, haber sido
-                            víctima de eventos graves, encontrarse atravesando calamidad doméstica, situaciones
-                            fortuitas y/o de fuerza mayor, debidamente comprometan el ingreso familiar y/o
-                            encontrarse el estudiante atravesando una situación económica adversa.</h3>
-                        <ul class="list-disc pl-5 mt-2">
-                            <li>Ficha socio-económica.</li>
-                            <li>Mecanizado del IESS de miembros que aportan al grupo familiar.</li>
-                            <li>Certificado de no aportar al IESS de los miembros del grupo familiar menores de 25
-                                años.</li>
-                            <li>Declaración del impuesto a la renta del anterior periodo fiscal de los miembros
-                                computables del grupo familiar que lo sustentan.</li>
                             <li>
-                                Cualquiera de los certificados o documentos descritos a continuación que demuestren
-                                la situación especial o de vulnerabilidad que se encuentra atravesando el/la
-                                postulante o su familia, tales como:
-                                <ul class="list-disc pl-5 mt-2">
-                                    <li>
-                                        Declaratorias de zonas de emergencia: a través de la certificación de la
-                                        institución competente, en el que indique que la zona en la que vive el
-                                        postulante ha sido afectada por desastres naturales o declaradas zonas de
-                                        emergencia.
-                                    </li>
-                                    <li>Partida de defunción de quien depende económicamente.</li>
-                                    <li>
-                                        Certificados médicos o de discapacidad, de quien depende económicamente,
-                                        legalmente reconocida.
-                                    </li>
-                                    <li>Informes policiales o judiciales.</li>
-                                    <li>Otro tipo de documentos que acrediten su condición de vulnerabilidad.</li>
-                                </ul>
+                                Declaratorias de zonas de emergencia: a través de la certificación de la
+                                institución competente, en el que indique que la zona en la que vive el
+                                postulante ha sido afectada por desastres naturales o declaradas zonas de
+                                emergencia.
                             </li>
-
+                            <li>Partida de defunción de quien depende económicamente.</li>
+                            <li>
+                                Certificados médicos o de discapacidad, de quien depende económicamente,
+                                legalmente reconocida.
+                            </li>
+                            <li>Informes policiales o judiciales.</li>
+                            <li>Otro tipo de documentos que acrediten su condición de vulnerabilidad.</li>
                         </ul>
-                    </div>
-                </div>
+                    </li>
 
+                </ul>
             </div>
         </div>
-    </div>
+    </Dialog>
 
 </template>
 

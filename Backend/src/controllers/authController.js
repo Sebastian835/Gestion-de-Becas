@@ -23,7 +23,7 @@ const login = async (req, res) => {
       jwtConfig.secret,
       { expiresIn: "1h" }
     );
-    res.cookie("token", token, {
+    res.cookie("authIstlaBecas", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "Strict",
@@ -49,7 +49,7 @@ const login = async (req, res) => {
         { expiresIn: "30m" }
       );
 
-      res.cookie("token", token, {
+      res.cookie("authIstlaBecas", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
@@ -67,7 +67,7 @@ const login = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  res.clearCookie("token").json({ message: "Logout successful" });
+  res.clearCookie("authIstlaBecas").json({ message: "Logout successful" });
 };
 
 module.exports = { login, logout };
