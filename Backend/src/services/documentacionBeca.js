@@ -18,7 +18,6 @@ const eliminarCarpetaEstudiante = async (rutaCarpeta) => {
     });
     return true;
   } catch (error) {
-    console.error("Error al eliminar la carpeta:", error);
     return false;
   }
 };
@@ -188,7 +187,6 @@ async function postDocumentos(req, res) {
 
     res.status(200).json({ message: "Documentos procesados correctamente." });
   } catch (error) {
-    console.error("Error al procesar los documentos:", error);
     res.status(500).json({ error: "Error al procesar los documentos." });
   }
 }
@@ -325,7 +323,6 @@ async function deleteDocumentacion(id) {
 
     return result;
   } catch (error) {
-    console.error("Error al eliminar la solicitud:", error.message);
     return {
       status: 500,
       error: "Error al eliminar la solicitud: " + error.message,

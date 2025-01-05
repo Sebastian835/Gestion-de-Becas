@@ -69,7 +69,6 @@ const fetchCurrentUser = async () => {
         const user = await getUser();
         return JSON.parse(JSON.stringify(user));
     } catch (error) {
-        console.error('Error fetching current user:', error);
         return null;
     }
 };
@@ -88,61 +87,65 @@ const submitSolicitud = async () => {
 
     const currentUser = await fetchCurrentUser();
     const fechaActual = new Date();
-    if (currentUser) {
-        let fileBase64 = '';
+    try {
 
-        if (fileInput.value && fileInput.value.files.length > 0) {
-            const file = fileInput.value.files[0];
 
-            if (file.size > 5 * 1024 * 1024) {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'El archivo es demasiado grande. El tamaño máximo permitido es de 5 MB.',
-                    icon: 'error',
-                    confirmButtonText: 'Aceptar'
-                });
-                return;
+        if (currentUser) {
+            let fileBase64 = '';
+
+            if (fileInput.value && fileInput.value.files.length > 0) {
+                const file = fileInput.value.files[0];
+
+                if (file.size > 5 * 1024 * 1024) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'El archivo es demasiado grande. El tamaño máximo permitido es de 5 MB.',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
+                    return;
+                }
+
+                try {
+                    fileBase64 = await readFileAsBase64(file);
+                } catch (error) {
+                    throw error;
+                }
             }
+
+            const jsonData = {
+                fecha: fechaActual,
+                becaSeleccionada: selectedBeca.value,
+                cedula_estudiante: currentUser.DOCUMENTO_USUARIOS,
+                periodo: periodo.value.ID_PERIODO,
+                documento: fileBase64,
+                periodoBeca: vigenciaBecas.value[0].ID_VIGENCIA
+            };
 
             try {
-                fileBase64 = await readFileAsBase64(file);
+                await postSolicitud(jsonData);
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Tu solicitud ha sido enviada correctamente. Sera notificado por correo electrónico cuando se haya procesado su solicitud.',
+                    icon: 'success',
+                    confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    router.push('/main/requisitos');
+                });
             } catch (error) {
-                console.error('Error leyendo el archivo:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Hubo un problema al enviar la solicitud.',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                }).then(() => {
+                    selectedBeca.value = '';
+                    fileInput.value.value = '';
+                });
             }
         }
-
-        const jsonData = {
-            fecha: fechaActual,
-            becaSeleccionada: selectedBeca.value,
-            cedula_estudiante: currentUser.DOCUMENTO_USUARIOS,
-            periodo: periodo.value.ID_PERIODO,
-            documento: fileBase64,
-            periodoBeca: vigenciaBecas.value[0].ID_VIGENCIA
-        };
-
-        try {
-            await postSolicitud(jsonData);
-            Swal.fire({
-                title: '¡Éxito!',
-                text: 'Tu solicitud ha sido enviada correctamente. Sera notificado por correo electrónico cuando se haya procesado su solicitud.',
-                icon: 'success',
-                confirmButtonText: 'Aceptar'
-            }).then(() => {
-                router.push('/main/requisitos');
-            });
-        } catch (error) {
-            Swal.fire({
-                title: 'Error',
-                text: 'Hubo un problema al enviar la solicitud.',
-                icon: 'error',
-                confirmButtonText: 'Aceptar'
-            }).then(() => {
-                selectedBeca.value = '';
-                fileInput.value.value = '';
-            });
-        }
-    } else {
-        console.error('No se pudo obtener el usuario.');
+    } catch (error) {
+        throw error;
     }
 };
 

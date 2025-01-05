@@ -5,14 +5,13 @@ import { useSidebarStore } from '../stores/sidebarStore';
 
 const sidebarStore = useSidebarStore();
 const currentUser = ref(null);
-const isSidebarOpen = ref(false);
 
 const fetchCurrentUser = async () => {
   try {
     const user = await getUser();
     currentUser.value = user;
   } catch (error) {
-    console.error('Error fetching current user:', error);
+    throw error;
   }
 };
 

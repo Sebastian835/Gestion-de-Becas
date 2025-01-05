@@ -20,7 +20,6 @@ const fetchCurrentUser = async () => {
         const user = await getUser();
         return JSON.parse(JSON.stringify(user));
     } catch (error) {
-        console.error('Error fetching current user:', error);
         return null;
     }
 };

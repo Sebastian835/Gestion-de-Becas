@@ -23,11 +23,18 @@ const settingsVisible = ref(false);
 const datosUsuario = ref(false);
 const submitted = ref(false);
 const nombreUsuario = ref('');
+const docente = ref(true);
 
 const fecthUser = async () => {
   user.value = await getUser();
-  user.value = await getUsuariosBusqueda(user.value.username);
-  nombreUsuario.value = user._value.USUARIO;
+  if (user.value.role === 'estudiante') {
+    docente.value = false;
+    return;
+  } else {
+    user.value = await getUsuariosBusqueda(user.value.username);
+    nombreUsuario.value = user._value.USUARIO;
+  }
+
 };
 
 const toggleSettings = () => {
@@ -142,9 +149,11 @@ onMounted(() => {
       </button>
 
       <div v-if="settingsVisible" class="absolute top-16 right-4 bg-white shadow-lg rounded-lg p-2 z-50">
-        <button class="flex items-center text-gray-900 text-sm" style="margin-bottom: 10px;" @click="dialogUsuario">
+        <button v-if="docente" @click="dialogUsuario" class="flex items-center text-gray-900 text-sm"
+          style="margin-bottom: 10px;">
           <i class="pi pi-user text-gray-900 text-lg mr-2"></i> Usuario
         </button>
+
         <button class="flex items-center text-gray-900 text-sm" @click="handleLogout">
           <i class="pi pi-sign-out text-gray-900 text-lg mr-2"></i> Salir
         </button>
@@ -155,8 +164,8 @@ onMounted(() => {
 
 
   <!-- Diálogo de Edición -->
-  <Dialog v-model:visible="datosUsuario" :style="{ width: '700px' }" header="Datos de Usuario" modal
-    class="p-fluid" dismissableMask>
+  <Dialog v-model:visible="datosUsuario" :style="{ width: '700px' }" header="Datos de Usuario" modal class="p-fluid"
+    dismissableMask>
     <div class="form-container">
       <div class="form-group">
         <label for="usuario" class="font-medium">Nombres</label>

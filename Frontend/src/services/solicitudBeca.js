@@ -12,7 +12,6 @@ export const postSolicitud = async (data) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error al enviar la solicitud:", error);
     throw error;
   }
 };
@@ -28,7 +27,6 @@ export const getBuscarSolicitud = async (cedula) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error al buscar la solicitud:", error);
     throw error;
   }
 };
@@ -43,7 +41,6 @@ export const getSolicitudes = async () => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error al buscar la solicitud:", error);
     throw error;
   }
 };
@@ -58,7 +55,6 @@ export const putAprobarSolicitud = async (id) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error al aprobar la solicitud:", error);
     throw error;
   }
 };
@@ -73,7 +69,6 @@ export const deleteRechazarSolicitud = async (id) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error al rechazar la solicitud:", error);
     throw error;
   }
 };

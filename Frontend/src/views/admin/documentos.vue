@@ -81,7 +81,7 @@ const fetchDocumentos = async () => {
       return 0;
     });
   } catch (error) {
-    console.error(error);
+    throw new Error('Error al obtener los documentos:', error);
   }
 };
 
@@ -179,7 +179,7 @@ const aceptarDocumentacion = async (id) => {
           refreshData();
         }
       } catch (error) {
-        console.error('Error aprobando la documentación:', error);
+        throw new Error('Error al aprobar la documentación:', error);
       }
     }
   });

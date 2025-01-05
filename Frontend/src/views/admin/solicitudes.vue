@@ -221,7 +221,7 @@ const aceptarSolicitud = async (id) => {
           refreshData();
         });
       } catch (error) {
-        console.error('Error aprobando la solicitud:', error);
+        throw error;
       }
     }
   });
@@ -249,7 +249,7 @@ const rechazoSolicitud = async (id) => {
           refreshData();
         });
       } catch (error) {
-        console.error('Error rechazando la solicitud:', error);
+        throw error;
       }
     }
   });

@@ -13,7 +13,6 @@ export const getDocumentosExistentes = async (cedula) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error al buscar la solicitud:", error);
     throw error;
   }
 };
@@ -29,7 +28,6 @@ export const postDocumentos = async (formdata) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error al guardar los Documentos: ", error);
     throw error;
   }
 };
@@ -55,7 +53,6 @@ export const postAprobarDocumentacion= async (id, porcentaje) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error al aprobar la solicitud:", error);
     throw error;
   }
 };
@@ -70,7 +67,6 @@ export const putDocumentacionReenvio = async (id, motivo) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error al aprobar la solicitud:", error);
     throw error;
   }
 };
@@ -85,7 +81,6 @@ export const deleteRechazarDocumentacion= async (id) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error al rechazar la solicitud:", error);
     throw error;
   }
 };

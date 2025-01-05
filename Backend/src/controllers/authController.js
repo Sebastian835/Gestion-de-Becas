@@ -21,11 +21,33 @@ const login = async (req, res) => {
         maxAge: 60 * 60 * 1000,
       });
       return res.json({
-        message: "Login successful",
+        message: "Login exitoso",
         user: { username, role: autenticacion.ROL },
       });
     } else {
-      return res.status(401).json({ message: "Credenciales Invalidas" });
+      const usuarios = await getUsuarios();
+      const estudiante = usuarios.find(
+        (user) =>
+          user.DOCUMENTO_USUARIOS === username && user.PERFIL === "ESTUDIANTE"
+      );
+
+      if (estudiante) {
+        const token = jwt.sign(
+          { ...estudiante, role: "estudiante" },
+          jwtConfig.secret,
+          { expiresIn: "30m" }
+        );
+
+        res.cookie("authIstlaBecas", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "Strict",
+          maxAge: 30 * 30 * 1000,
+        });
+        return res.json({ message: "Login exitoso", user: estudiante });
+      } else {
+        return res.status(401).json({ message: "Credenciales Invalidas" });
+      }
     }
   } catch (error) {
     return res.status(500).json({ message: "Error interno" });
@@ -34,40 +56,6 @@ const login = async (req, res) => {
 
 const logout = (req, res) => {
   res.clearCookie("authIstlaBecas").json({ message: "Se cerro la sesion" });
-};
-
-const login_1 = async (req, res) => {
-  const { username, password } = req.body;
-
-  try {
-    const usuarios = await getUsuarios();
-    const estudiante = usuarios.find(
-      (user) =>
-        user.DOCUMENTO_USUARIOS === username && user.PERFIL === "ESTUDIANTE"
-    );
-
-    if (estudiante) {
-      const token = jwt.sign(
-        { ...estudiante, role: "estudiante" },
-        jwtConfig.secret,
-        { expiresIn: "30m" }
-      );
-
-      res.cookie("authIstlaBecas", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
-        maxAge: 30 * 30 * 1000,
-      });
-
-      return res.json({ message: "Login exitoso", user: estudiante });
-    } else {
-      return res.status(401).json({ message: "Credenciales Invalidas" });
-    }
-  } catch (error) {
-    console.error("Error en el proceso de login:", error.message);
-    return res.status(500).json({ message: "Error interno" });
-  }
 };
 
 module.exports = { login, logout };

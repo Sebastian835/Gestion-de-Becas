@@ -21,7 +21,7 @@ async function auth(usuario, password) {
 
     return user;
   } catch (error) {
-    throw new Error("Error al autenticar" + error.message);
+    throw new Error("Error al autenticar");
   }
 }
 

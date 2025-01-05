@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue';
 import { initFlowbite } from 'flowbite'
 
 import Dialog from 'primevue/dialog';
-import Button from 'primevue/button';
 
 onMounted(() => {
     initFlowbite();
@@ -34,17 +33,6 @@ function enter(el) {
 function leave(el) {
     el.style.maxHeight = '0';
 }
-
-const isModalOpen = ref(false);
-
-function openModal() {
-    isModalOpen.value = true;
-}
-
-function closeModal() {
-    isModalOpen.value = false;
-}
-
 const distincionAcademica = ref(false);
 const deportistasAltoRendimiento = ref(false);
 const heroesNacionales = ref(false);

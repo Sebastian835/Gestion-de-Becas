@@ -1,15 +1,18 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+
 import Swal from 'sweetalert2';
+
 import { login } from '../services/authService';
 import { getUser } from '../services/user';
+
+import Password from 'primevue/password';
 
 const router = useRouter();
 
 let usuario = ref('');
 let contra = ref('');
-const currentUser = ref(null);
 
 const iniciarSesion = async () => {
     try {
@@ -74,9 +77,7 @@ onMounted(() => {
     fetchCurrentUser();
 });
 
-
 </script>
-
 
 <template>
     <div class="min-h-screen flex flex-col md:flex-row">
@@ -101,17 +102,16 @@ onMounted(() => {
                 <form class="space-y-8" @submit.prevent="iniciarSesion">
                     <div class="rounded-md shadow-sm space-y-4">
                         <div>
-                            <label for="usuario" class="sr-only">Usuario</label>
                             <input id="usuario" name="usuario" type="text" required
                                 class="appearance-none rounded-md relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-sky-500 focus:border-sky-500 focus:z-10 sm:text-lg"
                                 placeholder="Usuario" v-model="usuario" />
                         </div>
                         <div>
-                            <label for="contra" class="sr-only">Contraseña</label>
-                            <input id="contra" name="contra" type="password" required
-                                class="appearance-none rounded-md relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-sky-500 focus:border-sky-500 focus:z-10 sm:text-lg"
-                                placeholder="Contraseña" v-model="contra" />
+                            <Password v-model="contra" toggleMask placeholder="Contraseña" id="contra" name="contra"
+                                :feedback="false" required size="large"
+                                inputClass="appearance-none rounded-md relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-sky-500 focus:border-sky-500 focus:z-10 sm:text-lg" />
                         </div>
+
                     </div>
 
                     <div class="flex items-center justify-between">
@@ -137,4 +137,14 @@ onMounted(() => {
 </template>
 
 
-<style scoped></style>
+<style scoped>
+.p-password input {
+    padding: 0.75rem 1rem;
+    font-size: 1.125rem;
+    border-radius: 0.375rem;
+}
+
+.p-password {
+    width: 100%;
+}
+</style>
