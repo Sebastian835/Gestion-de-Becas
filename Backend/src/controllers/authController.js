@@ -1,39 +1,43 @@
 const jwt = require("jsonwebtoken");
 const jwtConfig = require("../config/jwtConfig");
-const bcrypt = require("bcrypt");
-const { getUsuarios } = require("../services/api_istla");
 
-const users = {
-  admin: { password: bcrypt.hashSync("admin", 10), role: "admin" },
-  vicerrector: {
-    password: bcrypt.hashSync("vicerrector", 10),
-    role: "vicerrector",
-  },
-};
+const { getUsuarios } = require("../services/api_istla");
+const { auth } = require("../services/auth");
 
 const login = async (req, res) => {
   const { username, password } = req.body;
-
-  if (
-    users[username] &&
-    (await bcrypt.compare(password, users[username].password))
-  ) {
-    const token = jwt.sign(
-      { username, role: users[username].role },
-      jwtConfig.secret,
-      { expiresIn: "1h" }
-    );
-    res.cookie("authIstlaBecas", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
-      maxAge: 60 * 60 * 1000,
-    });
-    return res.json({
-      message: "Login successful",
-      user: { username, role: users[username].role },
-    });
+  try {
+    const autenticacion = await auth(username, password);
+    if (autenticacion) {
+      const token = jwt.sign(
+        { username, role: autenticacion.ROL },
+        jwtConfig.secret,
+        { expiresIn: "1h" }
+      );
+      res.cookie("authIstlaBecas", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Strict",
+        maxAge: 60 * 60 * 1000,
+      });
+      return res.json({
+        message: "Login successful",
+        user: { username, role: autenticacion.ROL },
+      });
+    } else {
+      return res.status(401).json({ message: "Credenciales Invalidas" });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: "Error interno" });
   }
+};
+
+const logout = (req, res) => {
+  res.clearCookie("authIstlaBecas").json({ message: "Se cerro la sesion" });
+};
+
+const login_1 = async (req, res) => {
+  const { username, password } = req.body;
 
   try {
     const usuarios = await getUsuarios();
@@ -53,21 +57,17 @@ const login = async (req, res) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
-        maxAge: 30 *30 * 1000,
+        maxAge: 30 * 30 * 1000,
       });
 
-      return res.json({ message: "Login successful", user: estudiante });
+      return res.json({ message: "Login exitoso", user: estudiante });
     } else {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Credenciales Invalidas" });
     }
   } catch (error) {
     console.error("Error en el proceso de login:", error.message);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "Error interno" });
   }
-};
-
-const logout = (req, res) => {
-  res.clearCookie("authIstlaBecas").json({ message: "Logout successful" });
 };
 
 module.exports = { login, logout };

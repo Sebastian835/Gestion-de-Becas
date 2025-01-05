@@ -14,7 +14,6 @@ async function updateSincronizarFechas(req, res) {
     const becas = await updateSincronizacionFechas();
     res.status(200).json(becas);
   } catch (error) {
-    console.log(error);
     res.status(500).json({ error: "Error obteniendo las becas" });
   }
 }

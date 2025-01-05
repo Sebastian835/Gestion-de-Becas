@@ -108,6 +108,27 @@ model istla_becas_otorgadas {
   @@index([ID_SOLICITUD], map: "ID_SOLICITUD")
 }
 
+model istla_rol_usuario {
+  ID_ROL         Int              @id @default(autoincrement())
+  NOMBRE         String?          @db.VarChar(255)
+  istla_usuarios istla_usuarios[]
+}
+
+model istla_usuarios {
+  ID_USUARIO        Int                @id @default(autoincrement())
+  ID_ROL            Int?
+  CEDULA            String             @db.VarChar(255)
+  USUARIO           String             @db.VarChar(255)
+  NOMBRES           String             @db.VarChar(255)
+  APELLIDOS         String             @db.VarChar(255)
+  PASSWORD          String             @db.VarChar(255)
+  CORREO            String             @db.VarChar(255)
+  DESCRIPCION       String?            @db.VarChar(255)
+  istla_rol_usuario istla_rol_usuario? @relation(fields: [ID_ROL], references: [ID_ROL], onDelete: NoAction, onUpdate: NoAction, map: "istla_usuarios_ibfk_1")
+
+  @@index([ID_ROL], map: "istla_usuarios_ibfk_1")
+}
+
 view vista_solicitud_beca_detalle {
   ID_SOLICITUD        Int      @unique @default(0)
   CEDULA_ESTUDIANTE   String   @db.VarChar(20)
@@ -126,4 +147,16 @@ view vista_becas_otorgadas {
   ID_PERIODO        Int
   PERIODO_CADUCIDAD String? @db.VarChar(255)
   ESTADO            Int?    @db.TinyInt
+}
+
+view vista_usuarios {
+  ID_USUARIO  Int     @unique @default(0)
+  ROL         String? @db.VarChar(255)
+  USUARIO     String  @db.VarChar(255)
+  PASSWORD    String  @db.VarChar(255)
+  NOMBRES     String  @db.VarChar(255)
+  APELLIDOS   String  @db.VarChar(255)
+  CORREO      String  @db.VarChar(255)
+  DESCRIPCION String? @db.VarChar(255)
+  CEDULA      String  @db.VarChar(255)
 }

@@ -107,7 +107,6 @@ const openEditDialog = (beca) => {
 };
 
 const saveChanges = () => {
-    console.log('Guardando cambios:', selectedBeca.value);
     showDialog.value = false;
 };
 
@@ -203,8 +202,6 @@ onMounted(() => {
             </template>
         </Card>
     </div>
-
-    
 
     <!-- Paginador -->
     <Paginator v-model:first="first" v-model:rows="rows" :totalRecords="totalRecords" :rowsPerPageOptions="[8, 16, 24]"

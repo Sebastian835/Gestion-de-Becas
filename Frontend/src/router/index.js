@@ -24,34 +24,39 @@ const routes = [
         redirect: "main/home",
       },
       {
+        path: "gestionUsuarios",  
+        component: () => import("../views/superAdmin/gestionUsuarios.vue"),
+        meta: { requiresAuth: true, roles: ["SuperAdmin"] },
+      },
+      {
         path: "home",  
         component: () => import("../views/admin/home.vue"),
-        meta: { requiresAuth: true, roles: ["admin"] },
+        meta: { requiresAuth: true, roles: ["Admin", "SuperAdmin"] },
       },
       {
         path: "periodos",  
         component: () => import("../views/admin/periodos.vue"),
-        meta: { requiresAuth: true, roles: ["admin"] },
+        meta: { requiresAuth: true, roles: ["Admin", "SuperAdmin"] },
       },
       {
         path: "solicitudesBeca",  
         component: () => import("../views/admin/solicitudes.vue"),
-        meta: { requiresAuth: true, roles: ["admin"] },
+        meta: { requiresAuth: true, roles: ["Admin", "SuperAdmin"] },
       },
       {
         path: "documentosBeca",  
         component: () => import("../views/admin/documentos.vue"),
-        meta: { requiresAuth: true, roles: ["admin"] },
+        meta: { requiresAuth: true, roles: ["Admin", "SuperAdmin"] },
       },
       {
         path: "becas",  
         component: () => import("../views/admin/becas.vue"),
-        meta: { requiresAuth: true, roles: ["admin"] },
+        meta: { requiresAuth: true, roles: ["Admin", "SuperAdmin"] },
       },
       {
         path: "reportes",  
         component: () => import("../views/admin/reportes.vue"),
-        meta: { requiresAuth: true, roles: ["admin"] },
+        meta: { requiresAuth: true, roles: ["Admin", "SuperAdmin"] },
       },
       {
         path: "requisitos",  

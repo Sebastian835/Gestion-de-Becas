@@ -28,11 +28,15 @@ const iniciarSesion = async () => {
             showConfirmButton: false,
             timer: 1500
         }).then(() => {
-            if (usuario.value === 'admin') {
+            if (dataUser.user.role === 'SuperAdmin') {
                 usuario.value = '';
                 contra.value = '';
                 router.push('/main/home');
-            } else if (dataUser.user.PERFIL === 'ESTUDIANTE') {
+            } else if (dataUser.user.role === 'Admin') {
+                usuario.value = '';
+                contra.value = '';
+                router.push('/main/home');
+            } else {
                 usuario.value = '';
                 contra.value = '';
                 router.push('/main/requisitos');
@@ -55,14 +59,14 @@ const fetchCurrentUser = async () => {
     try {
         const user = await getUser();
         if (user) {
-            if (user.role === 'admin') {
+            if (user.role === 'Admin' || user.role === 'SuperAdmin') {
                 router.push('/main/home');
             } else if (user.role === 'estudiante') {
                 router.push('/main/requisitos');
             }
         }
     } catch (error) {
-
+        return null;
     }
 };
 

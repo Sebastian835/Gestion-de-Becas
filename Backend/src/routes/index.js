@@ -6,6 +6,7 @@ const istlaRouthes = require("./istlaRouthes");
 const documentacionBecaRouthes = require("./documentacionBecaRouter");
 const vigenciaBecasRouther = require("./vigenciaBecasRouther");
 const becas_Otorgadas = require("./becasOtorgadasRouther");
+const usuariosRouther = require("./usuariosRouther");
 
 module.exports = {
   "/auth": authRoutes,
@@ -16,4 +17,5 @@ module.exports = {
   "/documentacionBeca": documentacionBecaRouthes,
   "/vigenciaBecas": vigenciaBecasRouther,
   "/becasOtorgadas": becas_Otorgadas,
+  "/usuarios": usuariosRouther,
 };

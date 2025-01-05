@@ -20,7 +20,8 @@ onMounted(() => {
   fetchCurrentUser();
 });
 
-const isAdmin = computed(() => currentUser.value?.role === 'admin');
+const isAdmin = computed(() => currentUser.value?.role === 'Admin');
+const isSuperAdmin = computed(() => currentUser.value?.role === 'SuperAdmin');
 const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
 </script>
 
@@ -41,7 +42,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
       <div class="m-4">
         <ul class="mb-4 flex flex-col gap-1">
           <!-- Admin -->
-          <li v-if="isAdmin">
+          <li v-if="isAdmin || isSuperAdmin">
             <RouterLink to="/main/home"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -62,7 +63,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
             </RouterLink>
           </li>
 
-          <li v-if="isAdmin">
+          <li v-if="isAdmin || isSuperAdmin">
             <RouterLink to="/main/periodos"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -75,7 +76,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
             </RouterLink>
           </li>
 
-          <li v-if="isAdmin">
+          <li v-if="isAdmin || isSuperAdmin">
             <RouterLink to="/main/solicitudesBeca"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -88,7 +89,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
             </RouterLink>
           </li>
 
-          <li v-if="isAdmin">
+          <li v-if="isAdmin || isSuperAdmin">
             <RouterLink to="/main/documentosBeca"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -101,7 +102,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
             </RouterLink>
           </li>
 
-          <li v-if="isAdmin">
+          <li v-if="isAdmin || isSuperAdmin">
             <RouterLink to="/main/becas"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -114,7 +115,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
             </RouterLink>
           </li>
 
-          <li v-if="isAdmin">
+          <li v-if="isAdmin || isSuperAdmin">
             <RouterLink to="/main/reportes"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -127,13 +128,21 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
             </RouterLink>
           </li>
 
-          <!-- <div v-if="isAdmin" class="mt-auto mb-4 text-center">
-          <div class="w-32 h-32 mx-auto mb-2 flex items-center justify-center">
-            <img class="w-32 h-32 object-contain" src="../assets/logo_istla.png" alt="ISTLA Logo">
-          </div>
-          <h1 class="text-lg font-bold text-white mt-2">Instituto Superior Tecnológico</h1>
-          <h1 class="text-lg font-bold text-white mt-1">"Los Andes" ISTLA</h1>
-        </div> -->
+          <!-- SuperAdmin -->
+          <li v-if="isSuperAdmin">
+            <RouterLink to="/main/gestionUsuarios"
+              activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
+              <button
+                class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg text-white w-full flex items-center gap-4 px-4 capitalize"
+                type="button">
+                <i class="pi pi-users" style="font-size: 1rem"></i>
+                <p class="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
+                  Gestion Usuarios</p>
+              </button>
+            </RouterLink>
+          </li>
+
+
 
           <!-- Estudiante -->
           <li v-if="isEstudiante">
@@ -172,17 +181,15 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-          <!-- 
-          <div v-if="isEstudiante">
-            <div class="text-center mt-auto mb-4" style="padding-top: 11rem;">
-              <div class="w-32 h-32 mx-auto mb-2 flex items-center justify-center">
-                <img class="w-32 h-32 object-contain" src="../assets/logo_istla.png" alt="ISTLA Logo">
-              </div>
-              <h1 class="text-lg font-bold text-white mt-2">Instituto Superior Tecnológico</h1>
-              <h1 class="text-lg font-bold text-white mt-1">"Los Andes" ISTLA</h1>
-              <p class="mt-2 text-white text-xs">Gestión de Becas</p>
+
+          <!-- <div v-if="isAdmin" class="mt-auto mb-4 text-center">
+            <div class="w-32 h-32 mx-auto mb-2 flex items-center justify-center">
+              <img class="w-32 h-32 object-contain" src="../assets/logo_istla.png" alt="ISTLA Logo">
             </div>
+            <h1 class="text-lg font-bold text-white mt-2">Instituto Superior Tecnológico</h1>
+            <h1 class="text-lg font-bold text-white mt-1">"Los Andes" ISTLA</h1>
           </div> -->
+
 
         </ul>
       </div>
