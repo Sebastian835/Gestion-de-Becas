@@ -88,8 +88,6 @@ const submitSolicitud = async () => {
     const currentUser = await fetchCurrentUser();
     const fechaActual = new Date();
     try {
-
-
         if (currentUser) {
             let fileBase64 = '';
 

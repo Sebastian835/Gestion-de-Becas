@@ -11,6 +11,7 @@ datasource db {
 model istla_estado_solicitud {
   ID_ESTADO                     Int                             @id @default(autoincrement())
   ESTADO                        String                          @db.VarChar(15)
+  istla_becas_otorgadas         istla_becas_otorgadas[]
   istla_documentos_obligatorios istla_documentos_obligatorios[]
   istla_solicitudes_beca        istla_solicitudes_beca[]
   istla_vigencia_beca           istla_vigencia_beca[]
@@ -102,10 +103,12 @@ model istla_becas_otorgadas {
   ID_SOLICITUD           Int?
   PORCENTAJE             Int?
   PERIODO_CADUCIDAD      String?                 @db.VarChar(255)
-  ESTADO                 Int?                    @db.TinyInt
+  ID_ESTADO              Int?
   istla_solicitudes_beca istla_solicitudes_beca? @relation(fields: [ID_SOLICITUD], references: [ID_SOLICITUD], onDelete: NoAction, onUpdate: NoAction, map: "istla_becas_otorgadas_ibfk_1")
+  istla_estado_solicitud istla_estado_solicitud? @relation(fields: [ID_ESTADO], references: [ID_ESTADO], onDelete: NoAction, onUpdate: NoAction, map: "istla_becas_otorgadas_ibfk_2")
 
   @@index([ID_SOLICITUD], map: "ID_SOLICITUD")
+  @@index([ID_ESTADO], map: "istla_becas_otorgadas_ibfk_2")
 }
 
 model istla_rol_usuario {
@@ -139,16 +142,6 @@ view vista_solicitud_beca_detalle {
   ID_PERIODO          Int
 }
 
-view vista_becas_otorgadas {
-  ID_BECA           Int     @default(0)
-  CEDULA_ESTUDIANTE String  @unique @db.VarChar(20)
-  TIPO_BECA         String  @db.VarChar(255)
-  PORCENTAJE        Int?
-  ID_PERIODO        Int
-  PERIODO_CADUCIDAD String? @db.VarChar(255)
-  ESTADO            Int?    @db.TinyInt
-}
-
 view vista_usuarios {
   ID_USUARIO  Int     @unique @default(0)
   ROL         String? @db.VarChar(255)
@@ -159,4 +152,15 @@ view vista_usuarios {
   CORREO      String  @db.VarChar(255)
   DESCRIPCION String? @db.VarChar(255)
   CEDULA      String  @db.VarChar(255)
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view vista_becas_otorgadas {
+  ID_BECA           Int     @unique @default(0)
+  CEDULA_ESTUDIANTE String  @db.VarChar(20)
+  TIPO_BECA         String  @db.VarChar(255)
+  PORCENTAJE        Int?
+  ID_PERIODO        Int
+  PERIODO_CADUCIDAD String? @db.VarChar(255)
+  ID_ESTADO         Int?
 }

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { getBecasOtorgadas, updateSincronizar } from '../../services/becasOtorgadas';
+import { getBecasOtorgadas, updateSincronizar, updateBeca } from '../../services/becasOtorgadas';
 import { getTiposBecas } from '../../services/tiposBecas';
 import { getperiodosIstla } from '../../services/api_Istla';
 
@@ -51,18 +51,18 @@ const onPageChange = (event) => {
 };
 
 const states = [
-    { label: 'Activo', value: 1 },
-    { label: 'Inactivo', value: 0 },
+    { label: 'Activo', value: 7 },
+    { label: 'Inactivo', value: 8 },
 ];
 
 const show = async () => {
     const sincronizacion = await updateSincronizar();
     if (!sincronizacion) {
-        toast.add({ severity: 'error', summary: 'error', detail: 'No hay un numero periodo vigente', life: 2500 });
+        toast.add({ severity: 'info', summary: 'Error', detail: 'No hay becas para actualizar o aun no hay un nuevo perido', life: 4000 });
         return;
     }
     fetchBecas();
-    toast.add({ severity: 'info', summary: 'Mensaje', detail: 'Se sincronizaron las fechas de caducidad de las becas', life: 2500 });
+    toast.add({ severity: 'success', summary: 'Mensaje', detail: 'Se sincronizaron las fechas de caducidad de las becas', life: 2500 });
 };
 
 const fetchBecas = async () => {
@@ -91,7 +91,7 @@ const filterBecas = () => {
         const matchesQuery =
             searchQuery.value === '' ||
             beca.CEDULA_ESTUDIANTE.toLowerCase().includes(searchQuery.value.toLowerCase());
-        const matchesState = filterState.value === null || beca.ESTADO === filterState.value.value;
+        const matchesState = filterState.value === null || beca.ID_ESTADO === filterState.value.value;
         const matchesTipoBeca = filterTipoBeca.value === null || beca.TIPO_BECA === filterTipoBeca.value.TIPO_BECA;
         const matchesBecaInicio = filterBecaInicio.value === null || beca.NOMBRE_PERIODO === filterBecaInicio.value.NOMBRE_PERIODO;
 
@@ -106,9 +106,29 @@ const openEditDialog = (beca) => {
     showDialog.value = true;
 };
 
-const saveChanges = () => {
+const cancelar = () => {
     showDialog.value = false;
 };
+
+const actualizarBeca = async (beca) => {
+    try {
+        const data = {
+            ID_BECA: beca.ID_BECA,
+            PORCENTAJE: beca.PORCENTAJE,
+            ID_ESTADO: beca.ID_ESTADO.value,
+        };
+        const actualizar = await updateBeca(data);
+        showDialog.value = false;
+        fetchBecas();
+        toast.add({ severity: 'success', summary: 'Mensaje', detail: 'Se actualizo la beca', life: 3000 });
+        return;
+    } catch (error) {
+        showDialog.value = false;
+        throw error
+    }
+
+};
+
 
 onMounted(() => {
     fetchBecas();
@@ -150,8 +170,9 @@ onMounted(() => {
             <template #header>
                 <div class="relative">
                     <div class="absolute top-0 right-0 m-2">
-                        <Tag v-if="beca.ESTADO == 1" icon="pi pi-check" value="Activa" severity="success" rounded />
-                        <Tag v-else="beca.ESTADO == 0" icon="pi pi-times" value="Inactiva" severity="danger" rounded />
+                        <Tag v-if="beca.ID_ESTADO == 7" icon="pi pi-check" value="Activa" severity="success" rounded />
+                        <Tag v-else="beca.ID_ESTADO == 8" icon="pi pi-times" value="Inactiva" severity="danger"
+                            rounded />
                     </div>
                 </div>
             </template>
@@ -216,18 +237,19 @@ onMounted(() => {
                 <InputText v-model="selectedBeca.PORCENTAJE" type="number" class="w-full" />
             </div>
             <div class="mt-4">
-                <Select v-model="selectedBeca.ESTADO" :options="states" optionLabel="label" placeholder="Estado" />
+                <Select v-model="selectedBeca.ID_ESTADO" :options="states" optionLabel="label" placeholder="Estado" />
             </div>
         </template>
         <template #footer>
-            <Button label="Guardar" @click="saveChanges" severity="success" style="height: 45px;" />
-            <Button label="Cancelar" @click="saveChanges" severity="danger" style="height: 45px;" />
+            <Button label="Guardar" @click="actualizarBeca(selectedBeca)" severity="success" style="height: 45px;" />
+            <Button label="Cancelar" @click="cancelar" severity="danger" style="height: 45px;" />
         </template>
     </Dialog>
+
 </template>
 
 <style scoped>
-@media (min-width: 768px) and (max-width: 1279px) {
+@media (min-width: 768px) {
     .grid {
         @apply grid-cols-3 !important;
     }

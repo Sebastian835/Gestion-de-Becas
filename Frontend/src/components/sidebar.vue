@@ -1,15 +1,32 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+
 import { getUser } from '../services/user';
+import { getBecaVigente } from '../services/becasOtorgadas';
 import { useSidebarStore } from '../stores/sidebarStore';
 
 const sidebarStore = useSidebarStore();
+
 const currentUser = ref(null);
+const becaVigente = ref(true);
 
 const fetchCurrentUser = async () => {
   try {
     const user = await getUser();
     currentUser.value = user;
+    await fetchBeca(currentUser.value.DOCUMENTO_USUARIOS);
+
+  } catch (error) {
+    throw error;
+  }
+};
+
+const fetchBeca = async (cedula) => {
+  try {
+    const beca = await getBecaVigente(cedula);
+    if (!beca) {
+      becaVigente.value = false;
+    }
   } catch (error) {
     throw error;
   }
@@ -40,6 +57,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
     <div class="flex-1 overflow-y-auto sidebar-scroll">
       <div class="m-4">
         <ul class="mb-4 flex flex-col gap-1">
+
           <!-- Admin -->
           <li v-if="isAdmin || isSuperAdmin">
             <RouterLink to="/main/home"
@@ -61,7 +79,6 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-
           <li v-if="isAdmin || isSuperAdmin">
             <RouterLink to="/main/periodos"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
@@ -74,7 +91,6 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-
           <li v-if="isAdmin || isSuperAdmin">
             <RouterLink to="/main/solicitudesBeca"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
@@ -87,7 +103,6 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-
           <li v-if="isAdmin || isSuperAdmin">
             <RouterLink to="/main/documentosBeca"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
@@ -100,7 +115,6 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-
           <li v-if="isAdmin || isSuperAdmin">
             <RouterLink to="/main/becas"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
@@ -113,7 +127,6 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-
           <li v-if="isAdmin || isSuperAdmin">
             <RouterLink to="/main/reportes"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
@@ -140,8 +153,6 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-
-
 
           <!-- Estudiante -->
           <li v-if="isEstudiante">
@@ -180,15 +191,27 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
+          <li v-if="isEstudiante && becaVigente">
+            <RouterLink to="/main/beca"
+              activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
+              <button
+                class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg text-white w-full flex items-center gap-4 px-4 capitalize"
+                type="button">
+                <i class="pi pi-graduation-cap" style="font-size: 1rem"></i>
+                <p class="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
+                  Beca</p>
+              </button>
+            </RouterLink>
+          </li>
 
-          <!-- <div v-if="isAdmin" class="mt-auto mb-4 text-center">
+          <!-- LOGO -->
+          <div v-if="isEstudiante" class="mt-auto mb-4 text-center">
             <div class="w-32 h-32 mx-auto mb-2 flex items-center justify-center">
               <img class="w-32 h-32 object-contain" src="../assets/logo_istla.png" alt="ISTLA Logo">
             </div>
             <h1 class="text-lg font-bold text-white mt-2">Instituto Superior Tecnológico</h1>
             <h1 class="text-lg font-bold text-white mt-1">"Los Andes" ISTLA</h1>
-          </div> -->
-
+          </div>
 
         </ul>
       </div>

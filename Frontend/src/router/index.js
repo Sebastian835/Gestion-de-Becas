@@ -73,6 +73,11 @@ const routes = [
         component: () => import("../views/students/documentosBeca.vue"),
         meta: { requiresAuth: true, roles: ["estudiante"] },
       },
+      {
+        path: "beca",  
+        component: () => import("../views/students/beca.vue"),
+        meta: { requiresAuth: true, roles: ["estudiante"] },
+      },
     ],
   },
   {
