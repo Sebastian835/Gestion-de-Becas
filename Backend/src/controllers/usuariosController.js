@@ -1,9 +1,10 @@
 const {
+  getRoles,
   getUsuarios,
+  getUsuariosBusqueda,
   postUsuario,
   updateUsuario,
   deleteUsuario,
-  getRoles,
 } = require("../services/usuarios");
 
 async function roles(req, res) {
@@ -16,11 +17,22 @@ async function roles(req, res) {
   }
 }
 
-async function Usuarios(req, res) {
+async function usuarios(req, res) {
   try {
     const users = await getUsuarios();
 
     res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: "Error obteniendo los usuarios" });
+  }
+}
+
+async function busquedaUsuario(req, res) {
+  try {
+    const { user } = req.query;
+    const usuario = await getUsuariosBusqueda(user);
+
+    res.status(200).json(usuario);
   } catch (error) {
     res.status(500).json({ error: "Error obteniendo los usuarios" });
   }
@@ -60,7 +72,8 @@ async function eliminarUsuario(req, res) {
 }
 
 module.exports = {
-  Usuarios,
+  usuarios,
+  busquedaUsuario,
   crearUsuario,
   actualizarUsuario,
   eliminarUsuario,

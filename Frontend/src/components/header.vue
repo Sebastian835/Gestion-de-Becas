@@ -1,13 +1,34 @@
 <script setup>
-import { ref } from 'vue';
-import { logout } from '../services/authService';
-import { useRouter } from 'vue-router';
 import 'primeicons/primeicons.css';
+
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
+
+import { logout } from '../services/authService';
+import { getUser } from '../services/user';
+import { getUsuariosBusqueda, actualizarUsuario } from '../services/usuarios';
 import { useSidebarStore } from '../stores/sidebarStore';
+
+import Button from 'primevue/button';
+import Dialog from 'primevue/dialog';
+import InputText from 'primevue/inputtext';
+import Password from 'primevue/password';
 
 const sidebarStore = useSidebarStore();
 const router = useRouter();
+
+const user = ref(null);
 const settingsVisible = ref(false);
+const datosUsuario = ref(false);
+const submitted = ref(false);
+const nombreUsuario = ref('');
+
+const fecthUser = async () => {
+  user.value = await getUser();
+  user.value = await getUsuariosBusqueda(user.value.username);
+  nombreUsuario.value = user._value.USUARIO;
+};
 
 const toggleSettings = () => {
   settingsVisible.value = !settingsVisible.value;
@@ -17,6 +38,64 @@ const handleLogout = () => {
   logout();
   router.push('/login');
 };
+
+const dialogUsuario = () => {
+  submitted.value = true;
+  datosUsuario.value = true;
+};
+
+const edicionUsuario = async (usuario) => {
+  submitted.value = true;
+  const data = {
+    ID_USUARIO: usuario.ID_USUARIO,
+    USUARIO: usuario.USUARIO,
+    NOMBRES: usuario.NOMBRES,
+    APELLIDOS: usuario.APELLIDOS,
+    PASSWORD: usuario.PASSWORD,
+    CORREO: usuario.CORREO,
+  };
+
+  try {
+    const actualizacion = await actualizarUsuario(data);
+    Swal.fire({
+      title: '¡Éxito!',
+      text: 'Usuario actualizado correctamente',
+      icon: 'success',
+      confirmButtonText: 'Aceptar'
+    }).then(() => {
+      if (nombreUsuario.value != data.USUARIO) {
+        Swal.fire({
+          title: 'Requerido',
+          text: 'Se ha actualizado el usuario, por favor vuelva a iniciar sesión',
+          icon: 'info',
+          confirmButtonText: 'Aceptar'
+        }).then(() => {
+          handleLogout();
+        });
+      }
+      fecthUser();
+    });
+  } catch (error) {
+    Swal.fire({
+      title: '¡Error!',
+      text: 'No se pudo actualizar el usuario',
+      icon: 'error',
+      confirmButtonText: 'Aceptar'
+    }).then(() => {
+      fecthUser();
+    });
+  }
+  hideDialog();
+};
+
+const hideDialog = () => {
+  submitted.value = false;
+  datosUsuario.value = false;
+};
+
+onMounted(() => {
+  fecthUser();
+});
 
 </script>
 
@@ -63,7 +142,7 @@ const handleLogout = () => {
       </button>
 
       <div v-if="settingsVisible" class="absolute top-16 right-4 bg-white shadow-lg rounded-lg p-2 z-50">
-        <button class="flex items-center text-gray-900 text-sm" style="margin-bottom: 10px;">
+        <button class="flex items-center text-gray-900 text-sm" style="margin-bottom: 10px;" @click="dialogUsuario">
           <i class="pi pi-user text-gray-900 text-lg mr-2"></i> Usuario
         </button>
         <button class="flex items-center text-gray-900 text-sm" @click="handleLogout">
@@ -73,8 +152,96 @@ const handleLogout = () => {
 
     </div>
   </div>
+
+
+  <!-- Diálogo de Edición -->
+  <Dialog v-model:visible="datosUsuario" :style="{ width: '700px' }" header="Datos de Usuario" modal
+    class="p-fluid" dismissableMask>
+    <div class="form-container">
+      <div class="form-group">
+        <label for="usuario" class="font-medium">Nombres</label>
+        <InputText id="nombre" v-model.trim="user.NOMBRES" placeholder="Ingrese el nombre"
+          :class="{ 'p-invalid': submitted && !user.NOMBRES }" />
+      </div>
+      <div class="form-group">
+        <label for="usuario" class="font-medium">Apellidos</label>
+        <InputText id="apellido" v-model.trim="user.APELLIDOS" placeholder="Ingrese el apellido"
+          :class="{ 'p-invalid': submitted && !user.APELLIDOS }" />
+      </div>
+      <div class="form-group">
+        <label for="usuario" class="font-medium">Usuario</label>
+        <InputText id="usuario" v-model.trim="user.USUARIO" placeholder="Ingrese el nombre de usuario"
+          :class="{ 'p-invalid': submitted && !user.USUARIO }" />
+      </div>
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <Password id="password" v-model="user.PASSWORD" placeholder="Ingrese la contraseña" :feedback="false"
+          :class="{ 'p-invalid': submitted && !user.PASSWORD }" toggleMask inputClass="w-full" />
+      </div>
+      <div class="form-group">
+        <label for="usuario" class="font-medium">Correo</label>
+        <InputText id="correo" v-model.trim="user.CORREO" placeholder="Ingrese el correo"
+          :class="{ 'p-invalid': submitted && !user.CORREO }" />
+      </div>
+    </div>
+    <template #footer>
+      <Button label="Cancelar" icon="pi pi-times" class="p-button-text" @click="hideDialog" />
+      <Button label="Guardar" icon="pi pi-check" class="p-button-text" @click="edicionUsuario(user)" />
+    </template>
+  </Dialog>
+
 </template>
 
 
 
-<style scoped></style>
+<style scoped>
+.form-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  padding: 0.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-group label {
+  color: #374151;
+  font-weight: 500;
+  font-size: 0.875rem;
+  margin-bottom: 0;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+::v-deep(.p-password) {
+  width: 100%;
+}
+
+::v-deep(.p-password-input),
+::v-deep(.p-inputtext),
+::v-deep(.p-dropdown) {
+  margin: 0;
+}
+
+::v-deep(.p-dropdown-label) {
+  padding: 0.5rem 0.75rem;
+}
+
+::v-deep(.p-dialog-footer) {
+  padding: 1rem 1.5rem;
+}
+
+/* Asegura que todos los inputs tengan la misma altura */
+::v-deep(.p-inputtext),
+::v-deep(.p-dropdown),
+::v-deep(.p-password .p-inputtext) {
+  height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+}
+</style>

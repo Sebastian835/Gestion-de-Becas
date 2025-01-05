@@ -202,7 +202,7 @@ const socioeconomicas = ref(false);
 
     <!-- Modal Distincion Academica -->
     <Dialog v-model:visible="distincionAcademica" modal header="Beca por distinción académica"
-        :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask="true">
+        :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask>
         <div class="p-4 md:p-5 space-y-4">
             <div class="bg-white p-4 rounded-lg shadow-md">
                 <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
@@ -225,7 +225,7 @@ const socioeconomicas = ref(false);
 
     <!-- Modal Deportistas de alto rendimiento -->
     <Dialog v-model:visible="deportistasAltoRendimiento" modal header="Beca a deportistas de alto rendimiento"
-        :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask="true">
+        :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask>
         <div class="p-4 md:p-5 space-y-4">
             <div class="bg-white p-4 rounded-lg shadow-md">
                 <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
@@ -268,7 +268,7 @@ const socioeconomicas = ref(false);
 
     <!-- Modal Heroes o Heroias Nacionales -->
     <Dialog v-model:visible="heroesNacionales" modal header="Beca a heroes o heroinas nacionales"
-        :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask="true">
+        :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask>
         <div class="p-4 md:p-5 space-y-4">
             <div class="bg-white p-4 rounded-lg shadow-md">
                 <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
@@ -308,7 +308,7 @@ const socioeconomicas = ref(false);
 
     <!-- Modal Estudiantes con Discapacidad -->
     <Dialog v-model:visible="discapacidad" modal header="Beca a estudiantes con discapacidad"
-        :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask="true">
+        :style="{ width: '50rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask>
         <div class="p-4 md:p-5 space-y-4">
             <div class="bg-white p-4 rounded-lg shadow-md">
                 <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
@@ -341,7 +341,7 @@ const socioeconomicas = ref(false);
     <!-- Modal Club Deportivo -->
     <Dialog v-model:visible="clubDeportivo" modal header="Beca por pertenecer a club
                         deportivo del ISTLA" :style="{ width: '50rem' }"
-        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask="true">
+        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask>
         <div class="p-4 md:p-5 space-y-4">
             <div class="bg-white p-4 rounded-lg shadow-md">
                 <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
@@ -382,7 +382,7 @@ const socioeconomicas = ref(false);
     <!-- Modal Club cultural, artistico o academico -->
     <Dialog v-model:visible="clubCAA" modal header="Beca por pertenecer a club cultural,
                         artistico o academico del ISTLA" :style="{ width: '50rem' }"
-        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask="true">
+        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask>
         <div class="p-4 md:p-5 space-y-4">
             <div class="bg-white p-4 rounded-lg shadow-md">
                 <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un
@@ -424,7 +424,7 @@ const socioeconomicas = ref(false);
     <!-- Modal limitaciones socioeconomicas -->
     <Dialog v-model:visible="socioeconomicas" modal header="Beca a estudiantes con
                         limitaciones socioeconomicas" :style="{ width: '50rem' }"
-        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask="true">
+        :breakpoints="{ '1199px': '75vw', '575px': '90vw' }" dismissableMask>
         <div class="p-4 md:p-5 space-y-4">
             <div class="bg-white p-4 rounded-lg shadow-md">
                 <h3 class="text-lg font-semibold">1. Estar debidamente matriculado y tener aprobado un

@@ -30,6 +30,21 @@ export const getUsuarios = async () => {
   }
 };
 
+export const getUsuariosBusqueda = async (user) => {
+  try {
+    const response = await axios.get(`${API_URL}/getUsuarioBusqueda`, {
+      params: { user },
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error("Error en la petición");
+  }
+};
+
 export const crearUsuario = async (data) => {
   try {
     const response = await axios.post(`${API_URL}/postUsuario`, data, {

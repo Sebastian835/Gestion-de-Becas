@@ -44,6 +44,26 @@ async function getUsuarios() {
   }
 }
 
+async function getUsuariosBusqueda(user) {
+  try {
+    const usuario = await prisma.istla_usuarios.findFirst({
+      where: {
+        USUARIO: user,
+      },
+      select: {
+        ID_USUARIO: true,
+        USUARIO: true,
+        NOMBRES: true,
+        APELLIDOS: true,
+        CORREO: true,
+      },
+    });
+    return usuario;
+  } catch (error) {
+    throw new Error("Error al obtener los usuarios");
+  }
+}
+
 async function postUsuario(data) {
   try {
     const rol = await prisma.istla_rol_usuario.findFirst({
@@ -74,13 +94,58 @@ async function postUsuario(data) {
 
 async function updateUsuario(data) {
   try {
-    const rol = await prisma.istla_rol_usuario.findFirst({
-      where: {
-        NOMBRE: data.ROL,
-      },
-    });
+    if (data.ROL) {
+      const rol = await prisma.istla_rol_usuario.findFirst({
+        where: {
+          NOMBRE: data.ROL,
+        },
+      });
+      if (data.PASSWORD != null && data.PASSWORD != "") {
+        await prisma.istla_usuarios.update({
+          where: {
+            ID_USUARIO: data.ID_USUARIO,
+          },
+          data: {
+            NOMBRES: data.NOMBRES,
+            APELLIDOS: data.APELLIDOS,
+            USUARIO: data.USUARIO,
+            PASSWORD: bcrypt.hashSync(data.PASSWORD, 10),
+            ID_ROL: rol.ID_ROL,
+            CORREO: data.CORREO,
+            DESCRIPCION: data.DESCRIPCION || null,
+          },
+        });
+      } else {
+        await prisma.istla_usuarios.update({
+          where: {
+            ID_USUARIO: data.ID_USUARIO,
+          },
+          data: {
+            NOMBRES: data.NOMBRES,
+            APELLIDOS: data.APELLIDOS,
+            USUARIO: data.USUARIO,
+            ID_ROL: rol.ID_ROL,
+            CORREO: data.CORREO,
+            DESCRIPCION: data.DESCRIPCION || null,
+          },
+        });
+      }
+      return;
+    }
 
-    if (data.PASSWORD) {
+    if (data.PASSWORD == null || data.PASSWORD == "") {
+      await prisma.istla_usuarios.update({
+        where: {
+          ID_USUARIO: data.ID_USUARIO,
+        },
+        data: {
+          NOMBRES: data.NOMBRES,
+          APELLIDOS: data.APELLIDOS,
+          USUARIO: data.USUARIO,
+          CORREO: data.CORREO,
+        },
+      });
+    }else{
       await prisma.istla_usuarios.update({
         where: {
           ID_USUARIO: data.ID_USUARIO,
@@ -90,31 +155,17 @@ async function updateUsuario(data) {
           APELLIDOS: data.APELLIDOS,
           USUARIO: data.USUARIO,
           PASSWORD: bcrypt.hashSync(data.PASSWORD, 10),
-          ID_ROL: rol.ID_ROL,
           CORREO: data.CORREO,
-          DESCRIPCION: data.DESCRIPCION || null,
         },
       });
-    } else {
-      await prisma.istla_usuarios.update({
-        where: {
-          ID_USUARIO: data.ID_USUARIO,
-        },
-        data: {
-          NOMBRES: data.NOMBRES,
-          APELLIDOS: data.APELLIDOS,
-          USUARIO: data.USUARIO,
-          ID_ROL: rol.ID_ROL,
-          CORREO: data.CORREO,
-          DESCRIPCION: data.DESCRIPCION || null,
-        },
-      });
+      return;
     }
+
     return;
   } catch (error) {
     throw new Error("Error al actualizar contraseña");
   }
-  han
+  han;
 }
 
 async function deleteUsuario(id) {
@@ -131,9 +182,10 @@ async function deleteUsuario(id) {
 }
 
 module.exports = {
+  getRoles,
   getUsuarios,
+  getUsuariosBusqueda,
   postUsuario,
   deleteUsuario,
   updateUsuario,
-  getRoles,
 };

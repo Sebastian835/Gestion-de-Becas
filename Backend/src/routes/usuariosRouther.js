@@ -1,8 +1,9 @@
 const express = require("express");
 const { verifyToken } = require("../middleware/auth");
 const {
-  Usuarios,
+  usuarios,
   crearUsuario,
+  busquedaUsuario,
   actualizarUsuario,
   eliminarUsuario,
   roles,
@@ -14,7 +15,9 @@ router.use(verifyToken);
 
 router.get("/getRoles", roles);
 
-router.get("/getUsuarios", Usuarios);
+router.get("/getUsuarios", usuarios);
+
+router.get("/getUsuarioBusqueda", busquedaUsuario);
 
 router.post("/postUsuario", crearUsuario);
 

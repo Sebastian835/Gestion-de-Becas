@@ -34,7 +34,6 @@ const roles = ref([]);
 const usuarios = ref([]);
 const creacionDialog = ref(false);
 const editarUsuario = ref(false);
-const deleteUsuarioDialog = ref(false);
 const submitted = ref(false);
 
 
@@ -140,11 +139,6 @@ const edicionUsuario = async (usuario) => {
     hideDialog();
 };
 
-const confirmDeleteUsuario = (usuarioData) => {
-    usuario.value = usuarioData;
-    deleteUsuarioDialog.value = true;
-};
-
 const eliminacionUsuario = async (id) => {
     try {
         Swal.fire({
@@ -187,10 +181,6 @@ const hideDialog = () => {
 
 const getRolColor = (rol) => {
     return rol === 'Admin' ? 'bg-purple-100' : 'bg-blue-100';
-};
-
-const getRolTextColor = (rol) => {
-    return rol === 'Admin' ? 'text-purple-900' : 'text-blue-900';
 };
 
 onMounted(() => {
@@ -350,17 +340,6 @@ onMounted(() => {
             </template>
         </Dialog>
 
-        <!-- Diálogo de Eliminación -->
-        <!-- <Dialog v-model:visible="deleteUsuarioDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
-            <div class="confirmation-content">
-                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-                <span v-if="usuario">¿Está seguro de que desea eliminar el usuario <b>{{ usuario.USUARIO }}</b>?</span>
-            </div>
-            <template #footer>
-                <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteUsuarioDialog = false" />
-                <Button label="Sí" icon="pi pi-check" class="p-button-text" @click="deleteUsuario" />
-            </template>
-        </Dialog> -->
     </div>
 </template>
 
