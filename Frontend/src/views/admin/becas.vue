@@ -51,6 +51,7 @@ const onPageChange = (event) => {
 };
 
 const states = [
+    // { label: 'Finalizado', value: 6 },
     { label: 'Activo', value: 7 },
     { label: 'Inactivo', value: 8 },
 ];
@@ -117,6 +118,10 @@ const actualizarBeca = async (beca) => {
             PORCENTAJE: beca.PORCENTAJE,
             ID_ESTADO: beca.ID_ESTADO.value,
         };
+        if (beca.PORCENTAJE <= 0 || beca.PORCENTAJE > 100) {
+            toast.add({ severity: 'error', summary: 'Error', detail: 'El porcentaje debe ser entre 0 y 100', life: 3000 });
+            return;
+        }
         const actualizar = await updateBeca(data);
         showDialog.value = false;
         fetchBecas();
@@ -138,7 +143,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <h2 class="text-xl font-semibold mb-4" style="margin-bottom: 25px; font-size:25px;">
+    <h2 class="text-2xl font-bold text-gray-800 mb-8" style="color: #161E2D;">
         Becas Otorgadas
     </h2>
 
@@ -171,7 +176,9 @@ onMounted(() => {
                 <div class="relative">
                     <div class="absolute top-0 right-0 m-2">
                         <Tag v-if="beca.ID_ESTADO == 7" icon="pi pi-check" value="Activa" severity="success" rounded />
-                        <Tag v-else="beca.ID_ESTADO == 8" icon="pi pi-times" value="Inactiva" severity="danger"
+                        <Tag v-else-if="beca.ID_ESTADO == 8" icon="pi pi-ban" value="Inactiva" severity="warn"
+                            rounded />
+                        <Tag v-else="beca.ID_ESTADO == 6" icon="pi pi-times" value="Finalizada" severity="info"
                             rounded />
                     </div>
                 </div>
@@ -219,7 +226,8 @@ onMounted(() => {
             </template>
 
             <template #footer>
-                <Button icon="pi pi-pencil" label="Editar" @click="openEditDialog(beca)" text class="w-full" />
+                <Button v-if="beca.ID_ESTADO != 6" icon="pi pi-pencil" label="Editar" @click="openEditDialog(beca)" text
+                    class="w-full" />
             </template>
         </Card>
     </div>

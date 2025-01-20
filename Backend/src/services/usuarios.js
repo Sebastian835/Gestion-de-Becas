@@ -78,6 +78,7 @@ async function postUsuario(data) {
       data: {
         NOMBRES: data.NOMBRES,
         APELLIDOS: data.APELLIDOS,
+        CEDULA: data.CEDULA,
         USUARIO: user,
         PASSWORD: bcrypt.hashSync(data.PASSWORD, 10),
         ID_ROL: rol.ID_ROL,
@@ -108,6 +109,7 @@ async function updateUsuario(data) {
           data: {
             NOMBRES: data.NOMBRES,
             APELLIDOS: data.APELLIDOS,
+            CEDULA: data.CEDULA,
             USUARIO: data.USUARIO,
             PASSWORD: bcrypt.hashSync(data.PASSWORD, 10),
             ID_ROL: rol.ID_ROL,
@@ -141,6 +143,7 @@ async function updateUsuario(data) {
         data: {
           NOMBRES: data.NOMBRES,
           APELLIDOS: data.APELLIDOS,
+          CEDULA: data.CEDULA,
           USUARIO: data.USUARIO,
           CORREO: data.CORREO,
         },

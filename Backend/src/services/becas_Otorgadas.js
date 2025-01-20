@@ -1,6 +1,10 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const { getPeriodos } = require("./api_istla");
+const {
+  getPeriodos,
+  getEstudiantes,
+  getCarreraEstudiante,
+} = require("./api_istla");
 
 async function postBecas(id, porcentaje) {
   try {
@@ -50,7 +54,14 @@ async function postBecas(id, porcentaje) {
 
 async function getBecas() {
   try {
-    const becas = await prisma.vista_becas_otorgadas.findMany();
+    const becas = await prisma.vista_becas_otorgadas.findMany({
+      where: {
+        ID_ESTADO: {
+          not: 6,
+        },
+      },
+    });
+
     const periodos = await getPeriodos();
 
     const becasConPeriodo = becas.map((beca) => {
@@ -108,7 +119,7 @@ async function updateDatoBeca(data) {
           ID_BECA: beca.ID_BECA,
         },
         data: {
-          PORCENTAJE:  parseInt(data.PORCENTAJE, 10),
+          PORCENTAJE: parseInt(data.PORCENTAJE, 10),
           ID_ESTADO: parseInt(data.ID_ESTADO, 10),
         },
       });
@@ -183,10 +194,159 @@ async function updateSincronizacionFechas() {
   }
 }
 
+async function getporcentajesBeca() {
+  try {
+    const becasTotal = await prisma.vista_becas_otorgadas.count();
+    const becas50 = await prisma.vista_becas_otorgadas.count({
+      where: {
+        PORCENTAJE: 50,
+      },
+    });
+    const becas25 = await prisma.vista_becas_otorgadas.count({
+      where: {
+        PORCENTAJE: 25,
+      },
+    });
+    const becasOtras = await prisma.vista_becas_otorgadas.count({
+      where: {
+        PORCENTAJE: {
+          notIn: [50, 25],
+        },
+      },
+    });
+    const becas = {
+      total: becasTotal,
+      becas50: becas50,
+      becas25: becas25,
+      becasOtras: becasOtras,
+    };
+
+    return becas;
+  } catch (error) {
+    throw new Error("Error al obtener becas");
+  }
+}
+
+async function getBecasPeriodos() {
+  try {
+    const becasPorPeriodo = await prisma.$queryRaw`
+      SELECT vg.ID_PERIODO, count(bo.ID_BECA) as total_becas
+      FROM istla_becas_otorgadas bo
+      INNER JOIN istla_solicitudes_beca sb ON bo.ID_SOLICITUD = sb.ID_SOLICITUD
+      INNER JOIN istla_vigencia_beca vg ON sb.ID_VIGENCIA = vg.ID_VIGENCIA
+      GROUP BY vg.ID_PERIODO
+    `;
+
+    const periodosAPI = await getPeriodos();
+
+    const periodosMap = new Map(
+      periodosAPI.map((periodo) => [periodo.ID_PERIODO, periodo.NOMBRE_PERIODO])
+    );
+
+    const periodos = becasPorPeriodo.map((beca) => ({
+      periodo:
+        periodosMap.get(String(beca.ID_PERIODO)) ||
+        `Periodo ${beca.ID_PERIODO}`,
+      total_becas: Number(beca.total_becas),
+    }));
+
+    return periodos;
+  } catch (error) {
+    throw new Error("Error al obtener becas con periodos");
+  }
+}
+
+async function getBecasTipo() {
+  try {
+    const becas = await prisma.vista_becas_por_tipo.findMany();
+    const becasProcesadas = becas.map((beca) => ({
+      ...beca,
+      Becas: Number(beca.Becas),
+    }));
+    return becasProcesadas;
+  } catch (error) {
+    throw new Error("Error al obtener becas por tipos");
+  }
+}
+
+async function obtenerBecasPorCarrera() {
+  try {
+    const estudiantesConBecas = await prisma.vista_becas_otorgadas.findMany({
+      select: {
+        CEDULA_ESTUDIANTE: true,
+      },
+      distinct: ["CEDULA_ESTUDIANTE"],
+    });
+
+    const cedulas = estudiantesConBecas.map((e) => e.CEDULA_ESTUDIANTE);
+
+    const estudiantesAPI = await getEstudiantes({
+      where: {
+        DOCUMENTO_ESTUDIANTES: {
+          in: cedulas,
+        },
+      },
+    });
+
+    const cedulaToId = Object.fromEntries(
+      estudiantesAPI.map((estudiante) => [
+        estudiante.DOCUMENTO_ESTUDIANTES,
+        estudiante.ID_ESTUDIANTES,
+      ])
+    );
+
+    const promesasCarreras = estudiantesConBecas
+      .filter((estudiante) => cedulaToId[estudiante.CEDULA_ESTUDIANTE])
+      .map(async (estudiante) => {
+        const idEstudiante = cedulaToId[estudiante.CEDULA_ESTUDIANTE];
+        try {
+          const matricula = await getCarreraEstudiante(idEstudiante);
+          if (matricula?.length > 0) {
+            const ultimaMatricula = matricula[matricula.length - 1];
+            return {
+              carrera: ultimaMatricula.NOMBRE_CARRERAS,
+              idCarrera: ultimaMatricula.ID_CARRERA,
+            };
+          }
+        } catch (error) {
+          console.error(
+            `Error al obtener carrera para estudiante ${idEstudiante}:`,
+            error
+          );
+        }
+        return null;
+      });
+
+    const resultadosCarreras = (await Promise.all(promesasCarreras)).filter(
+      Boolean
+    );
+
+    const conteoCarreras = resultadosCarreras.reduce((acc, curr) => {
+      acc[curr.carrera] = (acc[curr.carrera] || 0) + 1;
+      return acc;
+    }, {});
+
+    const resultado = Object.entries(conteoCarreras)
+      .map(([carrera, cantidadBecas]) => ({
+        carrera,
+        cantidadBecas,
+      }))
+      .sort((a, b) => b.cantidadBecas - a.cantidadBecas);
+
+    return resultado;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   postBecas,
   getBecas,
   updateSincronizacionFechas,
   getBecaCedula,
   updateDatoBeca,
+  getporcentajesBeca,
+  getBecasPeriodos,
+  getBecasTipo,
+  obtenerBecasPorCarrera,
 };

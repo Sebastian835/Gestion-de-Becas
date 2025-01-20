@@ -1,35 +1,324 @@
 <script setup>
-import { ref } from 'vue';
-import Chart from 'primevue/chart';
+import { ref, onMounted } from 'vue';
+import { getPorcentajesBecas, getBecasPeriodos, getBecasTipo, getBecasPorCarrera } from '../../services/becasOtorgadas';
+import VueApexCharts from "vue3-apexcharts";
+import Tabs from 'primevue/tabs';
+import TabList from 'primevue/tablist';
+import Tab from 'primevue/tab';
+import TabPanels from 'primevue/tabpanels';
+import TabPanel from 'primevue/tabpanel';
 
-const becasTotal = ref(25);
-const becasCompletas = ref(15);
-const becasMitad = ref(10);
-const otrasBecas = ref(5);
+const becasTotal = ref(null);
+const becas50 = ref(null);
+const becas25 = ref(null);
+const otrasBecas = ref(null);
 
-const chartData = ref({
-    labels: ['Becas Completas', 'Becas del 50%', 'Otras Becas'],
-    datasets: [
-        {
-            data: [15, 10, 5],
-            backgroundColor: ['#42A5F5', '#66BB6A', '#FFA726'],
-            hoverBackgroundColor: ['#64B5F6', '#81C784', '#FFB74D'],
+const fetchPorcentajeBecas = async () => {
+    const response = await getPorcentajesBecas();
+    becasTotal.value = response.total;
+    becas50.value = response.becas50;
+    becas25.value = response.becas25;
+    otrasBecas.value = response.becasOtras;
+};
+
+// Chart Becas por Periodos
+const becasPeriodos = ref([]);
+const chartBecasPeriodos = ref({
+    chart: {
+        type: 'bar',
+        toolbar: {
+            show: true,
+            tools: {
+                download: true,
+                selection: false,
+                zoom: false,
+                zoomin: false,
+                zoomout: false,
+                pan: false,
+            }
+        }
+    },
+    plotOptions: {
+        bar: {
+            horizontal: false,
+            columnWidth: '55%',
+            borderRadius: 4,
+            dataLabels: {
+                position: 'top'
+            }
+        }
+    },
+    dataLabels: {
+        enabled: true,
+        formatter: function (val) {
+            return val + ' becas';
         },
-    ],
+        offsetY: -20,
+        style: {
+            fontSize: '13px',
+            colors: ["#304758"]
+        }
+    },
+    stroke: {
+        show: true,
+        width: 2,
+        colors: ['transparent']
+    },
+    xaxis: {
+        categories: [],
+        title: {
+            text: 'Periodos'
+        }
+    },
+    yaxis: {
+        title: {
+            text: 'Número de Becas'
+        }
+    },
+    fill: {
+        opacity: 1,
+        type: 'gradient',
+        gradient: {
+            shade: 'light',
+            type: "vertical",
+            shadeIntensity: 0.25,
+            gradientToColors: undefined,
+            inverseColors: true,
+            opacityFrom: 1,
+            opacityTo: 0.85,
+            stops: [50, 0, 100]
+        },
+    },
+    tooltip: {
+        y: {
+            formatter: function (val, { }) {
+                return `${val} becas `;
+            }
+        }
+    },
 });
+const fetchBecasPeriodos = async () => {
+    try {
+        const response = await getBecasPeriodos();
+        chartBecasPeriodos.value = {
+            ...chartBecasPeriodos.value,
+            xaxis: {
+                ...chartBecasPeriodos.value.xaxis,
+                categories: response.map(item => item.periodo).reverse()
+            }
+        };
 
-const chartOptions = ref({
-    plugins: {
-        legend: {
-            labels: {
-                color: '#495057',
-            },
+        becasPeriodos.value = [{
+            name: 'Total Becas',
+            data: response.map(item => item.total_becas).reverse()
+        }];
+
+    } catch (error) {
+        throw new Error("Error al obtener los datos de los periodos");
+    }
+};
+
+// Chart Becas por Tipos
+const becasTipos = ref([]);
+const chartBecasTipos = ref({
+    chart: {
+        type: 'bar',
+        toolbar: {
+            show: true,
+            tools: {
+                download: true,
+                selection: false,
+                zoom: false,
+                zoomin: false,
+                zoomout: false,
+                pan: false,
+            }
+        }
+    },
+    colors: ['#E2478B'],
+    plotOptions: {
+        bar: {
+            horizontal: true,
+            columnWidth: '55%',
+            borderRadius: 4,
+            dataLabels: {
+                position: 'right'
+            }
+        }
+    },
+    dataLabels: {
+        enabled: true,
+        formatter: function (val) {
+            return val + ' becas';
+        },
+        offsetX: 10,
+        style: {
+            fontSize: '13px',
+            colors: ["#304758"]
+        }
+    },
+    xaxis: {
+        title: {
+            text: 'Número de Becas'
+        }
+    },
+    yaxis: {
+        title: {
+            text: 'Tipos de Becas'
+        },
+        labels: {
+            style: {
+                fontSize: '12px'
+            }
+        }
+    },
+    fill: {
+        opacity: 1,
+        type: 'gradient',
+        gradient: {
+            shade: 'light',
+            type: "vertical",
+            shadeIntensity: 0.25,
+            gradientToColors: undefined,
+            inverseColors: true,
+            opacityFrom: 1,
+            opacityTo: 0.85,
+            stops: [50, 0, 100]
         },
     },
-    animation: {
-        duration: 1500,
-        easing: 'easeInOutQuad',
+    tooltip: {
+        y: {
+            formatter: function (val, { }) {
+                return `${val} becas `;
+            }
+        }
     },
+});
+const fetchBecasTipos = async () => {
+    try {
+        const response = await getBecasTipo();
+        chartBecasTipos.value = {
+            ...chartBecasTipos.value,
+            xaxis: {
+                ...chartBecasTipos.value.xaxis,
+                categories: response.map(item => item.TIPO_BECA).reverse()
+            }
+        };
+
+        becasTipos.value = [{
+            name: 'Total Becas',
+            data: response.map(item => item.Becas).reverse()
+        }];
+
+    } catch (error) {
+        throw new Error("Error al obtener los datos de las becas");
+    }
+};
+
+//Chart Becas por Carrera
+const becasCarreras = ref([]);
+const chartBecasCarreras = ref({
+    chart: {
+        type: 'bar',
+        toolbar: {
+            show: true,
+            tools: {
+                download: true,
+                selection: false,
+                zoom: false,
+                zoomin: false,
+                zoomout: false,
+                pan: false,
+            }
+        }
+    },
+    colors: ['#1BA071'],
+    plotOptions: {
+        bar: {
+            horizontal: true,
+            columnWidth: '55%',
+            borderRadius: 4,
+            dataLabels: {
+                position: 'right'
+            }
+        }
+    },
+    dataLabels: {
+        enabled: true,
+        formatter: function (val) {
+            return `${val} becas`;
+        },
+        offsetX: 10,
+        style: {
+            fontSize: '13px',
+            colors: ["#304758"]
+        }
+    },
+    xaxis: {
+        title: {
+            text: 'Número de Becas'
+        }
+    },
+    yaxis: {
+        title: {
+            text: 'Carrera'
+        },
+        labels: {
+            style: {
+                fontSize: '12px'
+            }
+        }
+    },
+    fill: {
+        opacity: 1,
+        type: 'gradient',
+        gradient: {
+            shade: 'light',
+            type: "vertical",
+            shadeIntensity: 0.25,
+            gradientToColors: undefined,
+            inverseColors: true,
+            opacityFrom: 1,
+            opacityTo: 0.85,
+            stops: [50, 0, 100]
+        },
+    },
+    tooltip: {
+        y: {
+            formatter: function (val) {
+                return `${val} becas`;
+            }
+        }
+    },
+});
+const fetchBecasCarreras = async () => {
+    try {
+        const response = await getBecasPorCarrera();
+
+        // Actualizar las categorías del eje Y (carreras)
+        chartBecasCarreras.value = {
+            ...chartBecasCarreras.value,
+            xaxis: {
+                ...chartBecasCarreras.value.xaxis,
+                categories: response.map(item => item.carrera)
+            }
+        };
+
+        // Actualizar los datos de las series
+        becasCarreras.value = [{
+            name: 'Total Becas',
+            data: response.map(item => item.cantidadBecas)
+        }];
+    } catch (error) {
+        throw new Error("Error al obtener los datos de las becas");
+    }
+};
+
+onMounted(async () => {
+    fetchPorcentajeBecas();
+    fetchBecasPeriodos();
+    fetchBecasTipos();
+    await fetchBecasCarreras();
 });
 
 </script>
@@ -72,7 +361,7 @@ const chartOptions = ref({
                 <p class="block antialiased font-sans text-base leading-relaxed font-normal text-blue-gray-600">
                     <strong class="text-black-500"> Becas
                         del</strong>
-                    <strong class="text-green-500"> 100%</strong>&nbsp;
+                    <strong class="text-green-500"> 50%</strong>&nbsp;
                 </p>
             </div>
             <div class="border-t border-blue-gray-50 p-4 flex items-center justify-between">
@@ -98,7 +387,7 @@ const chartOptions = ref({
                     <div>
                         <h4
                             class="block antialiased tracking-normal font-sans text-3xl font-semibold leading-snug text-blue-gray-900">
-                            {{ becasCompletas }}
+                            {{ becas50 }}
                         </h4>
                     </div>
 
@@ -110,7 +399,7 @@ const chartOptions = ref({
                 <p class="block antialiased font-sans text-base leading-relaxed font-normal text-blue-gray-600">
                     <strong class="text-black-500"> Becas
                         del</strong>
-                    <strong class="text-green-500"> 50%</strong>&nbsp;
+                    <strong class="text-green-500"> 25%</strong>&nbsp;
                 </p>
             </div>
             <div class="border-t border-blue-gray-50 p-4 flex items-center justify-between">
@@ -139,7 +428,7 @@ const chartOptions = ref({
                     <div>
                         <h4
                             class="block antialiased tracking-normal font-sans text-3xl font-semibold leading-snug text-blue-gray-900">
-                            {{ becasMitad }}
+                            {{ becas25 }}
                         </h4>
                     </div>
 
@@ -190,6 +479,27 @@ const chartOptions = ref({
     </div>
 
 
+    <div class="card">
+        <Tabs value="0">
+            <TabList class="shadcn-tabs-list">
+                <Tab value="0">Asignacion de becas por periodo</Tab>
+                <Tab value="1">Asignacion de becas por su tipo</Tab>
+                <Tab value="2">Asignacion de becas por carrera</Tab>
+            </TabList>
+            <TabPanels>
+                <TabPanel value="0">
+                    <VueApexCharts type="bar" height="500" :options="chartBecasPeriodos" :series="becasPeriodos" />
+                </TabPanel>
+                <TabPanel value="1">
+                    <VueApexCharts type="bar" height="500" :options="chartBecasTipos" :series="becasTipos" />
+                </TabPanel>
+                <TabPanel value="2">
+                    <VueApexCharts type="bar" height="500" :options="chartBecasCarreras" :series="becasCarreras" />
+                </TabPanel>
+            </TabPanels>
+        </Tabs>
+    </div>
+
 </template>
 
 
@@ -198,8 +508,7 @@ const chartOptions = ref({
     .grid {
         grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     }
-    
-    /* Centrar el SVG */
+
     .place-items-center {
         @apply flex justify-center items-center !important;
     }
@@ -207,5 +516,11 @@ const chartOptions = ref({
     .place-items-center svg {
         @apply w-10 h-10 mx-auto !important;
     }
+}
+
+.shadcn-tabs-list {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100%;
 }
 </style>

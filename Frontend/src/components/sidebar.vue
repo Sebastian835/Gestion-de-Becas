@@ -15,7 +15,6 @@ const fetchCurrentUser = async () => {
     const user = await getUser();
     currentUser.value = user;
     await fetchBeca(currentUser.value.DOCUMENTO_USUARIOS);
-
   } catch (error) {
     throw error;
   }
@@ -35,10 +34,11 @@ const fetchBeca = async (cedula) => {
 onMounted(() => {
   fetchCurrentUser();
 });
-
-const isAdmin = computed(() => currentUser.value?.role === 'Admin');
 const isSuperAdmin = computed(() => currentUser.value?.role === 'SuperAdmin');
+const isCoordinador = computed(() => currentUser.value?.role === 'Coordinador');
+const isReporte = computed(() => currentUser.value?.role === 'Reporteria');
 const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
+
 </script>
 
 
@@ -59,7 +59,8 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
         <ul class="mb-4 flex flex-col gap-1">
 
           <!-- Admin -->
-          <li v-if="isAdmin || isSuperAdmin">
+          <li v-if="isCoordinador || isSuperAdmin || isReporte"
+            class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/home"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -79,7 +80,8 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-          <li v-if="isAdmin || isSuperAdmin">
+          <li v-if="isCoordinador || isSuperAdmin"
+            class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/periodos"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -91,7 +93,8 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-          <li v-if="isAdmin || isSuperAdmin">
+          <li v-if="isCoordinador || isSuperAdmin"
+            class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/solicitudesBeca"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -103,7 +106,8 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-          <li v-if="isAdmin || isSuperAdmin">
+          <li v-if="isCoordinador || isSuperAdmin"
+            class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/documentosBeca"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -115,7 +119,8 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-          <li v-if="isAdmin || isSuperAdmin">
+          <li v-if="isCoordinador || isSuperAdmin"
+            class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/becas"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -127,7 +132,8 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-          <li v-if="isAdmin || isSuperAdmin">
+          <li v-if="isCoordinador || isSuperAdmin || isReporte"
+            class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/reportes"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -141,7 +147,8 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
           </li>
 
           <!-- SuperAdmin -->
-          <li v-if="isSuperAdmin">
+          <li v-if="isSuperAdmin"
+            class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/gestionUsuarios"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -155,7 +162,8 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
           </li>
 
           <!-- Estudiante -->
-          <li v-if="isEstudiante">
+          <li v-if="isEstudiante"
+            class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/requisitos"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -167,7 +175,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-          <li v-if="isEstudiante">
+          <li v-if="isEstudiante" class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/solicitud"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -179,7 +187,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-          <li v-if="isEstudiante">
+          <li v-if="isEstudiante" class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/documentos"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -191,7 +199,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-          <li v-if="isEstudiante && becaVigente">
+          <li v-if="isEstudiante && becaVigente" class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/beca"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -223,13 +231,10 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
 <style scoped>
 .overflow-y-auto {
   scrollbar-width: none;
-  /* Firefox */
   -ms-overflow-style: none;
-  /* IE and Edge */
 }
 
 .overflow-y-auto::-webkit-scrollbar {
   display: none;
-  /* Chrome, Safari and Opera */
 }
 </style>

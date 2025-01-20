@@ -275,7 +275,10 @@ onMounted(() => {
 
 <template>
   <div>
-    <h2 class="text-xl font-semibold mb-4" style="margin-bottom: 25px; font-size:25px;">Solictudes de Becas</h2>
+    <h2 class="text-2xl font-bold text-gray-800 mb-8" style="color: #161E2D;">
+      Solictudes de Becas
+    </h2>
+
     <div class="flex items-center gap-4 mb-4" style="margin-bottom: 25px; ">
       <InputText v-model="globalFilter" placeholder="Buscar..." class="w-1/4" />
       <Select v-model="periodo" :options="periodos" optionLabel="label" placeholder="Selecciona un período"

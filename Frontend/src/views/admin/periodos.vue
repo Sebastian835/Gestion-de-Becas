@@ -21,11 +21,23 @@ const editingRows = ref([]);
 const vigenciaBecas = ref();
 
 const fetchPlazoBecas = async () => {
-    plazos.value = await getPlazoBecas();
-    plazos.value.forEach(plazo => {
-        plazo.FECHA_INICIO = new Date(plazo.FECHA_INICIO).toLocaleDateString("es-ES");
-        plazo.FECHA_FIN = new Date(plazo.FECHA_FIN).toLocaleDateString("es-ES");
+    const plazosData = await getPlazoBecas();
+    
+    plazosData.sort((a, b) => {
+        if (a.istla_estado_solicitud.ESTADO === 'En curso' && b.istla_estado_solicitud.ESTADO !== 'En curso') {
+            return -1;
+        }
+        if (a.istla_estado_solicitud.ESTADO !== 'En curso' && b.istla_estado_solicitud.ESTADO === 'En curso') {
+            return 1;
+        }
+        return 0;
     });
+
+    plazos.value = plazosData.map(plazo => ({
+        ...plazo,
+        FECHA_INICIO: new Date(plazo.FECHA_INICIO).toLocaleDateString("es-ES"),
+        FECHA_FIN: new Date(plazo.FECHA_FIN).toLocaleDateString("es-ES")
+    }));
 };
 
 const fetchPeriodosIstla = async () => {
@@ -235,7 +247,9 @@ onMounted(() => {
 </script>
 
 <template>
-    <h2 class="text-xl font-semibold mb-4" style="margin-bottom: 25px; font-size:25px;">Periodos de Becas</h2>
+    <h2 class="text-2xl font-bold text-gray-800 mb-8" style="color: #161E2D;">
+        Periodos de Becas
+      </h2>
     <div class="flex flex-wrap items-center justify-between" style="margin-bottom: 25px;">
         <div class="w-full">
             <div class="card">

@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@primevue/themes": "^4.2.2",
+    "apexcharts": "^4.3.0",
     "axios": "^1.7.5",
-    "chart.js": "^4.4.7",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.13",
     "file-saver": "^2.0.5",
@@ -24,7 +24,8 @@
     "primevue": "^4.2.2",
     "sweetalert2": "^11.6.13",
     "vue": "^3.4.37",
-    "vue-router": "^4.4.3"
+    "vue-router": "^4.4.3",
+    "vue3-apexcharts": "^1.8.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.2",

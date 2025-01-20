@@ -14,6 +14,7 @@ import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
+import SplitButton from 'primevue/splitbutton';
 
 const sidebarStore = useSidebarStore();
 const router = useRouter();
@@ -35,10 +36,6 @@ const fecthUser = async () => {
     nombreUsuario.value = user._value.USUARIO;
   }
 
-};
-
-const toggleSettings = () => {
-  settingsVisible.value = !settingsVisible.value;
 };
 
 const handleLogout = () => {
@@ -100,6 +97,17 @@ const hideDialog = () => {
   datosUsuario.value = false;
 };
 
+const opciones = [
+  {
+    label: 'Salir',
+    icon: 'pi pi-sign-out',
+    command: () => {
+      handleLogout();
+    }
+  },
+];
+
+
 onMounted(() => {
   fecthUser();
 });
@@ -112,56 +120,31 @@ onMounted(() => {
   <div class="flex flex-col-reverse justify-between gap-2 md:flex-row md:items-center">
     <div class="capitalize">
       <ol class="flex flex-wrap items-center w-full bg-opacity-60 rounded-md bg-transparent p-0 transition-all">
-        <li class="flex items-center text-blue-gray-900 antialiased font-sans text-sm font-normal leading-normal ">
-          <p class="block antialiased font-sans text-sm leading-normal text-gray-900 font-normal ">
-            Gestión de Becas</p>
-          <span
-            class="text-gray-800 text-sm antialiased font-sans font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
-        </li>
         <li class="flex items-center text-gray-900 antialiased font-sans text-sm font-normal leading-normal ">
-          <p class="block antialiased font-sans text-sm leading-normal text-blue-gray-900 font-normal">Instituto
-            Superior Tecnológico Los Andes" ISTLA</p>
+          <p class="block antialiased font-sans text-base leading-relaxed font-normal text-blue-gray-600">
+            <strong style="color: #161E2D;"> Intituto Superior Tecnológico Los Andes" ISTLA</strong>
+          </p>
         </li>
       </ol>
     </div>
 
     <div class="flex justify-end items-center">
-
       <button @click="sidebarStore.toggleSidebar"
         class="relative middle none font-sans font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-10 max-w-[40px] h-10 max-h-[40px] rounded-lg text-xs text-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30 grid xl:hidden"
         type="button">
         <span class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2">
           <div>
-            <i class="pi pi-bars text-gray-900" style="font-size: 1.5rem"></i>
+            <i class="pi pi-bars" style="font-size: 1.5rem; color: #020617;"></i>
           </div>
         </span>
       </button>
 
       <!-- AJUSTES y SALIR -->
-      <button
-        class="relative middle none font-sans font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-10 max-w-[40px] h-10 max-h-[40px] rounded-lg text-xs text-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30"
-        type="button" @click="toggleSettings">
-        <span class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2">
-          <div>
-            <i :class="['pi', 'pi-cog', 'text-gray-900', { 'pi-spin': settingsVisible }]" style="font-size: 1.5rem"></i>
-          </div>
-        </span>
-      </button>
-
-      <div v-if="settingsVisible" class="absolute top-16 right-4 bg-white shadow-lg rounded-lg p-2 z-50">
-        <button v-if="docente" @click="dialogUsuario" class="flex items-center text-gray-900 text-sm"
-          style="margin-bottom: 10px;">
-          <i class="pi pi-user text-gray-900 text-lg mr-2"></i> Usuario
-        </button>
-
-        <button class="flex items-center text-gray-900 text-sm" @click="handleLogout">
-          <i class="pi pi-sign-out text-gray-900 text-lg mr-2"></i> Salir
-        </button>
-      </div>
+      <SplitButton icon="pi pi-user" dropdownIcon="pi pi-cog" label="Perfil" @click="dialogUsuario" :model="opciones"
+        size="small" severity="contrast" rounded />
 
     </div>
   </div>
-
 
   <!-- Diálogo de Edición -->
   <Dialog v-model:visible="datosUsuario" :style="{ width: '700px' }" header="Datos de Usuario" modal class="p-fluid"

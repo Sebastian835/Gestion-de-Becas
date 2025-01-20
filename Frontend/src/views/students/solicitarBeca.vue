@@ -183,7 +183,7 @@ onMounted(() => {
             <!-- Recordatorio -->
             <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">Solicitud de Beca</h2>
             <p class="text-gray-700 mb-6 text-sm text-center">
-                Por favor, descarga y completa el formulario con los datos requeridos para la solicitud de beca.
+                Descarga y completa el formulario con los datos requeridos para la solicitud de beca.
                 Una vez que lo hayas llenado y escaneado, súbelo a continuación.
             </p>
 
@@ -202,7 +202,9 @@ onMounted(() => {
                 <option v-for="beca in tiposBecas" :key="beca.id" :value="beca.ID_TIPO_BECA">{{ beca.TIPO_BECA }}
                 </option>
             </select>
-
+            <p class="text-gray-700 mb-6 text-sm text-center">
+                Por favor, no olvidar firmar la solictud antes de subirla.
+            </p>
             <!-- Subida de archivos -->
             <label for="file-upload" class="block mb-2 text-sm font-medium text-gray-900">Subir Formulario
                 Escaneado</label>

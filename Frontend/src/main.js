@@ -7,11 +7,15 @@ import Lara from '@primevue/themes/lara';
 import ToastService from 'primevue/toastservice';
 import Tooltip from 'primevue/tooltip';
 import ConfirmationService from 'primevue/confirmationservice';
+import VueApexCharts from "vue3-apexcharts";
 import './style.css'
 
 
 const app = createApp(App);
 const pinia = createPinia();
+
+
+app.use(VueApexCharts)
 
 app.use(pinia); 
 app.use(PrimeVue, {

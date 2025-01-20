@@ -31,18 +31,14 @@ const iniciarSesion = async () => {
             showConfirmButton: false,
             timer: 1500
         }).then(() => {
-            if (dataUser.user.role === 'SuperAdmin') {
-                usuario.value = '';
-                contra.value = '';
-                router.push('/main/home');
-            } else if (dataUser.user.role === 'Admin') {
-                usuario.value = '';
-                contra.value = '';
-                router.push('/main/home');
-            } else {
+            if (dataUser.user.role === 'estudiante') {
                 usuario.value = '';
                 contra.value = '';
                 router.push('/main/requisitos');
+            } else {
+                usuario.value = '';
+                contra.value = '';
+                router.push('/main/home');
             }
         });
     } catch (error) {

@@ -3,6 +3,10 @@ const {
   updateSincronizacionFechas,
   getBecaCedula,
   updateDatoBeca,
+  getporcentajesBeca,
+  getBecasPeriodos,
+  getBecasTipo,
+  obtenerBecasPorCarrera,
 } = require("../services/becas_Otorgadas");
 
 async function getBecasOtorgadas(req, res) {
@@ -45,9 +49,49 @@ async function updateSincronizarFechas(req, res) {
   }
 }
 
+async function getBecasPorcentajes(req, res) {
+  try {
+    const becas = await getporcentajesBeca();
+    res.status(200).json(becas);
+  } catch (error) {
+    res.status(500).json({ error: "Error obteniendo las becas" });
+  }
+}
+
+async function getPeriodosBecas(req, res) {
+  try {
+    const becas = await getBecasPeriodos();
+    res.status(200).json(becas);
+  } catch (error) {
+    res.status(500).json({ error: "Error obteniendo las becas" });
+  }
+}
+
+async function getBecasConteoTipo(req, res) {
+  try {
+    const becas = await getBecasTipo();
+    res.status(200).json(becas);
+  } catch (error) {
+    res.status(500).json({ error: "Error obteniendo las becas" });
+  }
+}
+
+async function getBecasPorCarrera(req, res) {
+  try {
+    const becas = await obtenerBecasPorCarrera();
+    res.status(200).json(becas);
+  } catch (error) {
+    res.status(500).json({ error: "Error obteniendo las becas" });
+  }
+}
+
 module.exports = {
   getBecasOtorgadas,
   updateSincronizarFechas,
   getBecaVigente,
   updateBeca,
+  getBecasPorcentajes,
+  getPeriodosBecas,
+  getBecasConteoTipo,
+  getBecasPorCarrera,
 };

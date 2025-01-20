@@ -43,7 +43,47 @@ async function getPeriodos() {
   }
 }
 
+async function getEstudiantes() {
+  try {
+    const token = await getToken();
+    const response = await axios.get(`${baseURL}/ver-estudiantes`, {
+      headers: { Authorization: token },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getCarreras() {
+  try {
+    const token = await getToken();
+    const response = await axios.get(`${baseURL}/ver-carreras`, {
+      headers: { Authorization: token },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getCarreraEstudiante(id) {
+  try {
+    const token = await getToken();
+    const response = await axios.get(`${baseURL}/ver-matriculas-estudiante/${id}`, {
+      headers: { Authorization: token },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+
 module.exports = {
   getUsuarios,
   getPeriodos,
+  getEstudiantes,
+  getCarreras,
+  getCarreraEstudiante
 };

@@ -24,57 +24,63 @@ const routes = [
         redirect: "main/home",
       },
       {
-        path: "gestionUsuarios",  
+        path: "gestionUsuarios",
         component: () => import("../views/superAdmin/gestionUsuarios.vue"),
         meta: { requiresAuth: true, roles: ["SuperAdmin"] },
       },
       {
-        path: "home",  
+        path: "home",
         component: () => import("../views/admin/home.vue"),
-        meta: { requiresAuth: true, roles: ["Admin", "SuperAdmin"] },
+        meta: {
+          requiresAuth: true,
+          roles: ["Reporteria", "Coordinador", "SuperAdmin"],
+        },
       },
       {
-        path: "periodos",  
+        path: "periodos",
         component: () => import("../views/admin/periodos.vue"),
-        meta: { requiresAuth: true, roles: ["Admin", "SuperAdmin"] },
+        meta: { requiresAuth: true, roles: ["Coordinador", "SuperAdmin"] },
       },
       {
-        path: "solicitudesBeca",  
+        path: "solicitudesBeca",
         component: () => import("../views/admin/solicitudes.vue"),
-        meta: { requiresAuth: true, roles: ["Admin", "SuperAdmin"] },
+        meta: { requiresAuth: true, roles: ["Coordinador", "SuperAdmin"] },
       },
       {
-        path: "documentosBeca",  
+        path: "documentosBeca",
         component: () => import("../views/admin/documentos.vue"),
-        meta: { requiresAuth: true, roles: ["Admin", "SuperAdmin"] },
+        meta: { requiresAuth: true, roles: ["Coordinador", "SuperAdmin"] },
       },
       {
-        path: "becas",  
+        path: "becas",
         component: () => import("../views/admin/becas.vue"),
-        meta: { requiresAuth: true, roles: ["Admin", "SuperAdmin"] },
+        meta: { requiresAuth: true, roles: ["Coordinador", "SuperAdmin"] },
       },
       {
-        path: "reportes",  
+        path: "reportes",
         component: () => import("../views/admin/reportes.vue"),
-        meta: { requiresAuth: true, roles: ["Admin", "SuperAdmin"] },
+        meta: {
+          requiresAuth: true,
+          roles: ["Reporteria", "Coordinador", "SuperAdmin"],
+        },
       },
       {
-        path: "requisitos",  
+        path: "requisitos",
         component: () => import("../views/students/requisitos.vue"),
         meta: { requiresAuth: true, roles: ["estudiante"] },
       },
       {
-        path: "solicitud",  
+        path: "solicitud",
         component: () => import("../views/students/solicitarBeca.vue"),
         meta: { requiresAuth: true, roles: ["estudiante"] },
       },
       {
-        path: "documentos",  
+        path: "documentos",
         component: () => import("../views/students/documentosBeca.vue"),
         meta: { requiresAuth: true, roles: ["estudiante"] },
       },
       {
-        path: "beca",  
+        path: "beca",
         component: () => import("../views/students/beca.vue"),
         meta: { requiresAuth: true, roles: ["estudiante"] },
       },
@@ -87,14 +93,13 @@ const routes = [
   },
 ];
 
-
 const router = createRouter({
-  history: createWebHistory('/gestionBecas/'),
+  history: createWebHistory("/gestionBecas/"),
   routes,
 });
 
 router.beforeEach(async (to, from, next) => {
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 
   if (!requiresAuth) {
     return next();
@@ -116,6 +121,5 @@ router.beforeEach(async (to, from, next) => {
     return next("/login");
   }
 });
-
 
 export default router;

@@ -58,3 +58,59 @@ export const updateSincronizar = async () => {
     throw new Error("Error en la petición");
   }
 };
+
+export const getPorcentajesBecas = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/porcentajesBeca`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error("Error en la petición");
+  }
+};
+
+export const getBecasPeriodos = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/becasPeriodos`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error("Error en la petición");
+  }
+};
+
+export const getBecasTipo = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/becasConteoTipo`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error("Error en la petición");
+  }
+};
+
+export const getBecasPorCarrera = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/becasPorCarrera`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error("Error en la petición");
+  }
+};

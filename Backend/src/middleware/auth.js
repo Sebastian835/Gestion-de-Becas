@@ -3,7 +3,7 @@ const jwtConfig = require('../config/jwtConfig');
 
 const verifyToken = (req, res, next) => {
     const token = req.cookies.authIstlaBecas; 
-
+    
     if (!token) {
         return res.status(403).json({ message: 'No token provided' });
     }

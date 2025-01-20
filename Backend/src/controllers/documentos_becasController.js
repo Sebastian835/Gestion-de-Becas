@@ -2,11 +2,13 @@ const {
   getDocumentos,
   putAprobarDocumentacion,
   putReenviarDocumentacion,
-  deleteDocumentacion
+  deleteDocumentacion,
 } = require("../services/documentacionBeca");
 
 const baseURL =
-  "http://localhost:3000/api/documentacionBeca/accesoDocumentosBecas";
+  process.env.NODE_ENV === "production"
+    ? "https://tesis.apps-sebas.org/api/documentacionBeca/accesoDocumentosBecas"
+    : "http://localhost:3000/api/documentacionBeca/accesoDocumentosBecas";
 
 async function getDocumentosController(req, res) {
   try {
@@ -41,7 +43,6 @@ async function getDocumentosController(req, res) {
               );
             }
           }
-
           return detallesConURL;
         }
       );
@@ -66,7 +67,10 @@ function construirURLDocumento(baseURL, archivo) {
 
 async function putAceptarDocumentacionController(req, res) {
   try {
-    const result = await putAprobarDocumentacion(req.params.id, req.body.porcentaje);
+    const result = await putAprobarDocumentacion(
+      req.params.id,
+      req.body.porcentaje
+    );
 
     res.status(result.status).json(result);
   } catch (error) {
@@ -76,7 +80,10 @@ async function putAceptarDocumentacionController(req, res) {
 
 async function putReenviarDocumentacionController(req, res) {
   try {
-    const result = await putReenviarDocumentacion(req.params.id, req.body.motivo);
+    const result = await putReenviarDocumentacion(
+      req.params.id,
+      req.body.motivo
+    );
 
     res.status(result.status).json(result);
   } catch (error) {
@@ -94,10 +101,9 @@ async function deleteDocumentacionController(req, res) {
   }
 }
 
-
 module.exports = {
   getDocumentosController,
   putAceptarDocumentacionController,
   putReenviarDocumentacionController,
-  deleteDocumentacionController
+  deleteDocumentacionController,
 };

@@ -31,3 +31,28 @@ export const getUsuariosIstla = async () => {
     throw new Error(error.response?.data?.message || "Error en la petición");
   }
 };
+
+export const getEstudiantesIstla = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/estudiantesIstla`, {
+      withCredentials: true,
+    });
+  
+    return response;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Error en la petición");
+  }
+};
+
+export const getCarrerasIstla = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/carrerasIstla`, {
+      withCredentials: true,
+    });
+  
+    return response;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Error en la petición");
+  }
+};
+

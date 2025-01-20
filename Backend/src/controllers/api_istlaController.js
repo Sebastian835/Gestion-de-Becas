@@ -1,4 +1,4 @@
-const { getUsuarios, getPeriodos } = require('../services/api_istla');
+const { getUsuarios, getPeriodos, getEstudiantes, getCarreras } = require('../services/api_istla');
 
 async function getUsuariosController(req, res) {
   try {
@@ -18,7 +18,27 @@ async function getPeriodosController(req, res) {
   }
 }
 
+async function getEstudiantesController(req, res) {
+  try {
+    const periodos = await getEstudiantes(); 
+    res.status(200).json(periodos); 
+  } catch (error) {
+    res.status(500).json({ error: "Error obteniendo los periodos." });
+  }
+}
+
+async function getCarrerasController(req, res) {
+  try {
+    const periodos = await getCarreras(); 
+    res.status(200).json(periodos); 
+  } catch (error) {
+    res.status(500).json({ error: "Error obteniendo los periodos." });
+  }
+}
+
 module.exports = {
   getUsuariosController,
   getPeriodosController,
+  getEstudiantesController,
+  getCarrerasController
 };

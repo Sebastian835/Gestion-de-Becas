@@ -33,9 +33,9 @@ Object.entries(routes).forEach(([prefix, routeModule]) => {
   app.use(`/api${prefix}`, routeModule);
 });
 
-const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || "127.0.0.1";
+const PORT = process.env.PORT;
+const HOST = process.env.HOST;
 
 app.listen(PORT, HOST, async () => {
-  console.log(`Servidor corriendo en http://${HOST}:${PORT}`);
+  console.log(`http://${HOST}:${PORT}`);
 });

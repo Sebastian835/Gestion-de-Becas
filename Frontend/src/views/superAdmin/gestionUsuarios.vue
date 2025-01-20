@@ -24,6 +24,7 @@ const toast = useToast();
 const usuario = ref({
     NOMBRE: '',
     APELLIDO: '',
+    CEDULA: '',
     PASSWORD: '',
     CORREO: '',
     DESCRIPCION: '',
@@ -49,6 +50,7 @@ const creacionUsuario = () => {
     usuario.value = {
         NOMBRE: '',
         APELLIDO: '',
+        CEDULA: '',
         PASSWORD: '',
         CORREO: '',
         DESCRIPCION: '',
@@ -61,13 +63,14 @@ const creacionUsuario = () => {
 const crearNuevoUsuario = async () => {
     submitted.value = true;
 
-    if (!usuario.value.NOMBRE || !usuario.value.APELLIDO || !usuario.value.PASSWORD || !usuario.value.CORREO || !usuario.value.ROL) {
+    if (!usuario.value.NOMBRE || !usuario.value.APELLIDO  || !usuario.value.CEDULA || !usuario.value.PASSWORD || !usuario.value.CORREO || !usuario.value.ROL) {
         return;
     }
 
     const data = {
         NOMBRES: usuario.value.NOMBRE,
         APELLIDOS: usuario.value.APELLIDO,
+        CEDULA: usuario.value.CEDULA,
         PASSWORD: usuario.value.PASSWORD,
         CORREO: usuario.value.CORREO,
         DESCRIPCION: usuario.value.DESCRIPCION,
@@ -110,6 +113,7 @@ const edicionUsuario = async (usuario) => {
         USUARIO: usuario.USUARIO,
         NOMBRES: usuario.NOMBRES,
         APELLIDOS: usuario.APELLIDOS,
+        CEDULA: usuario.CEDULA,
         PASSWORD: usuario.PASSWORD,
         CORREO: usuario.CORREO,
         DESCRIPCION: usuario.DESCRIPCION,
@@ -260,6 +264,12 @@ onMounted(() => {
                 </div>
 
                 <div class="form-group">
+                    <label for="cedula">Cedula</label>
+                    <InputText id="cedula" v-model.trim="usuario.CEDULA" placeholder="Ingrese le numero de cedula"
+                        :class="{ 'p-invalid': submitted && !usuario.CEDULA }" />
+                </div>
+
+                <div class="form-group">
                     <label for="password">Contraseña</label>
                     <Password id="password" v-model="usuario.PASSWORD" placeholder="Ingrese la contraseña"
                         :feedback="false" :class="{ 'p-invalid': submitted && !usuario.PASSWORD }" toggleMask
@@ -273,19 +283,19 @@ onMounted(() => {
                     <InputText id="correo" v-model.trim="usuario.CORREO" placeholder="Ingrese el correo"
                         :class="{ 'p-invalid': submitted && !usuario.CORREO }" />
                 </div>
+                <div class="form-group">
+                    <label for="rol">Rol</label>
+                    <Select id="rol" v-model="usuario.ROL" :options="roles.map(role => role.NOMBRE)"
+                        :class="{ 'p-invalid': submitted && !usuario.ROL }" placeholder="Seleccione un rol" />
 
+                </div>
                 <div class="form-group full-width">
                     <label for="descripcion">Descripción</label>
                     <Textarea id="descripcion" v-model.trim="usuario.DESCRIPCION" placeholder="Ingrese una descripción"
                         rows="3" autoResize />
                 </div>
 
-                <div class="form-group full-width">
-                    <label for="rol">Rol</label>
-                    <Select id="rol" v-model="usuario.ROL" :options="roles.map(role => role.NOMBRE)"
-                        :class="{ 'p-invalid': submitted && !usuario.ROL }" placeholder="Seleccione un rol" />
 
-                </div>
             </div>
 
             <template #footer>
@@ -316,6 +326,11 @@ onMounted(() => {
                         :class="{ 'p-invalid': submitted && !usuario.USUARIO }" />
                 </div>
                 <div class="form-group">
+                    <label for="cedula" class="font-medium">Cedula</label>
+                    <InputText id="cedula" v-model.trim="usuario.CEDULA" placeholder="Ingrese el numero de cedula"
+                        :class="{ 'p-invalid': submitted && !usuario.CEDULA }" />
+                </div>
+                <div class="form-group">
                     <label for="password">Contraseña</label>
                     <Password id="password" v-model="usuario.PASSWORD" placeholder="Ingrese la contraseña"
                         :feedback="false" :class="{ 'p-invalid': submitted && !usuario.PASSWORD }" toggleMask
@@ -327,7 +342,7 @@ onMounted(() => {
                         :class="{ 'p-invalid': submitted && !usuario.CORREO }" />
                 </div>
 
-                <div class="form-group">
+                <div class="form-group full-width">
                     <label for="rol" class="font-medium">Rol</label>
                     <Select id="rol" v-model="usuario.ROL" :options="roles.map(role => role.NOMBRE)"
                         :class="{ 'p-invalid': submitted && !usuario.ROL }" placeholder="Seleccione un rol" />

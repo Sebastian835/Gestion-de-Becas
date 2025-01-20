@@ -269,7 +269,9 @@ onMounted(() => {
 
 <template>
   <div>
-    <h2 class="text-xl font-semibold mb-4" style="margin-bottom: 25px; font-size:25px;">Documentos de Becas</h2>
+    <h2 class="text-2xl font-bold text-gray-800 mb-8" style="color: #161E2D;">
+      Documentos de Becas
+    </h2>
     <div class="flex items-center gap-4 mb-4" style="margin-bottom: 25px;">
       <InputText v-model="globalFilter" placeholder="Buscar..." class="w-1/4" />
       <Button icon="pi pi-eraser" label="Limpiar Filtros" @click="clearFilters" severity="secondary" raised />
