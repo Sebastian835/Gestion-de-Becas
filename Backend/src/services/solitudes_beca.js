@@ -23,7 +23,7 @@ async function postSolicitudBeca(req, res) {
     await prisma.istla_solicitudes_beca.create({
       data: {
         CEDULA_ESTUDIANTE: data["cedula_estudiante"],
-        ID_TIPO_BECA: data["becaSeleccionada"], 
+        ID_TIPO_BECA: data["becaSeleccionada"],
         ID_VIGENCIA: data["periodoBeca"],
         FECHA: new Date(fechaFormateada),
         ID_ESTADO: 1,
@@ -39,7 +39,19 @@ async function postSolicitudBeca(req, res) {
 
 async function getSolicitudes(req, res) {
   try {
-    const solicitudes = await prisma.vista_solicitud_beca_detalle.findMany();
+    const solicitudes = await prisma.vista_solicitud_beca_detalle.findMany({
+      where: {
+        ESTADO: {
+          not: "Finalizado",
+        },
+      },
+    });
+
+    if (solicitudes.length === 0) {
+      return res.json({ 'noHay': true });
+    }
+    
+
     const usuarios = await getUsuarios.getUsuarios();
 
     const usuariosMap = new Map();
@@ -125,12 +137,13 @@ async function aprobarSolicitud(req, res) {
 }
 
 async function rechazarSolicitud(req, res) {
-  const { id } = req.params;
+  const id = req.params.id;
+  const motivo = req.body.motivo;
+
   const idFormat = parseInt(id, 10);
   try {
     await prisma.istla_solicitudes_beca.delete({
       where: {
-        
         ID_SOLICITUD: idFormat,
       },
     });

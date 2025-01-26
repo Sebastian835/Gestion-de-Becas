@@ -31,7 +31,7 @@ const iniciarSesion = async () => {
             showConfirmButton: false,
             timer: 1500
         }).then(() => {
-            if (dataUser.user.role === 'estudiante') {
+            if (dataUser.role === 'estudiante') {
                 usuario.value = '';
                 contra.value = '';
                 router.push('/main/requisitos');

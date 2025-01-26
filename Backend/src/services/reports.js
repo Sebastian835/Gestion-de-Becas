@@ -6,18 +6,51 @@ const {
   getCarreraEstudiante,
   getUsuarios,
 } = require("./api_istla");
+const {
+  getBecasPeriodos,
+  getBecasTipo,
+  obtenerBecasPorCarrera,
+} = require("./becas_Otorgadas");
+
+const { handleReport } = require("../reports/index");
 
 async function obtenerReporte(filtros) {
   try {
-    const { idPeriodo, idPeriodoFinal, todos } = filtros;
-    const periodos = await getPeriodos();
-    let estado = "";
+    const { idPeriodo, idPeriodoFinal, todos, estado } = filtros;
 
-    if (filtros.estado === "Activas") {
-      estado = "Activa";
-    } else if (filtros.estado === "Inactivas") {
-      estado = "Inactiva";
+    let dataNo = false;
+    if (filtros.data === false) {
+      dataNo = true;
     }
+    let periodoConteo = null;
+    let tipoBecaConteo = null;
+    let carreraConteo = null;
+    if (filtros.conteo) {
+      if (filtros.conteo.includes("periodos")) {
+        periodoConteo = await getBecasPeriodos();
+      }
+
+      if (filtros.conteo.includes("tipoBeca")) {
+        tipoBecaConteo = await getBecasTipo();
+      }
+
+      if (filtros.conteo.includes("carrera")) {
+        carreraConteo = await obtenerBecasPorCarrera();
+      }
+    }
+    if (dataNo) {
+      const pdfPath = await handleReport(
+        false,
+        periodoConteo,
+        tipoBecaConteo,
+        carreraConteo,
+        filtros.graficosGenerales || false,
+        false
+      );
+      return pdfPath;
+    }
+    const periodos = await getPeriodos();
+
     let where = {};
 
     if (!todos) {
@@ -30,14 +63,15 @@ async function obtenerReporte(filtros) {
         };
       }
     }
+
+    if (estado && estado.length > 0) {
+      where.ESTADO_BECA = {
+        in: Array.isArray(estado) ? estado : [estado],
+      };
+    }
+
     const becas = await prisma.vista_becas_otorgadas.findMany({
-      where:
-        estado !== ""
-          ? {
-              ESTADO_BECA: estado,
-              ...where,
-            }
-          : where,
+      where,
       select: {
         CEDULA_ESTUDIANTE: true,
         TIPO_BECA: true,
@@ -49,6 +83,7 @@ async function obtenerReporte(filtros) {
         ID_PERIODO: "asc",
       },
     });
+
     const becasConPeriodo = becas.map((beca) => {
       const periodInfo = periodos.find(
         (p) => p.ID_PERIODO === String(beca.ID_PERIODO)
@@ -62,7 +97,16 @@ async function obtenerReporte(filtros) {
       };
     });
 
-    return obtenerReporteCarreras(becasConPeriodo, filtros);
+    // const report = await obtenerReporteCarreras(becasConPeriodo, filtros);
+
+    const pdfPath = await handleReport(
+      becasConPeriodo,
+      periodoConteo,
+      tipoBecaConteo,
+      carreraConteo
+    );
+
+    return becasConPeriodo;
   } catch (error) {
     throw new error();
   }

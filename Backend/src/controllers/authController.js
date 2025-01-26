@@ -37,14 +37,13 @@ const login = async (req, res) => {
           jwtConfig.secret,
           { expiresIn: "30m" }
         );
-
         res.cookie("authIstlaBecas", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "Strict",
-          maxAge: 30 * 30 * 1000,
+          maxAge: 60 * 60 * 1000,
         });
-        return res.json({ message: "Login exitoso", user: estudiante });
+        return res.json({ message: "Login exitoso", user: estudiante, role: "estudiante" });
       } else {
         return res.status(401).json({ message: "Credenciales Invalidas" });
       }

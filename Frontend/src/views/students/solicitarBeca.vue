@@ -4,6 +4,8 @@ import { getUser } from '../../services/user';
 import { getTiposBecas } from '../../services/tiposBecas';
 import { postSolicitud, getBuscarSolicitud } from '../../services/solicitudBeca';
 import { getPlazoBecasActivas } from '../../services/vigenciaBecas';
+import { getBecasByIdEstudiante } from '../../services/becasOtorgadas';
+
 
 import { getperiodosIstla } from '../../services/api_Istla';
 import { useRouter } from 'vue-router';
@@ -29,6 +31,8 @@ const fecthPeriodoBecas = async () => {
         }).then(() => {
             router.push('/main/requisitos');
         });
+    }else{
+        becaActiva();
     }
 };
 
@@ -147,6 +151,24 @@ const submitSolicitud = async () => {
     }
 };
 
+const becaActiva = async () => {
+    const user = await fetchCurrentUser();
+    const beca = await getBecasByIdEstudiante(user.DOCUMENTO_USUARIOS);
+
+    if (beca) {
+        Swal.fire({
+            title: 'Advertencia',
+            text: 'Usted ya tiene una beca activa. Por favor, espere a que caduque para solicitar una nueva.',
+            icon: 'warning',
+            confirmButtonText: 'Aceptar'
+        }).then(() => {
+            router.push('/main/requisitos');
+        });
+    }else{
+        solicitudPendiente();
+    }   
+};
+
 const solicitudPendiente = async () => {
     const user = await fetchCurrentUser();
     const existeSolicitud = await getBuscarSolicitud(user.DOCUMENTO_USUARIOS)
@@ -170,7 +192,7 @@ const solicitudPendiente = async () => {
 onMounted(() => {
     initFlowbite();
     fecthPeriodoBecas();
-    solicitudPendiente();
+
 });
 
 

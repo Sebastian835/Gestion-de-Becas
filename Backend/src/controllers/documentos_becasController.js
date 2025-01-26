@@ -14,6 +14,9 @@ async function getDocumentosController(req, res) {
   try {
     const documentos = await getDocumentos();
 
+    if (!documentos) {
+      return res.json({ noHay: true });
+    }
     const documentosConURLs = documentos.map((doc) => {
       const docConURL = { ...doc };
 
@@ -93,7 +96,7 @@ async function putReenviarDocumentacionController(req, res) {
 
 async function deleteDocumentacionController(req, res) {
   try {
-    const result = await deleteDocumentacion(req.params.id);
+    const result = await deleteDocumentacion(req.params.id, req.body.motivo);
 
     res.status(result.status).json(result);
   } catch (error) {

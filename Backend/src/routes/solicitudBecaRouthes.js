@@ -18,6 +18,6 @@ router.get("/solicitudes", getSolicitudes);
 
 router.put("/aprobarSolicitud/:id", aprobarSolicitud);
 
-router.delete("/rechazarSolicitud/:id", rechazarSolicitud);
+router.post("/rechazarSolicitud/:id", rechazarSolicitud);
 
 module.exports = router;

@@ -16,6 +16,42 @@ export const getBecasOtorgadas = async () => {
   }
 };
 
+export const getBecasById = async (cedula) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/getBecaById`,
+      { cedula },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error("Error en la petición");
+  }
+};
+
+export const getBecasByIdEstudiante = async (cedula) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/becaExisteEstudiante`,
+      { cedula },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error("Error en la petición");
+  }
+};
+
 export const getBecaVigente = async (cedula) => {
   try {
     const response = await axios.get(`${API_URL}/becaVigente`, {
@@ -48,6 +84,20 @@ export const updateBeca = async (data) => {
 export const updateSincronizar = async () => {
   try {
     const response = await axios.get(`${API_URL}/updateSincronizacion`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error("Error en la petición");
+  }
+};
+
+export const updateCaducidad = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/updateCaducidad`, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -112,5 +162,23 @@ export const getBecasPorCarrera = async () => {
     return response.data;
   } catch (error) {
     throw new Error("Error en la petición");
+  }
+};
+
+export const enviarRenovacionBeca = async (documento, cedula) => {
+  try {
+    const formData = new FormData();
+    formData.append("documento", documento);
+    formData.append("cedula", cedula);
+
+    const response = await axios.post(`${API_URL}/renovacion`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error("Error al enviar la renovación");
   }
 };

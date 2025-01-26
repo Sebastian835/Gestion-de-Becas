@@ -18,36 +18,6 @@ router.use(verifyToken);
 
 router.get("/obtenerEstadoDocumentos", getEstadoDocumentos);
 
-router.post(
-  "/guardarDocumentos",
-  upload.fields([
-    { name: "CERTIFICADO_MATRICULA" },
-    { name: "COPIA_CEDULA" },
-    { name: "CERTIFICADO_ASISTENCIA" },
-    { name: "CERTIFICADO_PAGOS" },
-    { name: "CERTIFICADO_DISCIPLINA" },
-    { name: "FICHA_SOCIOECONOMICA" },
-    { name: "MECANIZADO_IESS" },
-    { name: "CERTIFICADO_IESS" },
-    { name: "DECLARACION_IMPUESTOS" },
-    { name: "DECLARATORIA_ZONA_EMERGENCIA" },
-    { name: "PARTIDA_DEFUNCION" },
-    { name: "CERTIFICADO_MEDICO_DEPENDENCIA" },
-    { name: "INFORME_POLICIAL" },
-    { name: "CERTIFICADO_MEDICO_PERSONAL" },
-    { name: "OTRO_DOCUMENTO" },
-    { name: "CERTIFICADO_APROBACION_SEMESTRE" },
-    { name: "CERTIFICADO_NOTA" },
-    { name: "TRAYECTORIA_DEPORTIVA" },
-    { name: "INFORME_FEDERACIONDEPORTIVA" },
-    { name: "RECONOCIMIENTO_HEROE" },
-    { name: "INFORME_ACTIVIDADES_CLUB" },
-    { name: "INFORME_BIENESTAR_CLUB" },
-    { name: "CARNE_MSP" },
-  ]),
-  postDocumentos
-);
-
 router.get("/documentosBeca", getDocumentosController);
 
 router.use(
@@ -71,10 +41,51 @@ router.use(
   })
 );
 
+router.post("/rechazarDocumentacion/:id", deleteDocumentacionController);
+
 router.put("/aprobarDocumentacion/:id", putAceptarDocumentacionController);
 
 router.put("/reenvioDocumentacion/:id", putReenviarDocumentacionController);
 
-router.delete("/rechazarDocumentacion/:id", deleteDocumentacionController);
+const DOCUMENTOS_OBLIGATORIOS = [
+  "CERTIFICADO_MATRICULA",
+  "COPIA_CEDULA",
+  "CERTIFICADO_ASISTENCIA",
+  "CERTIFICADO_PAGOS",
+  "CERTIFICADO_DISCIPLINA",
+];
+
+const DOCUMENTOS_DETALLE = [
+  "FICHA_SOCIOECONOMICA",
+  "MECANIZADO_IESS",
+  "CERTIFICADO_IESS",
+  "DECLARACION_IMPUESTOS",
+  "DECLARATORIA_ZONA_EMERGENCIA",
+  "PARTIDA_DEFUNCION",
+  "CERTIFICADO_MEDICO_DEPENDENCIA",
+  "INFORME_POLICIAL",
+  "CERTIFICADO_MEDICO_PERSONAL",
+  "OTRO_DOCUMENTO",
+  "CERTIFICADO_APROBACION_SEMESTRE",
+  "CERTIFICADO_NOTA",
+  "TRAYECTORIA_DEPORTIVA",
+  "INFORME_FEDERACIONDEPORTIVA",
+  "RECONOCIMIENTO_HEROE",
+  "INFORME_ACTIVIDADES_CLUB",
+  "INFORME_BIENESTAR_CLUB",
+  "CARNE_MSP",
+];
+
+router.post(
+  "/guardarDocumentos",
+  upload.fields([
+    { name: "periodo" },
+    { name: "usuario" },
+    { name: "id_documento_pendiente" },
+    ...DOCUMENTOS_OBLIGATORIOS.map((doc) => ({ name: doc })),
+    ...DOCUMENTOS_DETALLE.map((doc) => ({ name: doc })),
+  ]),
+  postDocumentos
+);
 
 module.exports = router;

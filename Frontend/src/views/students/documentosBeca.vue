@@ -187,6 +187,10 @@ const validarDocumentos = async () => {
         });
     } else {
         const formData = new FormData();
+        const user = await fetchCurrentUser();
+        formData.append('usuario', user.APELLIDOS_USUARIOS + '_' + user.NOMBRES_USUARIOS + '_' + user.DOCUMENTO_USUARIOS);
+        formData.append('id_documento_pendiente', datosSolicitud.value.id_documento_pendiente);
+        formData.append('periodo', datosSolicitud.value.perido_beca);
 
         documentosGenerales.forEach(doc => {
             const inputArchivo = document.querySelector(`input[name="${doc.campo}"]`);
@@ -219,9 +223,7 @@ const validarDocumentos = async () => {
                 }
             });
         }
-        const user = await fetchCurrentUser();
-        formData.append('usuario', user.APELLIDOS_USUARIOS + '_' + user.NOMBRES_USUARIOS + '_' + user.DOCUMENTO_USUARIOS);
-        formData.append('id_documento_pendiente', datosSolicitud.value.id_documento_pendiente);
+
 
         try {
             Swal.fire({
@@ -267,7 +269,7 @@ onMounted(() => {
 
         <!-- Selección del tipo de beca -->
         <label for="tipoBeca" class="block text-sm font-medium text-gray-900 mb-2">Tipo de beca</label>
-      
+
 
         <select id="tipoBeca" v-model="selectedBeca" :disabled="isReadonly"
             class="block w-full sm:w-1/2 p-2.5 mb-6 rounded-lg border border-gray-300 text-gray-900">
@@ -293,7 +295,7 @@ onMounted(() => {
             <div v-if="tipoBecaSeleccionado === 7" class="m|t-4">
                 <label for="documentoOpcional" class="block text-sm font-medium text-gray-900 mb-2">Seleccione un
                     documento opcional:</label>
-                <select v-model="documentoSeleccionadoOpcional" @change="seleccionarDocumentoOpcional" 
+                <select v-model="documentoSeleccionadoOpcional" @change="seleccionarDocumentoOpcional"
                     class="block w-full sm:w-1/2 p-2.5 mb-6 rounded-lg border border-gray-300 text-gray-900">
                     <option value="" disabled>Seleccione un documento adicional</option>
                     <option v-for="(opcion, idx) in documentosOpcionalesSituacionesCalamitosas" :key="idx"
@@ -305,7 +307,8 @@ onMounted(() => {
                     <div class="w-full">
                         <label :for="documentoSeleccionadoOpcional"
                             class="block text-sm font-medium text-gray-900 mb-2">Subir archivo:</label>
-                        <input type="file" accept="application/pdf" :id="documentoSeleccionadoOpcional" :name="documentoSeleccionadoOpcional"
+                        <input type="file" accept="application/pdf" :id="documentoSeleccionadoOpcional"
+                            :name="documentoSeleccionadoOpcional"
                             class="block w-full p-2.5 rounded-lg border border-gray-300" />
                     </div>
                 </div>

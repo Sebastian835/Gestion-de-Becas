@@ -3,15 +3,11 @@ const prisma = new PrismaClient();
 const fs = require("fs");
 const path = require("path");
 const { getPeriodos } = require("./api_istla");
-const { postBecas } = require("./becas_Otorgadas")
+const { postBecas } = require("./becas_Otorgadas");
 
 const eliminarCarpetaEstudiante = async (rutaCarpeta) => {
   try {
-    const carpetaCompleta = path.join(
-      "Documentos_Becas",
-      "OCTUBRE2024MARZO2025",
-      rutaCarpeta
-    );
+    const carpetaCompleta = path.join("Documentos_Becas", rutaCarpeta);
     await fs.promises.rm(carpetaCompleta, {
       recursive: true,
       force: true,
@@ -20,7 +16,7 @@ const eliminarCarpetaEstudiante = async (rutaCarpeta) => {
   } catch (error) {
     return false;
   }
-};
+ };
 
 async function getEstadoDocumentos(req, res) {
   const { cedula } = req.query;
@@ -44,12 +40,24 @@ async function getEstadoDocumentos(req, res) {
     if (!solicitud) {
       return res.json({ existeSolicitud: false });
     }
+    const vigencia = await prisma.istla_vigencia_beca.findFirst({
+      where: {
+        ID_VIGENCIA: solicitud.ID_VIGENCIA,
+      },
+    });
+
+    const periodos = await getPeriodos();
+
+    const nombrePeriodo = periodos.find(
+      (periodo) => parseInt(periodo.ID_PERIODO) === vigencia.ID_PERIODO
+    );
 
     if (solicitud.istla_documentos_obligatorios.length > 0) {
       const documentoPendiente = solicitud.istla_documentos_obligatorios[0];
       return res.json({
         id_documento_pendiente: documentoPendiente.ID_DOCUMENTOS,
         tipo_beca: solicitud.istla_tipo_beca.TIPO_BECA,
+        perido_beca: nombrePeriodo.NOMBRE_PERIODO,
       });
     } else {
       return res.json({ existeDocumentacion: false });
@@ -59,141 +67,16 @@ async function getEstadoDocumentos(req, res) {
   }
 }
 
-async function postDocumentos(req, res) {
-  try {
-    const { id_documento_pendiente, usuario } = req.body;
-    const usuarioFormat = usuario.replace(/\s+/g, "");
-
-    const documento = await prisma.istla_documentos_obligatorios.findFirst({
-      where: {
-        ID_DOCUMENTOS: parseInt(id_documento_pendiente, 10),
-      },
-      include: {
-        istla_solicitudes_beca: {
-          select: {
-            CEDULA_ESTUDIANTE: true,
-            istla_vigencia_beca: { 
-              select: {
-                ID_PERIODO: true,
-              },
-            },
-          },
-        },
-      },
-    });
-    
-  
-    const periodos = await getPeriodos();
-    const uploadDir = "./Documentos_Becas";
-    const idPeriodo = documento.istla_solicitudes_beca.istla_vigencia_beca.ID_PERIODO;
-    const periodoEncontrado = periodos.find((p) => p.ID_PERIODO === String(idPeriodo));
-    const periodoFormat = periodoEncontrado.NOMBRE_PERIODO.replace(/\s+/g, "");
-
-    const periodoDir = path.join(uploadDir, periodoFormat);
-    if (!fs.existsSync(periodoDir)) {
-      fs.mkdirSync(periodoDir, { recursive: true });
-    }
-
-    const usuarioDir = path.join(periodoDir, usuarioFormat);
-    if (!fs.existsSync(usuarioDir)) {
-      fs.mkdirSync(usuarioDir, { recursive: true });
-    }
-
-    fs.readdir(uploadDir, (err, files) => {
-      if (err) {
-        return;
-      }
-      const pdfFiles = files.filter((file) => file.endsWith(".pdf"));
-      pdfFiles.forEach((file) => {
-        const oldPath = path.join(uploadDir, file);
-        const newPath = path.join(usuarioDir, file);
-
-        fs.rename(oldPath, newPath, (err) => {
-          if (err) {
-            return;
-          }
-        });
-      });
-    });
-
-    Object.keys(req.files).forEach((fieldname) => {
-      req.files[fieldname].forEach((file) => {
-        file.destination = usuarioDir;
-        file.path = path.join(usuarioDir, file.filename);
-      });
-    });
-
-    Object.keys(req.files).forEach(async (fieldname) => {
-      const file = req.files[fieldname][0];
-
-      if (
-        fieldname === "CERTIFICADO_MATRICULA" ||
-        fieldname === "COPIA_CEDULA" ||
-        fieldname === "CERTIFICADO_ASISTENCIA" ||
-        fieldname === "CERTIFICADO_PAGOS" ||
-        fieldname === "CERTIFICADO_DISCIPLINA"
-      ) {
-        await prisma.istla_documentos_obligatorios.update({
-          where: {
-            ID_DOCUMENTOS: parseInt(id_documento_pendiente, 10),
-          },
-          data: {
-            [fieldname]: file.path,
-            ID_ESTADO: 4,
-            FECHA: new Date(),
-          },
-        });
-      }
-
-      if (
-        fieldname === "CERTIFICADO_APROBACION_SEMESTRE" ||
-        fieldname === "CERTIFICADO_NOTA" ||
-        fieldname === "TRAYECTORIA_DEPORTIVA" ||
-        fieldname === "INFORME_FEDERACIONDEPORTIVA" ||
-        fieldname === "RECONOCIMIENTO_HEROE" ||
-        fieldname === "INFORME_ACTIVIDADES_CLUB" ||
-        fieldname === "INFORME_BIENESTAR_CLUB" ||
-        fieldname === "CARNE_MSP" ||
-        fieldname === "FICHA_SOCIOECONOMICA" ||
-        fieldname === "MECANIZADO_IESS" ||
-        fieldname === "CERTIFICADO_IESS" ||
-        fieldname === "DECLARACION_IMPUESTOS" ||
-        fieldname === "DECLARATORIA_ZONA_EMERGENCIA" ||
-        fieldname === "PARTIDA_DEFUNCION" ||
-        fieldname === "CERTIFICADO_MEDICO_DEPENDENCIA" ||
-        fieldname === "INFORME_POLICIAL" ||
-        fieldname === "CERTIFICADO_MEDICO_PERSONAL" ||
-        fieldname === "OTRO_DOCUMENTO"
-      ) {
-        const detalleExistente =
-          await prisma.istla_documentos_detalle.findFirst({
-            where: {
-              ID_DOCUMENTOS_OBLIGATORIOS: parseInt(id_documento_pendiente, 10),
-            },
-          });
-
-        if (detalleExistente) {
-          await prisma.istla_documentos_detalle.update({
-            where: {
-              ID_DETALLE: detalleExistente.ID_DETALLE,
-            },
-            data: {
-              [fieldname]: file.path,
-            },
-          });
-        }
-      }
-    });
-
-    res.status(200).json({ message: "Documentos procesados correctamente." });
-  } catch (error) {
-    res.status(500).json({ error: "Error al procesar los documentos." });
-  }
-}
-
 async function getDocumentos() {
   try {
     const documentos = await prisma.istla_documentos_obligatorios.findMany({
+      where: {
+        istla_estado_solicitud: {
+          ESTADO: {
+            not: "Finalizado",
+          },
+        },
+      },
       include: {
         istla_documentos_detalle: true,
         istla_estado_solicitud: {
@@ -204,15 +87,26 @@ async function getDocumentos() {
         istla_solicitudes_beca: {
           select: {
             CEDULA_ESTUDIANTE: true,
+            ID_VIGENCIA: true,
             istla_tipo_beca: {
               select: {
                 TIPO_BECA: true,
+              },
+            },
+            istla_vigencia_beca: {
+              select: {
+                ID_PERIODO: true,
               },
             },
           },
         },
       },
     });
+    
+    if (documentos.length === 0) {
+      return false;
+    }
+
     return documentos;
   } catch (error) {
     throw new Error("Error al obtener documentos: " + error.message);
@@ -236,8 +130,8 @@ async function putAprobarDocumentacion(id, porcentaje) {
       },
     });
 
-    await postBecas(id, porcentaje)
-    
+    await postBecas(id, porcentaje);
+
     return {
       status: 200,
       message: "Documentación aprobada",
@@ -267,13 +161,21 @@ async function putReenviarDocumentacion(id, motivo) {
       },
     });
 
-    const carpetaEstudiante = document.CERTIFICADO_MATRICULA.split("\\")[2];
-    await eliminarCarpetaEstudiante(carpetaEstudiante);
+    if (document.CERTIFICADO_MATRICULA) {
+      const periodo = document.CERTIFICADO_MATRICULA.split("\\")[1];
+      const carpetaEstudiante = document.CERTIFICADO_MATRICULA.split("\\")[2];
+      await eliminarCarpetaEstudiante(periodo + "\\" + carpetaEstudiante);
 
-    return {
-      status: 200,
-      message: "Documentación aprobada para reevnio",
-    };
+      return {
+        status: 200,
+        message: "Documentación aprobada para reevnio",
+      };
+    } else {
+      return {
+        status: 200,
+        message: "Documentación aprobada para reevnio",
+      };
+    }
   } catch (error) {
     return {
       status: 500,
@@ -282,42 +184,37 @@ async function putReenviarDocumentacion(id, motivo) {
   }
 }
 
-async function deleteDocumentacion(id) {
+async function deleteDocumentacion(id, motivo) {
   try {
+    const estado = await prisma.istla_estado_solicitud.findFirst({
+      where: {
+        ESTADO: "Rechazada",
+      },
+    });
+
     const result = await prisma.$transaction(async (prisma) => {
-      const document = await prisma.istla_documentos_obligatorios.findUnique({
+      const document = await prisma.istla_documentos_obligatorios.update({
         where: {
           ID_DOCUMENTOS: parseInt(id, 10),
         },
-        include: {
-          istla_documentos_detalle: true,
+        data: {
+          ID_ESTADO: estado.ID_ESTADO,
+          MOTIVO_RECHAZO: motivo,
         },
       });
 
-      const carpetaEstudiante = document.CERTIFICADO_MATRICULA.split("\\")[2];
-      await eliminarCarpetaEstudiante(carpetaEstudiante);
-
-      await prisma.istla_documentos_detalle.delete({
-        where: {
-          ID_DETALLE: document.istla_documentos_detalle[0].ID_DETALLE,
-        },
-      });
-
-      await prisma.istla_documentos_obligatorios.delete({
-        where: {
-          ID_DOCUMENTOS: parseInt(id, 10),
-        },
-      });
-
-      await prisma.istla_solicitudes_beca.delete({
+      await prisma.istla_solicitudes_beca.update({
         where: {
           ID_SOLICITUD: parseInt(document.ID_SOLICITUD, 10),
+        },
+        data: {
+          ID_ESTADO: estado.ID_ESTADO,
         },
       });
 
       return {
         status: 200,
-        message: "Documentación eliminada",
+        message: "Solicitud rechazada",
       };
     });
 
@@ -330,6 +227,104 @@ async function deleteDocumentacion(id) {
   }
 }
 
+async function postDocumentos(req, res) {
+  try {
+    const { id_documento_pendiente } = req.body;
+
+    // Obtener documento con relaciones
+    const documento = await prisma.istla_documentos_obligatorios.findFirst({
+      where: { ID_DOCUMENTOS: parseInt(id_documento_pendiente, 10) },
+      include: {
+        istla_solicitudes_beca: {
+          select: { CEDULA_ESTUDIANTE: true },
+        },
+      },
+    });
+
+    // Actualizar documentos obligatorios
+    for (const [fieldname, files] of Object.entries(req.files)) {
+      const filePath = files[0].path;
+
+      if (isDocumentoObligatorio(fieldname)) {
+        await updateDocumentoObligatorio(
+          id_documento_pendiente,
+          fieldname,
+          filePath
+        );
+        continue;
+      }
+
+      if (isDocumentoDetalle(fieldname)) {
+        await updateDocumentoDetalle(
+          id_documento_pendiente,
+          fieldname,
+          filePath
+        );
+      }
+    }
+
+    res.status(200).json({ message: "Documentos procesados correctamente." });
+  } catch (error) {
+    res.status(500).json({ error: "Error al procesar los documentos." });
+  }
+}
+
+const isDocumentoObligatorio = (fieldname) => {
+  return [
+    "CERTIFICADO_MATRICULA",
+    "COPIA_CEDULA",
+    "CERTIFICADO_ASISTENCIA",
+    "CERTIFICADO_PAGOS",
+    "CERTIFICADO_DISCIPLINA",
+  ].includes(fieldname);
+};
+
+const isDocumentoDetalle = (fieldname) => {
+  return [
+    "FICHA_SOCIOECONOMICA",
+    "MECANIZADO_IESS",
+    "CERTIFICADO_IESS",
+    "DECLARACION_IMPUESTOS",
+    "DECLARATORIA_ZONA_EMERGENCIA",
+    "PARTIDA_DEFUNCION",
+    "CERTIFICADO_MEDICO_DEPENDENCIA",
+    "INFORME_POLICIAL",
+    "CERTIFICADO_MEDICO_PERSONAL",
+    "OTRO_DOCUMENTO",
+    "CERTIFICADO_APROBACION_SEMESTRE",
+    "CERTIFICADO_NOTA",
+    "TRAYECTORIA_DEPORTIVA",
+    "INFORME_FEDERACIONDEPORTIVA",
+    "RECONOCIMIENTO_HEROE",
+    "INFORME_ACTIVIDADES_CLUB",
+    "INFORME_BIENESTAR_CLUB",
+    "CARNE_MSP",
+  ].includes(fieldname);
+};
+
+async function updateDocumentoObligatorio(id, fieldname, filePath) {
+  return prisma.istla_documentos_obligatorios.update({
+    where: { ID_DOCUMENTOS: parseInt(id, 10) },
+    data: {
+      [fieldname]: filePath,
+      ID_ESTADO: 4,
+      FECHA: new Date(),
+    },
+  });
+}
+
+async function updateDocumentoDetalle(id, fieldname, filePath) {
+  const detalle = await prisma.istla_documentos_detalle.findFirst({
+    where: { ID_DOCUMENTOS_OBLIGATORIOS: parseInt(id, 10) },
+  });
+
+  if (detalle) {
+    await prisma.istla_documentos_detalle.update({
+      where: { ID_DETALLE: detalle.ID_DETALLE },
+      data: { [fieldname]: filePath },
+    });
+  }
+}
 
 module.exports = {
   getEstadoDocumentos,

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, toRaw } from 'vue';
+import { onMounted, ref, toRaw, computed } from 'vue';
 import { getperiodosIstla, getCarrerasIstla } from '../../services/api_Istla';
 import { getTiposBecas } from '../../services/tiposBecas';
 import { postReportes } from '../../services/reportes';
@@ -11,6 +11,11 @@ import MultiSelect from 'primevue/multiselect';
 import ToggleSwitch from 'primevue/toggleswitch';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import Card from 'primevue/card';
+import Accordion from 'primevue/accordion';
+import AccordionPanel from 'primevue/accordionpanel';
+import AccordionHeader from 'primevue/accordionheader';
+import AccordionContent from 'primevue/accordioncontent';
 import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 
@@ -19,7 +24,7 @@ const periodos = ref([]);
 const carreras = ref([]);
 const tiposBecas = ref([]);
 
-const nombres = ref(false);
+const isOptionSelected = computed(() => !!selectedOptionPeriodo.value);
 
 const fechtPeriodos = async () => {
       periodos.value = await getperiodosIstla();
@@ -63,31 +68,36 @@ const selectedTipoBeca = ref(null);
 
 // Filtro estados
 const opcionesEstado = [
-      { id: 'todas', name: 'Todas' },
       { id: 'activa', name: 'Activas' },
       { id: 'inactiva', name: 'Inactivas' },
+      { id: 'finalizado', name: 'Finalizadas' },
+      { id: 'rechazada', name: 'Rechazadas' }
 ];
 const selectedOptionEstado = ref(null);
-const penultimoPeriodo = computed(() => {
-      if (periodos.value && periodos.value.length >= 2) {
-            return periodos.value[1];
-      }
-      return null;
-});
-const mostrarSelectEstado = computed(() => {
-      selectedOptionEstado.value = null;
-      if (!penultimoPeriodo.value) return false;
 
-      if (selectedOptionPeriodo.value?.id === 'uno') {
-            return selectedPeriod.value?.ID_PERIODO === penultimoPeriodo.value.ID_PERIODO;
-      }
+// Incluir nombres
+const nombres = ref(false);
+const activarNombres = () => {
+      nombres.value = !nombres.value;
+};
 
-      if (selectedOptionPeriodo.value?.id === 'entre') {
-            return startPeriod.value?.ID_PERIODO === penultimoPeriodo.value.ID_PERIODO;
-      }
+// Filtros conteo becas
+const graficosGenerales = ref(false);
+const opcionesConteo = [
+      { id: 'periodos', name: 'Conteo por periodos' },
+      { id: 'tipoBeca', name: 'Conteo por el tipo de beca' },
+      { id: 'carrera', name: 'Conteo por carrera' },
+];
+const selectedOptionConteo = ref(null);
+const inlcuirGraficosGenerales = () => {
+      graficosGenerales.value = !graficosGenerales.value;
+};
 
-      return false;
-});
+//Filtros graficos especificos
+const graficosEspecificos = ref(false);
+const inlcuirGraficosEspecificos = () => {
+      graficosEspecificos.value = !graficosEspecificos.value;
+};
 
 // Reportes
 const reportes = async () => {
@@ -107,11 +117,6 @@ const reportes = async () => {
                         return;
                   }
                   data = { idPeriodo: selectedPeriod.value.ID_PERIODO, idPeriodoFinal: null, todos: false };
-                  const estadoPlano = toRaw(selectedOptionEstado.value);
-
-                  if (estadoPlano) {
-                        data = { ...data, estado: estadoPlano.name };
-                  }
                   break;
             case 'entre':
                   if (!startPeriod.value || !endPeriod.value) {
@@ -131,12 +136,6 @@ const reportes = async () => {
                         idPeriodoFinal: endPeriod.value.ID_PERIODO,
                         todos: false
                   };
-
-                  const estadoPlano2 = toRaw(selectedOptionEstado.value);
-
-                  if (estadoPlano2) {
-                        data = { ...data, estado: estadoPlano2.name };
-                  }
                   break;
       }
 
@@ -164,6 +163,30 @@ const reportes = async () => {
             data = { ...data, nombres: true };
       }
 
+      if (selectedOptionEstado.value !== null) {
+            const estadoPlano = toRaw(selectedOptionEstado.value);
+            if (estadoPlano.length === 0) {
+                  data = { ...data };
+            } else {
+                  data = {
+                        ...data,
+                        estado: estadoPlano.map(estado => estado.id)
+                  };
+            }
+      }
+
+      if (selectedOptionConteo.value !== null) {
+            const conteoPlano = toRaw(selectedOptionConteo.value);
+            if (conteoPlano.length === 0) {
+                  data = { ...data };
+            } else {
+                  data = {
+                        ...data,
+                        conteo: conteoPlano.map(conteo => conteo.id)
+                  };
+            }
+      }
+
       try {
             tabla.value = false;
             Swal.fire({
@@ -174,6 +197,11 @@ const reportes = async () => {
                   }
             });
             const response = await postReportes(data);
+            if (response.length === 0) {
+                  Swal.close();
+                  toast.add({ severity: 'info', summary: 'Información', detail: 'No se encontraron registros', life: 3000 });
+                  return;
+            }
             reportData.value = response;
             columns.value = [
                   { field: 'CEDULA_ESTUDIANTE', header: 'Cédula' },
@@ -189,7 +217,7 @@ const reportes = async () => {
             tabla.value = true;
             Swal.close();
       } catch (error) {
-            console.log(error);
+            Swal.close();
             toast.add({ severity: 'error', summary: 'Error', detail: 'Error al generar reporte', life: 3000 });
       }
 };
@@ -208,6 +236,79 @@ const columns = ref([
 const filters = ref({});
 const tabla = ref(false);
 
+const generarGeneral = async () => {
+      if (!selectedOptionConteo.value) {
+            toast.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  detail: 'Seleccione el conteo de becas',
+                  life: 3000
+            });
+            return;
+      }
+
+      const conteoPlano = toRaw(selectedOptionConteo.value);
+      if (conteoPlano.length === 0) {
+            toast.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  detail: 'Seleccione el conteo de becas',
+                  life: 3000
+            });
+            return;
+      }
+
+  
+
+      let data = {
+            conteo: conteoPlano.map(conteo => conteo.id),
+            data: false
+      };
+
+      if (graficosGenerales.value) {
+            data = { ...data, graficosGenerales: true };
+      }
+
+      try {
+            Swal.fire({
+                  title: "Generando reporte",
+                  allowOutsideClick: false,
+                  didOpen: () => {
+                        Swal.showLoading();
+                  }
+            });
+
+            const response = await postReportes(data);
+            Swal.close();
+
+            if (response) {
+                  tabla.value = false;
+                  toast.add({
+                        severity: 'success',
+                        summary: 'Éxito',
+                        detail: 'Reporte generado con éxito',
+                        life: 3000
+                  });
+            } else {
+                  toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Error al generar el reporte',
+                        life: 3000
+                  });
+            }
+      } catch (error) {
+            Swal.close();
+            toast.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  detail: 'Error al generar reporte',
+                  life: 3000
+            });
+      }
+};
+
+
 const clearFilters = () => {
       selectedOptionPeriodo.value = null;
       selectedPeriod.value = null;
@@ -217,11 +318,11 @@ const clearFilters = () => {
       selectedTipoBeca.value = null;
       nombres.value = false;
       selectedOptionEstado.value = null;
+      selectedOptionConteo.value = null;
+      tabla.value = false;
 };
 
-const activarNombres = () => {
-      nombres.value = !nombres.value;
-};
+
 
 onMounted(async () => {
       fechtPeriodos();
@@ -236,59 +337,126 @@ onMounted(async () => {
             Reportes
       </h2>
       <Toast />
-      <div class="space-y-6">
-            <div class="flex flex-row flex-wrap gap-4 items-center">
-                  <Select v-model="selectedOptionPeriodo" :options="opcionesPeriodos" optionLabel="name"
-                        placeholder="Seleccione el periodo" class="w-full md:w-72"
-                        @change="handleOptionChangePeriodo" />
 
-                  <template v-if="selectedOptionPeriodo">
-                        <Select v-if="selectedOptionPeriodo.id === 'uno'" v-model="selectedPeriod" :options="periodos"
-                              optionLabel="NOMBRE_PERIODO" placeholder="Seleccione el periodo" class="w-full md:w-72" />
+      <div class="card">
+            <Accordion :value="['0']" multiple>
+                  <AccordionPanel value="0">
+                        <AccordionHeader>Generales</AccordionHeader>
+                        <AccordionContent>
+                              <div class="space-y-6">
+                                    <div class="flex flex-row flex-wrap gap-4 items-center">
+                                          <MultiSelect v-model="selectedOptionConteo" :options="opcionesConteo"
+                                                optionLabel="name" filter placeholder="Conteo de becas"
+                                                :maxSelectedLabels="2" selectedItemsLabel="{0} conteo de becas"
+                                                class="w-full md:w-96" />
+                                          <div @click="inlcuirGraficosGenerales"
+                                                class="group flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-gray-200 transition-all duration-200 max-w-md">
+                                                <div class="flex-1">
+                                                      <label class="text-gray-700 font-medium text-sm tracking-wide cursor-pointer"
+                                                            style="margin-right: 15px;">
+                                                            Incluir graficos
+                                                      </label>
+                                                </div>
+                                                <div class="relative inline-flex items-center ">
+                                                      <ToggleSwitch v-model="graficosGenerales"
+                                                            @click="inlcuirGraficosGenerales" />
+                                                </div>
+                                          </div>
 
-                        <template v-if="selectedOptionPeriodo.id === 'entre'">
-                              <Select v-model="startPeriod" :options="periodos" optionLabel="NOMBRE_PERIODO"
-                                    placeholder="Periodo inicial" class="w-full md:w-72" />
-                              <Select v-model="endPeriod" :options="periodos" optionLabel="NOMBRE_PERIODO"
-                                    placeholder="Periodo final" class="w-full md:w-72" />
-                        </template>
-                  </template>
+                                          <Button v-if="!isOptionSelected" icon="pi pi-file-pdf" label="Generar"
+                                                @click="generarGeneral" raised severity="secondary"
+                                                class="w-full md:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200"
+                                                v-tooltip.right="'Se generar el reporte de la informacion mostrada en el Home'" />
+                                    </div>
+                              </div>
 
-                  <Select v-if="mostrarSelectEstado" v-model="selectedOptionEstado" :options="opcionesEstado"
-                        optionLabel="name" placeholder="Seleccione el estado" class="w-full md:w-72" />
+                        </AccordionContent>
+                  </AccordionPanel>
+                  <AccordionPanel value="1">
+                        <AccordionHeader>Filtros especificos</AccordionHeader>
+                        <AccordionContent>
+                              <div class="space-y-6">
+                                    <div class="flex flex-row flex-wrap gap-4 items-center">
+                                          <Select v-model="selectedOptionPeriodo" :options="opcionesPeriodos"
+                                                optionLabel="name" placeholder="Seleccione el periodo"
+                                                class="w-full md:w-72" @change="handleOptionChangePeriodo" />
 
+                                          <template v-if="selectedOptionPeriodo">
+                                                <Select v-if="selectedOptionPeriodo.id === 'uno'"
+                                                      v-model="selectedPeriod" :options="periodos"
+                                                      optionLabel="NOMBRE_PERIODO" placeholder="Seleccione el periodo"
+                                                      class="w-full md:w-72" />
 
-                  <MultiSelect v-model="selectedCarreras" :options="carreras" optionLabel="NOMBRE_CARRERAS" filter
-                        placeholder="Seleccione la carrera" :maxSelectedLabels="2"
-                        selectedItemsLabel="{0} carreras seleccionadas" class="w-full md:w-96" />
+                                                <template v-if="selectedOptionPeriodo.id === 'entre'">
+                                                      <Select v-model="startPeriod" :options="periodos"
+                                                            optionLabel="NOMBRE_PERIODO" placeholder="Periodo inicial"
+                                                            class="w-full md:w-72" />
+                                                      <Select v-model="endPeriod" :options="periodos"
+                                                            optionLabel="NOMBRE_PERIODO" placeholder="Periodo final"
+                                                            class="w-full md:w-72" />
+                                                </template>
+                                          </template>
 
-                  <MultiSelect v-model="selectedTipoBeca" :options="tiposBecas" optionLabel="TIPO_BECA" filter
-                        placeholder="Seleccione la tipo de beca" :maxSelectedLabels="2"
-                        selectedItemsLabel="{0} tipo de becas seleccionadas" class="w-full md:w-96" />
+                                          <MultiSelect v-model="selectedOptionEstado" :options="opcionesEstado"
+                                                optionLabel="name" filter placeholder="Seleccione estado"
+                                                :maxSelectedLabels="2" selectedItemsLabel="{0} estados seleccionados"
+                                                class="w-full md:w-96" />
 
-                  <div @click="activarNombres"
-                        class="group flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-gray-200 transition-all duration-200 max-w-md">
-                        <div class="flex-1">
-                              <label class="text-gray-700 font-medium text-sm tracking-wide cursor-pointer"
-                                    style="margin-right: 15px;">
-                                    Incluir nombres del estudiante
-                              </label>
-                        </div>
-                        <div class="relative inline-flex items-center ">
-                              <ToggleSwitch v-model="nombres" @click="activarNombres" />
-                        </div>
-                  </div>
+                                          <MultiSelect v-model="selectedCarreras" :options="carreras"
+                                                optionLabel="NOMBRE_CARRERAS" filter placeholder="Seleccione la carrera"
+                                                :maxSelectedLabels="2" selectedItemsLabel="{0} carreras seleccionadas"
+                                                class="w-full md:w-96" />
 
-                  <Button icon="pi pi-eraser" label="Limpiar Filtros" @click="clearFilters" raised severity="secondary"
-                        class="w-full md:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200" />
+                                          <MultiSelect v-model="selectedTipoBeca" :options="tiposBecas"
+                                                optionLabel="TIPO_BECA" filter placeholder="Seleccione la tipo de beca"
+                                                :maxSelectedLabels="2"
+                                                selectedItemsLabel="{0} tipo de becas seleccionadas"
+                                                class="w-full md:w-96" />
 
-                  <Button icon="pi pi-table" label="Previsualizar" @click="reportes" raised severity="secondary"
-                        class="w-full md:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200" />
+                                          <div @click="activarNombres"
+                                                class="group flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-gray-200 transition-all duration-200 max-w-md">
+                                                <div class="flex-1">
+                                                      <label class="text-gray-700 font-medium text-sm tracking-wide cursor-pointer"
+                                                            style="margin-right: 15px;">
+                                                            Incluir nombres del estudiante
+                                                      </label>
+                                                </div>
+                                                <div class="relative inline-flex items-center ">
+                                                      <ToggleSwitch v-model="nombres" @click="activarNombres" />
+                                                </div>
+                                          </div>
 
-                  <Button v-if="tabla" icon="pi pi-file-pdf" label="Generar" raised severity="secondary"
-                        class="w-full md:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200" />
+                                          <div @click="inlcuirGraficosEspecificos"
+                                                class="group flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-gray-200 transition-all duration-200 max-w-md">
+                                                <div class="flex-1">
+                                                      <label class="text-gray-700 font-medium text-sm tracking-wide cursor-pointer"
+                                                            style="margin-right: 15px;">
+                                                            Incluir graficos
+                                                      </label>
+                                                </div>
+                                                <div class="relative inline-flex items-center ">
+                                                      <ToggleSwitch v-model="graficosEspecificos"
+                                                            @click="inlcuirGraficosEspecificos" />
+                                                </div>
+                                          </div>
 
-            </div>
+                                          <Button icon="pi pi-eraser" label="Limpiar Filtros" @click="clearFilters"
+                                                raised severity="secondary"
+                                                class="w-full md:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200" />
+
+                                          <Button icon="pi pi-table" label="Previsualizar" @click="reportes" raised
+                                                severity="secondary"
+                                                class="w-full md:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200" />
+
+                                          <Button v-if="tabla" icon="pi pi-file-pdf" label="Generar" raised
+                                                severity="secondary"
+                                                class="w-full md:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200" />
+
+                                    </div>
+                              </div>
+                        </AccordionContent>
+                  </AccordionPanel>
+            </Accordion>
       </div>
 
       <div class="card mt-4 rounded-lg shadow-sm">

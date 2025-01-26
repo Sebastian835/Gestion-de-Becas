@@ -1,24 +1,26 @@
-const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = './Documentos_Becas';
-    
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+    const { periodo, usuario } = req.body;
+    if (!periodo || !usuario) {
+      return cb(new Error("Periodo y usuario son requeridos"));
     }
-    
+    const usuarioFormat = usuario.replace(/\s+/g, "");
+    const periodoFormat = periodo.replace(/\s+/g, "");
+    const uploadDir = path.join(
+      "./Documentos_Becas",
+      periodoFormat,
+      usuarioFormat
+    );
+    fs.mkdirSync(uploadDir, { recursive: true });
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000); 
-    const ext = path.extname(file.originalname);
-    const baseName = path.basename(file.originalname, ext);
-    const filename = `${baseName}-${randomSuffix}${ext}`;
-    cb(null, filename);
-  }
+    cb(null, `${file.fieldname}.pdf`);
+  },
 });
 
 const upload = multer({ storage });

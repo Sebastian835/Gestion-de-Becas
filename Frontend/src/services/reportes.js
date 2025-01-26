@@ -9,6 +9,7 @@ export const postReportes = async (data) => {
     });
     return response.data;
   } catch (error) {
+    console.error(error.message);
     throw new Error(error.response?.data?.message || "Error en la petición");
   }
 };

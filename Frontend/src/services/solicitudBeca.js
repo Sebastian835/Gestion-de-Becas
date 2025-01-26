@@ -47,26 +47,34 @@ export const getSolicitudes = async () => {
 
 export const putAprobarSolicitud = async (id) => {
   try {
-    const response = await axios.put(`${API_URL}/aprobarSolicitud/${id}`, {}, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      withCredentials: true, 
-    });
+    const response = await axios.put(
+      `${API_URL}/aprobarSolicitud/${id}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const deleteRechazarSolicitud = async (id) => {
+export const deleteRechazarSolicitud = async (id, motivo) => {
   try {
-    const response = await axios.delete(`${API_URL}/rechazarSolicitud/${id}`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      withCredentials: true,
-    });
+    const response = await axios.post(
+      `${API_URL}/rechazarSolicitud/${id}`,
+      { motivo },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      }
+    );
     return response.data;
   } catch (error) {
     throw error;

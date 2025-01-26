@@ -24,7 +24,10 @@ import Button from 'primevue/button';
 import Select from 'primevue/select';
 import AutoComplete from 'primevue/autocomplete';
 import Skeleton from 'primevue/skeleton';
+import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
 
+const toast = useToast();
 const loading = ref(true)
 const globalFilter = ref('');
 const pdfDialogVisible = ref(false);
@@ -56,6 +59,13 @@ const filters = ref({
 
 const fetchSolicitudesBeca = async () => {
   const solicitudesBecas = await getSolicitudes();
+
+  if (solicitudesBecas.noHay === true) {
+    loading.value = false;
+    toast.add({ severity: 'info', summary: 'Informacion', detail: 'No hay solicitudes', life: 2000 });
+    return;
+  }
+
   loading.value = false;
 
   solicitudesBecaFormatead.value = solicitudesBecas
@@ -230,29 +240,52 @@ const aceptarSolicitud = async (id) => {
 
 const rechazoSolicitud = async (id) => {
   Swal.fire({
-    title: '¿Estás seguro?',
-    text: 'Se rechazará la solicitud del estudiante.',
+    title: 'Rechazar solicitud de beca',
+    text: '¿Estás seguro de que deseas rechazar esta solicitud?',
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Aceptar',
+    confirmButtonText: 'Rechazar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33',
   }).then(async (result) => {
     if (result.isConfirmed) {
-      try {
-        await deleteRechazarSolicitud(id);
-        Swal.fire({
-          title: 'Solicitud rechazada',
-          text: 'Se emitirá el correo al estudiante.',
-          icon: 'success',
-        }).then(() => {
-          refreshData();
-        });
-      } catch (error) {
-        throw error;
+      const { value: motivo } = await Swal.fire({
+        title: 'Motivo de rechazo',
+        input: 'textarea',
+        inputLabel: 'Por favor, ingrese el motivo de rechazo de la beca',
+        inputPlaceholder: 'Escriba aquí el motivo...',
+        inputAttributes: {
+          'aria-label': 'Motivo de rechazo',
+        },
+        showCancelButton: true,
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Necesitas escribir un motivo';
+          }
+        },
+      });
+
+      if (motivo) {
+        try {
+          await deleteRechazarSolicitud(id, motivo);
+          Swal.fire({
+            title: 'Solicitud rechazada',
+            text: 'La solicitud de beca ha sido rechazada.',
+            icon: 'success',
+          }).then(() => {
+            refreshData();
+          });
+        } catch (error) {
+          Swal.fire({
+            title: 'Error',
+            text: 'No se pudo rechazar la solicitud.',
+            icon: 'error',
+          });
+        }
       }
     }
   });
+
 };
 
 watch(globalFilter, (newValue) => {
@@ -278,7 +311,7 @@ onMounted(() => {
     <h2 class="text-2xl font-bold text-gray-800 mb-8" style="color: #161E2D;">
       Solictudes de Becas
     </h2>
-
+    <Toast />
     <div class="flex items-center gap-4 mb-4" style="margin-bottom: 25px; ">
       <InputText v-model="globalFilter" placeholder="Buscar..." class="w-1/4" />
       <Select v-model="periodo" :options="periodos" optionLabel="label" placeholder="Selecciona un período"
@@ -340,6 +373,8 @@ onMounted(() => {
               :value="slotProps.data.ESTADO" severity="warn" />
             <Tag v-else-if="slotProps.data.ESTADO === 'Aprobada'" icon="pi pi-verified" :value="slotProps.data.ESTADO"
               severity="success" />
+            <Tag v-else-if="slotProps.data.ESTADO === 'Rechazada'" icon="pi pi-times" :value="slotProps.data.ESTADO"
+              severity="danger" />
           </template>
         </Column>
 
@@ -361,13 +396,15 @@ onMounted(() => {
             </Skeleton>
             <div v-else>
               <Button @click="aceptarSolicitud(slotProps.data.ID_SOLICITUD)" unstyled class="zoom-button"
-                :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.ESTADO === 'Aprobada' }"
-                :disabled="slotProps.data.ESTADO === 'Aprobada'" style="margin-bottom: 0.5rem;">
+                :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.ESTADO === 'Aprobada' || slotProps.data.ESTADO === 'Rechazada' }"
+                :disabled="slotProps.data.ESTADO === 'Aprobada' || slotProps.data.ESTADO === 'Rechazada'"
+                style="margin-bottom: 0.5rem;">
                 <Tag icon="pi pi-check" severity="success" value="Aprobar"></Tag>
               </Button>
               <Button @click="rechazoSolicitud(slotProps.data.ID_SOLICITUD)" unstyled class="zoom-button"
-                :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.ESTADO === 'Aprobada' }"
-                :disabled="slotProps.data.ESTADO === 'Aprobada'" style="margin-bottom: 0.5rem;">
+                :class="{ 'opacity-50 cursor-not-allowed': slotProps.data.ESTADO === 'Aprobada' || slotProps.data.ESTADO === 'Rechazada' }"
+                :disabled="slotProps.data.ESTADO === 'Aprobada' || slotProps.data.ESTADO === 'Rechazada'"
+                style="margin-bottom: 0.5rem;">
                 <Tag icon="pi pi-times" severity="danger" value="Rechazar"></Tag>
               </Button>
             </div>

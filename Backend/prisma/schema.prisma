@@ -52,6 +52,7 @@ model istla_documentos_obligatorios {
   CERTIFICADO_ASISTENCIA   String?                    @db.VarChar(255)
   CERTIFICADO_PAGOS        String?                    @db.VarChar(255)
   CERTIFICADO_DISCIPLINA   String?                    @db.VarChar(255)
+  MOTIVO_RECHAZO           String?                    @db.VarChar(255)
   istla_documentos_detalle istla_documentos_detalle[]
   istla_solicitudes_beca   istla_solicitudes_beca     @relation(fields: [ID_SOLICITUD], references: [ID_SOLICITUD], onDelete: NoAction, onUpdate: NoAction, map: "istla_documentos_obligatorios_ibfk_1")
   istla_estado_solicitud   istla_estado_solicitud     @relation(fields: [ID_ESTADO], references: [ID_ESTADO], onDelete: NoAction, onUpdate: NoAction, map: "istla_documentos_obligatorios_ibfk_2")
@@ -104,6 +105,7 @@ model istla_becas_otorgadas {
   PORCENTAJE             Int?
   PERIODO_CADUCIDAD      String?                 @db.VarChar(255)
   ID_ESTADO              Int?
+  RENOVACION             String?                 @db.VarChar(255)
   istla_solicitudes_beca istla_solicitudes_beca? @relation(fields: [ID_SOLICITUD], references: [ID_SOLICITUD], onDelete: NoAction, onUpdate: NoAction, map: "istla_becas_otorgadas_ibfk_1")
   istla_estado_solicitud istla_estado_solicitud? @relation(fields: [ID_ESTADO], references: [ID_ESTADO], onDelete: NoAction, onUpdate: NoAction, map: "istla_becas_otorgadas_ibfk_2")
 
@@ -164,6 +166,7 @@ view vista_becas_otorgadas {
   PERIODO_CADUCIDAD String? @db.VarChar(255)
   ID_ESTADO         Int?
   ESTADO_BECA       String  @db.VarChar(15)
+  RENOVACION        String? @db.VarChar(255)
 }
 
 view vista_becas_por_tipo {

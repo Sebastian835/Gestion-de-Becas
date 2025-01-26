@@ -207,7 +207,7 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
                 type="button">
                 <i class="pi pi-graduation-cap" style="font-size: 1rem"></i>
                 <p class="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
-                  Beca</p>
+                  Becas</p>
               </button>
             </RouterLink>
           </li>

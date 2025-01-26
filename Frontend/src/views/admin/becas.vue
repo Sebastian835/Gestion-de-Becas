@@ -1,8 +1,9 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { getBecasOtorgadas, updateSincronizar, updateBeca } from '../../services/becasOtorgadas';
+import { getBecasOtorgadas, updateSincronizar, updateBeca, updateCaducidad } from '../../services/becasOtorgadas';
 import { getTiposBecas } from '../../services/tiposBecas';
 import { getperiodosIstla } from '../../services/api_Istla';
+import Swal from 'sweetalert2';
 
 import Paginator from 'primevue/paginator';
 import Dialog from 'primevue/dialog';
@@ -34,6 +35,11 @@ const currentPage = ref(0);
 const rows = ref(8);
 const first = ref(0);
 
+const verPDFDialog = ref(false);
+const pdfUrl = ref('');
+
+const mostrarPaginacion = ref(true);
+
 const paginatedBecas = computed(() => {
     const start = first.value;
     const end = start + rows.value;
@@ -56,18 +62,13 @@ const states = [
     { label: 'Inactivo', value: 8 },
 ];
 
-const show = async () => {
-    const sincronizacion = await updateSincronizar();
-    if (!sincronizacion) {
-        toast.add({ severity: 'info', summary: 'Error', detail: 'No hay becas para actualizar o aun no hay un nuevo perido', life: 4000 });
-        return;
-    }
-    fetchBecas();
-    toast.add({ severity: 'success', summary: 'Mensaje', detail: 'Se sincronizaron las fechas de caducidad de las becas', life: 2500 });
-};
-
 const fetchBecas = async () => {
     becas.value = await getBecasOtorgadas();
+    if (becas.value.noHay === true) {
+        toast.add({ severity: 'info', summary: 'Informacion', detail: 'No hay becas', life: 2000 });
+        mostrarPaginacion.value = false;
+        return false;
+    }
     filteredBecas.value = becas.value;
 };
 
@@ -77,6 +78,58 @@ const fetchTiposBecas = async () => {
 
 const fetchPeriodosIstla = async () => {
     periodosIstla.value = await getperiodosIstla();
+};
+
+const show = async () => {
+    const refresh = await fetchBecas();
+    if (refresh === false) {
+        return;
+    }
+    
+    const sincronizacion = await updateSincronizar();
+    if (!sincronizacion) {
+        toast.add({ severity: 'info', summary: 'Error', detail: 'No hay becas para actualizar o aun no hay un nuevo perido', life: 4000 });
+        return;
+    }
+    fetchBecas();
+    toast.add({ severity: 'success', summary: 'Mensaje', detail: 'Se sincronizaron las fechas de caducidad de las becas', life: 2500 });
+};
+
+const caducidad = async () => {
+    const refresh = await fetchBecas();
+    if (refresh === false) {
+        return;
+    }
+    const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta acción finalizara las becas expiradas, por lo tanto ya no se mostran en esta interfaz, ¿Desea continuar?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+    });
+
+    if (result.isConfirmed) {
+        try {
+            const caducar = await updateCaducidad();
+            Swal.fire({
+                title: 'Finalizado',
+                text: 'Las becas expiradas han sido finalizadas exitosamente.',
+                icon: 'success',
+                confirmButtonColor: '#3085d6',
+            });
+            fetchBecas();
+        } catch (error) {
+            Swal.fire({
+                title: 'Error',
+                text: 'Ocurrio un error al finalizar las becas expiradas, intentelo de nuevo.',
+                icon: 'error',
+                confirmButtonColor: '#d33',
+            });
+        }
+    }
 };
 
 const clearFilters = () => {
@@ -134,6 +187,20 @@ const actualizarBeca = async (beca) => {
 
 };
 
+const mostrarRenovacion = (beca) => {
+    if (!beca.RENOVACION) {
+        toast.add({
+            severity: 'info',
+            summary: 'Sin documento',
+            detail: 'No hay documento de renovación enviado',
+            life: 3000
+        });
+        return;
+    }
+    pdfUrl.value = `${import.meta.env.VITE_API_URL}/becasOtorgadas/verDocumento?ruta=${encodeURIComponent(beca.RENOVACION)}`;
+    verPDFDialog.value = true;
+};
+
 
 onMounted(() => {
     fetchBecas();
@@ -148,24 +215,35 @@ onMounted(() => {
     </h2>
 
     <!-- Filtros -->
-    <div class="flex flex-wrap gap-4 mb-6">
-        <InputText v-model="searchQuery" @input="filterBecas" placeholder="Buscar por cédula"
-            class="p-2 border border-gray-300 rounded flex-1 min-w-[220px]" />
+    <div class="flex flex-col gap-4 mb-6">
+        <!-- Grid de 4 columnas para filtros -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <InputText v-model="searchQuery" @input="filterBecas" placeholder="Buscar por cédula"
+                class="p-2 border border-gray-300 rounded w-full" />
 
-        <Select v-model="filterTipoBeca" :options="tiposBecas" @change="filterBecas" optionLabel="TIPO_BECA"
-            placeholder="Tipo de Beca" class="flex-1 min-w-[200px]" />
+            <Select v-model="filterTipoBeca" :options="tiposBecas" @change="filterBecas" optionLabel="TIPO_BECA"
+                placeholder="Tipo de Beca" class="w-full" />
 
-        <Select v-model="filterBecaInicio" :options="periodosIstla" @change="filterBecas" optionLabel="NOMBRE_PERIODO"
-            placeholder="Inicio de la Beca" class="flex-1 min-w-[200px]" />
+            <Select v-model="filterBecaInicio" :options="periodosIstla" @change="filterBecas"
+                optionLabel="NOMBRE_PERIODO" placeholder="Inicio de la Beca" class="w-full" />
 
-        <Select v-model="filterState" :options="states" @change="filterBecas" optionLabel="label" placeholder="Estado"
-            class="flex-1 min-w-[180px]" />
+            <div class="flex gap-2 items-center">
+                <Select v-model="filterState" :options="states" @change="filterBecas" optionLabel="label"
+                    placeholder="Estado" class="w-full" />
+            </div>
 
-        <Button icon="pi pi-eraser" label="Limpiar Filtros" @click="clearFilters" severity="secondary" raised
-            class="flex-1 min-w-[150px]" />
+            <!-- Segunda fila con botones -->
+            <div class="flex gap-2 items-center">
+                <Button icon="pi pi-eraser" label="Limpiar filtros" @click="clearFilters" severity="secondary"
+                    class="w-1/2" raised />
+                <Button icon="pi pi-sync" @click="show" severity="secondary" raised class="h-12 w-12"
+                    v-tooltip.left="'Sincroniza el periodo de caducidad de la beca'" />
+                <Button icon="pi pi-stop-circle" @click="caducidad" severity="secondary" raised class="h-12 w-12"
+                    v-tooltip.right="'Se finalizaron las becas expiradas'" />
+            </div>
+        </div>
+
         <Toast />
-        <Button icon="pi pi-sync" label="" severity="secondary" @click="show" raised class="min-w-[50px]"
-            v-tooltip.left="'Sincroniza el periodo de caducida de la beca'" />
     </div>
 
     <!-- Card Grid -->
@@ -224,19 +302,24 @@ onMounted(() => {
                     </div>
                 </div>
             </template>
-
             <template #footer>
-                <Button v-if="beca.ID_ESTADO != 6" icon="pi pi-pencil" label="Editar" @click="openEditDialog(beca)" text
-                    class="w-full" />
+                <div class="flex justify-center gap-x-2">
+                    <Button v-if="beca.ID_ESTADO != 6" icon="pi pi-pencil" label="Editar" @click="openEditDialog(beca)"
+                        text />
+                    <Button v-if="beca.ID_ESTADO != 6" icon="pi pi-sync" label="Renovacion" text severity="info"
+                        @click="mostrarRenovacion(beca)" />
+                </div>
             </template>
+
+
         </Card>
     </div>
 
     <!-- Paginador -->
-    <Paginator v-model:first="first" v-model:rows="rows" :totalRecords="totalRecords" :rowsPerPageOptions="[8, 16, 24]"
-        @page="onPageChange" class="mt-4" />
+    <Paginator v-if="mostrarPaginacion" v-model:first="first" v-model:rows="rows" :totalRecords="totalRecords"
+        :rowsPerPageOptions="[8, 16, 24]" @page="onPageChange" class="mt-4" />
 
-    <!-- Modal -->
+    <!-- Modal Actualizar Beca -->
     <Dialog v-model:visible="showDialog" :header="'Editar Beca'" pt:mask:class="backdrop-blur-sm"
         :style="{ width: '25rem' }">
         <template #default>
@@ -252,6 +335,12 @@ onMounted(() => {
             <Button label="Guardar" @click="actualizarBeca(selectedBeca)" severity="success" style="height: 45px;" />
             <Button label="Cancelar" @click="cancelar" severity="danger" style="height: 45px;" />
         </template>
+    </Dialog>
+
+    <!-- Modal Renovacion Beca -->
+    <Dialog v-model:visible="verPDFDialog" modal header="Documento de Renovación" :style="{ width: '70vw' }"
+        :breakpoints="{ '960px': '75vw', '641px': '90vw' }">
+        <iframe v-if="pdfUrl" :src="pdfUrl" style="width: 100%; height: 80vh;" frameborder="0"></iframe>
     </Dialog>
 
 </template>

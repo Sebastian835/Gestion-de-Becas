@@ -1,5 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const path = require("path");
+const fs = require("fs");
 const {
   getPeriodos,
   getEstudiantes,
@@ -62,22 +64,109 @@ async function getBecas() {
       },
     });
 
+    if (becas.length === 0) {
+      return false;
+    }
+
     const periodos = await getPeriodos();
 
-    const becasConPeriodo = becas.map((beca) => {
-      const periodo = periodos.find(
+    const becasConPeriodos = becas.map((beca) => {
+      const periodoInicio = periodos.find(
         (p) => p.ID_PERIODO.toString() === beca.ID_PERIODO.toString()
       );
-      if (periodo) {
+
+      if (beca.PERIODO_CADUCIDAD === "Proximo Periodo") {
         return {
           ...beca,
-          NOMBRE_PERIODO: periodo.NOMBRE_PERIODO,
+          NOMBRE_PERIODO: periodoInicio ? periodoInicio.NOMBRE_PERIODO : "",
+          ID_PERIODO: undefined,
+        };
+      } else {
+        const periodoCaducidad = periodos.find(
+          (p) => p.ID_PERIODO.toString() === beca.PERIODO_CADUCIDAD.toString()
+        );
+        return {
+          ...beca,
+          NOMBRE_PERIODO: periodoInicio ? periodoInicio.NOMBRE_PERIODO : "",
+          PERIODO_CADUCIDAD: periodoCaducidad
+            ? periodoCaducidad.NOMBRE_PERIODO
+            : beca.PERIODO_CADUCIDAD,
           ID_PERIODO: undefined,
         };
       }
     });
 
-    return becasConPeriodo;
+    return becasConPeriodos;
+  } catch (error) {
+    throw new Error("Error al obtener becas");
+  }
+}
+
+async function getBecasById(cedula) {
+  try {
+    const becas = await prisma.vista_becas_otorgadas.findMany({
+      where: {
+        CEDULA_ESTUDIANTE: cedula,
+        ID_ESTADO: {
+          not: 6,
+        },
+      },
+    });
+
+    if (!becas || becas.length === 0) {
+      return null;
+    }
+
+    const periodos = await getPeriodos();
+
+    const becasConPeriodos = becas.map((beca) => {
+      const periodoInicio = periodos.find(
+        (p) => p.ID_PERIODO.toString() === beca.ID_PERIODO.toString()
+      );
+
+      if (beca.PERIODO_CADUCIDAD === "Proximo Periodo") {
+        return {
+          ...beca,
+          NOMBRE_PERIODO: periodoInicio ? periodoInicio.NOMBRE_PERIODO : "",
+          ID_PERIODO: undefined,
+        };
+      } else {
+        const periodoCaducidad = periodos.find(
+          (p) => p.ID_PERIODO.toString() === beca.PERIODO_CADUCIDAD.toString()
+        );
+        return {
+          ...beca,
+          NOMBRE_PERIODO: periodoInicio ? periodoInicio.NOMBRE_PERIODO : "",
+          PERIODO_CADUCIDAD: periodoCaducidad
+            ? periodoCaducidad.NOMBRE_PERIODO
+            : beca.PERIODO_CADUCIDAD,
+          ID_PERIODO: undefined,
+        };
+      }
+    });
+
+    return becasConPeriodos;
+  } catch (error) {
+    throw new Error("Error al obtener becas");
+  }
+}
+
+async function getBecasByIdValidacionEstudiante(cedula) {
+  try {
+    const beca = await prisma.vista_becas_otorgadas.findFirst({
+      where: {
+        CEDULA_ESTUDIANTE: cedula,
+        ID_ESTADO: {
+          not: 6,
+        },
+      },
+    });
+
+    if (beca) {
+      return true;
+    } else {
+      return false;
+    }
   } catch (error) {
     throw new Error("Error al obtener becas");
   }
@@ -167,9 +256,9 @@ async function updateSincronizacionFechas() {
     const periodoActualID =
       becas[0].istla_solicitudes_beca.istla_vigencia_beca.ID_PERIODO;
 
-    const siguientePeriodo = periodos.find(
-      (periodo) => parseInt(periodo.ID_PERIODO) > periodoActualID
-    );
+    const siguientePeriodo = periodos
+      .filter((periodo) => parseInt(periodo.ID_PERIODO) > periodoActualID)
+      .sort((a, b) => parseInt(a.ID_PERIODO) - parseInt(b.ID_PERIODO))[0];
 
     if (!siguientePeriodo) return false;
 
@@ -179,13 +268,70 @@ async function updateSincronizacionFechas() {
           ID_BECA: beca.ID_BECA,
         },
         data: {
-          PERIODO_CADUCIDAD: siguientePeriodo.NOMBRE_PERIODO,
+          PERIODO_CADUCIDAD: siguientePeriodo.ID_PERIODO,
+          ID_ESTADO: 8,
         },
       })
     );
 
     await Promise.all(updatePromises);
 
+    return true;
+  } catch (error) {
+    throw new Error(
+      "Error al actualizar períodos de caducidad: " + error.message
+    );
+  }
+}
+
+async function updateCaducidad() {
+  try {
+    const becas = await prisma.istla_becas_otorgadas.findMany({
+      where: {
+        RENOVACION: {
+          not: null,
+        },
+        ID_ESTADO:{
+          not: 6,
+        }
+      },
+    });
+
+    const periodos = await getPeriodos();
+    if (becas.length === 0) return false;
+
+    for (const beca of becas) {
+      if (!beca.PERIODO_CADUCIDAD) continue;
+
+      const periodosCaducidad = periodos.find(
+        (p) => p.ID_PERIODO === beca.PERIODO_CADUCIDAD
+      );
+      if (!periodosCaducidad) continue;
+
+      const periodoMayor = periodos.find(
+        (p) => parseInt(p.ID_PERIODO) > parseInt(periodosCaducidad.ID_PERIODO)
+      );
+
+      if (periodoMayor && beca.ID_SOLICITUD) {
+        await prisma.$transaction([
+          // Actualizar beca otorgada
+          prisma.istla_becas_otorgadas.update({
+            where: { ID_BECA: beca.ID_BECA },
+            data: { ID_ESTADO: 6 },
+          }),
+          // Actualizar solicitud
+          prisma.istla_solicitudes_beca.update({
+            where: { ID_SOLICITUD: beca.ID_SOLICITUD },
+            data: { ID_ESTADO: 6 },
+          }),
+          // Actualizar documentos obligatorios
+          prisma.istla_documentos_obligatorios.updateMany({
+            where: { ID_SOLICITUD: beca.ID_SOLICITUD },
+            data: { ID_ESTADO: 6 },
+          }),
+        ]);
+      }
+    }
     return true;
   } catch (error) {
     throw new Error(
@@ -339,6 +485,58 @@ async function obtenerBecasPorCarrera() {
   }
 }
 
+async function postRenovacion(documento, cedula) {
+  try {
+    const rutaDocumentosEstudiante =
+      await prisma.istla_solicitudes_beca.findFirst({
+        where: {
+          CEDULA_ESTUDIANTE: cedula,
+        },
+        select: {
+          ID_SOLICITUD: true,
+          CEDULA_ESTUDIANTE: true,
+          istla_documentos_obligatorios: {
+            select: {
+              ID_DOCUMENTOS: true,
+              CERTIFICADO_MATRICULA: true,
+            },
+          },
+        },
+      });
+
+    const rutaBase =
+      rutaDocumentosEstudiante.istla_documentos_obligatorios[0]
+        .CERTIFICADO_MATRICULA;
+    const rutaPartes = rutaBase.split("\\");
+    const carpetaEstudiante = rutaPartes.slice(0, 3).join("\\");
+
+    const extension = path.extname(documento.name);
+    const nombreArchivo = `renovacionBeca${extension}`;
+    const rutaCompleta = path.join(carpetaEstudiante, nombreArchivo);
+
+    await documento.mv(rutaCompleta);
+
+    const beca = await prisma.istla_becas_otorgadas.findFirst({
+      where: {
+        ID_SOLICITUD: rutaDocumentosEstudiante.ID_SOLICITUD,
+      },
+    });
+
+    await prisma.istla_becas_otorgadas.update({
+      where: {
+        ID_BECA: beca.ID_BECA,
+      },
+      data: {
+        RENOVACION: rutaCompleta,
+      },
+    });
+
+    return rutaCompleta;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   postBecas,
   getBecas,
@@ -349,4 +547,8 @@ module.exports = {
   getBecasPeriodos,
   getBecasTipo,
   obtenerBecasPorCarrera,
+  getBecasById,
+  getBecasByIdValidacionEstudiante,
+  postRenovacion,
+  updateCaducidad,
 };
