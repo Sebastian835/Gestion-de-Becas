@@ -9,7 +9,14 @@ export const postReportes = async (data) => {
     });
     return response.data;
   } catch (error) {
-    console.error(error.message);
+    throw new Error(error.response?.data?.message || "Error en la petición");
+  }
+};
+
+export const downloadReport = async (filename) => {
+  try {
+    window.open(`${API_URL}/${filename}`, "_blank");
+  } catch (error) {
     throw new Error(error.response?.data?.message || "Error en la petición");
   }
 };

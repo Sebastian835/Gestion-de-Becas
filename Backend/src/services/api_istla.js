@@ -70,8 +70,26 @@ async function getCarreras() {
 async function getCarreraEstudiante(id) {
   try {
     const token = await getToken();
-    const response = await axios.get(`${baseURL}/ver-matriculas-estudiante/${id}`, {
-      headers: { Authorization: token },
+    const response = await axios.get(
+      `${baseURL}/ver-matriculas-estudiante/${id}`,
+      {
+        headers: { Authorization: token },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function loginIstla(username, password) {
+  try {
+    const form = new FormData();
+    form.append("username", username);
+    form.append("password", password);
+
+    const response = await axios.post(`${baseURL}/login-api`, form, {
+      headers: form.getHeaders(),
     });
     return response.data;
   } catch (error) {
@@ -79,11 +97,11 @@ async function getCarreraEstudiante(id) {
   }
 }
 
-
 module.exports = {
   getUsuarios,
   getPeriodos,
   getEstudiantes,
   getCarreras,
-  getCarreraEstudiante
+  getCarreraEstudiante,
+  loginIstla,
 };

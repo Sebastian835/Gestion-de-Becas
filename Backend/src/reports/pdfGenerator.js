@@ -1,9 +1,15 @@
 const PDFDocument = require("pdfkit");
+const { ChartJSNodeCanvas } = require("chartjs-node-canvas");
 const fs = require("fs");
 const path = require("path");
 
-async function generatePDF(reportData, periodo, tipoBeca, carrera, graficosGenerales, graficosEspecificos) {
-
+async function generatePDF(
+  reportData,
+  periodo,
+  tipoBeca,
+  carrera,
+  graficosGenerales
+) {
   const folderPath = path.join(__dirname, "../../reporteGenerado");
   const filePath = path.join(folderPath, "report.pdf");
 
@@ -17,6 +23,8 @@ async function generatePDF(reportData, periodo, tipoBeca, carrera, graficosGener
   const doc = new PDFDocument();
   const stream = fs.createWriteStream(filePath);
   doc.pipe(stream);
+
+  const relativePath = "report.pdf";
 
   // Encabezado
   //--Franja superior
@@ -42,16 +50,14 @@ async function generatePDF(reportData, periodo, tipoBeca, carrera, graficosGener
 
   //--Línea separadora
   doc.moveTo(50, 110).lineTo(550, 110).stroke();
-
-  // Título
-
+  // Título - Reducir espacio
   doc
     .font("Times-Bold")
     .fill("Reporte de becas")
     .fontSize(12)
-    .text("INFORME DE CONCESIÓN DE BECAS", 0, 130, {
+    .text("REPORTE DE CONCESIÓN DE BECAS", 60, 120, {
+      // Reducir Y
       align: "center",
-      width: doc.page.width,
     });
 
   //--Fecha
@@ -60,10 +66,9 @@ async function generatePDF(reportData, periodo, tipoBeca, carrera, graficosGener
     month: "long",
     year: "numeric",
   });
-  doc.fontSize(10).font("Times-Roman").text(fecha, 260, 150);
-
+  doc.fontSize(10).font("Times-Roman").text(fecha, 260, 140);
   // Contenido
-  const contenido = `El presente informe tiene como objetivo presentar un análisis detallado sobre la gestión de las becas en el Instituto Superior Tecnológico Los Andes, proporcionando información relevante sobre las solicitudes procesadas, los beneficiarios aprobados, no aprobados y los resultados obtenidos en el o los períodos correspondiente.`;
+  const contenido = `El presente reporte tiene como objetivo presentar un análisis detallado sobre la gestión de las becas en el Instituto Superior Tecnológico Los Andes, proporcionando información relevante sobre las solicitudes procesadas, los beneficiarios aprobados, no aprobados y los resultados obtenidos en el o los períodos correspondiente.`;
   doc.fontSize(12).font("Times-Roman").text(contenido, 50, 190, {
     align: "justify",
     lineGap: 8,
@@ -140,12 +145,14 @@ async function generatePDF(reportData, periodo, tipoBeca, carrera, graficosGener
   let periodoAumento = false;
   if (periodo) {
     periodoAumento = true;
+    currentY = 285;
+
     doc
       .font("Times-Bold")
       .fontSize(12)
       .text("Conteo de becas por periodo académico", 60, currentY);
-
     currentY += 20;
+
     currentY = generateSummaryTable(
       periodo,
       {
@@ -154,141 +161,445 @@ async function generatePDF(reportData, periodo, tipoBeca, carrera, graficosGener
       },
       currentY
     );
+
+    if (graficosGenerales) {
+      currentY += 10;
+      const chartImage = await graficoPeriodo(periodo, "periodo");
+      doc.image(chartImage, 100, currentY, { width: 300 });
+      currentY += 200;
+    }
   }
 
   let tipoBecaAumento = false;
   if (tipoBeca) {
-    if (periodoAumento) currentY += 20;
     tipoBecaAumento = true;
-    doc
-      .font("Times-Bold")
-      .fontSize(12)
-      .text("Conteo de becas por tipo", 60, currentY);
+    if (periodoAumento) {
+      if (graficosGenerales) {
+        currentY = 625;
+        doc
+          .font("Times-Bold")
+          .fontSize(12)
+          .text("Conteo de becas por tipo", 60, currentY);
+        currentY += 20;
 
-    currentY += 20;
-    currentY = generateSummaryTable(
-      tipoBeca,
-      {
-        "Tipo de Beca": 250,
-        Total: 100,
-      },
-      currentY
-    );
+        currentY = generateSummaryTable(
+          tipoBeca,
+          {
+            "Tipo de Beca": 250,
+            Total: 100,
+          },
+          currentY
+        );
+        doc.addPage();
+        currentY = 50;
+      } else {
+        currentY = 405;
+        doc
+          .font("Times-Bold")
+          .fontSize(12)
+          .text("Conteo de becas por tipo", 60, currentY);
+        currentY += 20;
+
+        currentY = generateSummaryTable(
+          tipoBeca,
+          {
+            "Tipo de Beca": 250,
+            Total: 100,
+          },
+          currentY
+        );
+      }
+    } else {
+      currentY = 285;
+      doc
+        .font("Times-Bold")
+        .fontSize(12)
+        .text("Conteo de becas por tipo", 60, currentY);
+      currentY += 20;
+
+      currentY = generateSummaryTable(
+        tipoBeca,
+        {
+          "Tipo de Beca": 250,
+          Total: 100,
+        },
+        currentY
+      );
+    }
+
+    if (graficosGenerales) {
+      currentY += 10;
+      const chartImage = await graficoTipoBeca(tipoBeca, "tipoBeca");
+      doc.image(chartImage, 100, currentY, { width: 300 });
+      currentY += 200;
+    }
   }
 
+  let carreraAumento = false;
   if (carrera) {
-    if (tipoBecaAumento) currentY += 20;
-    doc
-      .font("Times-Bold")
-      .fontSize(12)
-      .text("Conteo de becas por carrera", 60, currentY);
+    carreraAumento = true;
+    if (periodoAumento && tipoBecaAumento) {
+      if (graficosGenerales) {
+        currentY = 270;
+        doc
+          .font("Times-Bold")
+          .fontSize(12)
+          .text("Conteo de becas por carrera", 60, currentY);
+        currentY += 20;
 
-    currentY += 20;
-    currentY = generateSummaryTable(
-      carrera,
-      {
-        Carrera: 250,
-        Total: 100,
-      },
-      currentY
+        currentY = generateSummaryTable(
+          carrera,
+          {
+            Carrera: 250,
+            Total: 100,
+          },
+          currentY
+        );
+      } else {
+        currentY = 525;
+        doc
+          .font("Times-Bold")
+          .fontSize(12)
+          .text("Conteo de becas por carrera", 60, currentY);
+        currentY += 20;
+
+        currentY = generateSummaryTable(
+          carrera,
+          {
+            Carrera: 250,
+            Total: 100,
+          },
+          currentY
+        );
+      }
+    } else if (periodoAumento && !tipoBecaAumento) {
+      if (graficosGenerales) {
+        currentY = 625;
+        doc
+          .font("Times-Bold")
+          .fontSize(12)
+          .text("Conteo de becas por carrera", 60, currentY);
+        currentY += 20;
+
+        currentY = generateSummaryTable(
+          carrera,
+          {
+            Carrera: 250,
+            Total: 100,
+          },
+          currentY
+        );
+        doc.addPage();
+        currentY = 50;
+      } else {
+        currentY = 405;
+        doc
+          .font("Times-Bold")
+          .fontSize(12)
+          .text("Conteo de becas por carrera", 60, currentY);
+        currentY += 20;
+
+        currentY = generateSummaryTable(
+          carrera,
+          {
+            Carrera: 250,
+            Total: 100,
+          },
+          currentY
+        );
+      }
+    } else if (!periodoAumento && tipoBecaAumento) {
+      if (graficosGenerales) {
+        currentY = 625;
+        doc
+          .font("Times-Bold")
+          .fontSize(12)
+          .text("Conteo de becas por carrera", 60, currentY);
+        currentY += 20;
+
+        currentY = generateSummaryTable(
+          carrera,
+          {
+            Carrera: 250,
+            Total: 100,
+          },
+          currentY
+        );
+        doc.addPage();
+        currentY = 50;
+      } else {
+        currentY = 405;
+        doc
+          .font("Times-Bold")
+          .fontSize(12)
+          .text("Conteo de becas por carrera", 60, currentY);
+        currentY += 20;
+
+        currentY = generateSummaryTable(
+          carrera,
+          {
+            Carrera: 250,
+            Total: 100,
+          },
+          currentY
+        );
+      }
+    } else {
+      currentY = 285;
+      doc
+        .font("Times-Bold")
+        .fontSize(12)
+        .text("Conteo de becas por carrera", 60, currentY);
+      currentY += 20;
+
+      currentY = generateSummaryTable(
+        carrera,
+        {
+          Carrera: 250,
+          Total: 100,
+        },
+        currentY
+      );
+    }
+
+    if (graficosGenerales) {
+      currentY += 10;
+      const chartImage = await graficoCarrera(carrera);
+      doc.image(chartImage, 100, currentY, { width: 300 });
+      currentY += 130;
+    }
+  }
+
+  let enY = 0;
+  if (reportData !== false) {
+    enY = generateTable(
+      doc,
+      reportData,
+      periodoAumento,
+      tipoBecaAumento,
+      carreraAumento,
+      graficosGenerales
     );
   }
 
-  if (reportData !== false) {
-    // Tabla
-    // generateTable(doc, reportData);
-    // Gráficos
-    // generateCharts(doc, reportData);
+  const final = `Este reporte permite consolidar información clave sobre la gestión y asignación de becas en el Instituto Superior Tecnológico Los Andes. Los datos presentados reflejan el compromiso institucional con la transparencia y eficiencia en los procesos. Se espera que estas estadísticas sirvan como base para la mejora continua y la toma de decisiones estratégicas en futuros períodos.
+`;
+  if (enY > 0) {
+    doc
+      .fontSize(12)
+      .font("Times-Roman")
+      .text(final, 50, enY + 100, {
+        align: "justify",
+        lineGap: 8,
+      });
+  } else {
+    doc
+      .fontSize(12)
+      .font("Times-Roman")
+      .text(final, 50, currentY + 20, {
+        align: "justify",
+        lineGap: 8,
+      });
   }
-
   doc.end();
-  return filePath;
+  return relativePath;
 }
 
-// function generateTable(doc, data) {
-//   let startX = 70;
-//   let startY = 300;
-//   const rowHeight = 50;
-//   const colWidths = {
-//     CEDULA: 65,
-//     NOMBRE: data[0].NOMBRE ? 120 : 0,
-//     TIPO_BECA: 100,
-//     PORCENTAJE: 40,
-//     PERIODO: 85,
-//     ESTADO: 55,
-//     CARRERA: 110,
-//   };
-//   if (colWidths.NOMBRE) {
-//     startX = 20;
-//   }
+async function graficoPeriodo(data, type) {
+  const width = 500;
+  const height = 300;
+  const chartCallback = (ChartJS) => {
+    ChartJS.defaults.color = "#666";
+    ChartJS.defaults.font.family = "Times";
+  };
 
-//   // Encabezados con celdas
-//   doc.font("Times-Bold").fontSize(10);
-//   let currentX = startX;
+  const chartJSNodeCanvas = new ChartJSNodeCanvas({
+    width,
+    height,
+    chartCallback,
+  });
 
-//   Object.entries({
-//     Cédula: colWidths.CEDULA,
-//     Nombres: data[0].NOMBRE ? colWidths.NOMBRE : 0,
-//     "Tipo Beca": colWidths.TIPO_BECA,
-//     "%": colWidths.PORCENTAJE,
-//     Periodo: colWidths.PERIODO,
-//     Estado: colWidths.ESTADO,
-//     Carrera: colWidths.CARRERA,
-//   }).forEach(([header, width]) => {
-//     if (width > 0) {
-//       doc.rect(currentX, startY, width, 20).fillAndStroke("#7fbf1f", "#000000");
-//       doc.fillColor("black").text(header, currentX + 2, startY + 5, {
-//         width: width - 4,
-//         align: "center",
-//       });
-//       doc.fillColor("black");
-//       currentX += width;
-//     }
-//   });
+  let labels, values;
 
-//   // Datos
-//   startY += 20;
-//   doc.font("Times-Roman").fontSize(8).fill("black");
+  switch (type) {
+    case "periodo":
+      labels = data.map((d) => d.periodo);
+      values = data.map((d) => d.total_becas);
+      break;
+    case "tipoBeca":
+      labels = data.map((d) => d.TIPO_BECA);
+      values = data.map((d) => d.Becas);
+      break;
+    case "carrera":
+      labels = data.map((d) => d.carrera);
+      values = data.map((d) => d.cantidadBecas);
+      break;
+  }
 
-//   data.forEach((row, i) => {
-//     let currentX = startX;
-//     const y = startY + i * rowHeight;
+  const configuration = {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Total de Becas",
+          data: values,
+          backgroundColor: "#3faafc",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+      },
+    },
+  };
 
-//     // Función helper para texto con límite
-//     const addText = (text, width, options = {}) => {
-//       doc.text(text, currentX + 2, y + 5, {
-//         width: width - 4,
-//         height: rowHeight - 10,
-//         ellipsis: true,
-//         lineBreak: true,
-//         ...options,
-//       });
-//       currentX += width;
-//     };
+  const image = await chartJSNodeCanvas.renderToBuffer(configuration);
+  return image;
+}
 
-//     // Dibuja cada celda
-//     addText(row.CEDULA_ESTUDIANTE, colWidths.CEDULA);
-//     if (row.NOMBRE) addText(row.NOMBRE, colWidths.NOMBRE);
-//     addText(row.TIPO_BECA, colWidths.TIPO_BECA);
-//     addText(`${row.PORCENTAJE}%`, colWidths.PORCENTAJE, { align: "center" });
-//     addText(row.PERIODO, colWidths.PERIODO);
-//     addText(row.ESTADO, colWidths.ESTADO);
-//     addText(row.CARRERA, colWidths.CARRERA);
+async function graficoTipoBeca(data, type) {
+  const width = 500;
+  const height = 300;
+  const chartCallback = (ChartJS) => {
+    ChartJS.defaults.color = "#666";
+    ChartJS.defaults.font.family = "Times";
+  };
 
-//     // Línea separadora
-//     doc
-//       .moveTo(startX, y + rowHeight)
-//       .lineTo(
-//         startX + Object.values(colWidths).reduce((a, b) => a + b, 0),
-//         y + rowHeight
-//       )
-//       .stroke();
-//   });
-// }
+  const chartJSNodeCanvas = new ChartJSNodeCanvas({
+    width,
+    height,
+    chartCallback,
+  });
 
-function generateTable(doc, data) {
+  let labels, values;
+
+  switch (type) {
+    case "periodo":
+      labels = data.map((d) => d.periodo);
+      values = data.map((d) => d.total_becas);
+      break;
+    case "tipoBeca":
+      labels = data.map((d) => d.TIPO_BECA);
+      values = data.map((d) => d.Becas);
+      break;
+    case "carrera":
+      labels = data.map((d) => d.carrera);
+      values = data.map((d) => d.cantidadBecas);
+      break;
+  }
+
+  const configuration = {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Total de Becas",
+          data: values,
+          backgroundColor: "#e874a6",
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+      },
+    },
+  };
+
+  const image = await chartJSNodeCanvas.renderToBuffer(configuration);
+  return image;
+}
+
+async function graficoCarrera(data) {
+  const width = 1000;
+  const height = 400;
+
+  const chartJSNodeCanvas = new ChartJSNodeCanvas({ width, height });
+
+  const configuration = {
+    type: "bar",
+    data: {
+      labels: data.map((d) => d.carrera),
+      datasets: [
+        {
+          label: "Total de Becas",
+          data: data.map((d) => d.cantidadBecas),
+          backgroundColor: "#54b895",
+        },
+      ],
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+      },
+    },
+  };
+
+  return await chartJSNodeCanvas.renderToBuffer(configuration);
+}
+
+function generateTable(
+  doc,
+  data,
+  periodo,
+  tipoBeca,
+  carrera,
+  graficosGenerales
+) {
   let startX = 70;
-  let startY = 300;
+  let startY = 310;
+
+  if (periodo && tipoBeca && carrera) {
+    if (graficosGenerales) {
+      startY = 570;
+    } else {
+      startY = 660;
+    }
+  } else if (periodo && tipoBeca && !carrera) {
+    if (graficosGenerales) {
+      startY = 280;
+    } else {
+      startY = 555;
+    }
+  } else if (periodo && !tipoBeca && carrera) {
+    if (graficosGenerales) {
+      startY = 260;
+    } else {
+      startY = 555;
+    }
+  } else if (!periodo && tipoBeca && carrera) {
+    if (graficosGenerales) {
+      startY = 265;
+    } else {
+      startY = 555;
+    }
+  } else if (periodo && !tipoBeca && !carrera) {
+    if (graficosGenerales) {
+      startY = 640;
+    } else {
+      startY = 430;
+    }
+  } else if (!periodo && tipoBeca && !carrera) {
+    if (graficosGenerales) {
+      startY = 640;
+    } else {
+      startY = 430;
+    }
+  } else if (!periodo && !tipoBeca && carrera) {
+    if (graficosGenerales) {
+      startY = 600;
+    } else {
+      startY = 430;
+    }
+  }
+
   const rowHeight = 50;
   const pageHeight = doc.page.height - 50;
   let currentPage = 1;
@@ -302,6 +613,11 @@ function generateTable(doc, data) {
     ESTADO: 55,
     CARRERA: 110,
   };
+
+  doc
+    .font("Times-Bold")
+    .fontSize(12)
+    .text("Detalle de becas", 60, startY - 25);
 
   if (colWidths.NOMBRE) startX = 20;
 
@@ -378,10 +694,7 @@ function generateTable(doc, data) {
 
     startY += rowHeight;
   });
-}
-
-function generateCharts(doc, data) {
-  // Implementación gráficos
+  return startY;
 }
 
 module.exports = { generatePDF };

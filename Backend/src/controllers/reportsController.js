@@ -1,4 +1,5 @@
 const { obtenerReporte } = require("../services/reports");
+const path = require("path");
 
 async function getReporte(req, res) {
   try {
@@ -10,6 +11,24 @@ async function getReporte(req, res) {
   }
 }
 
+async function downloadReporte(req, res) {
+  const filePath = path.join(
+    __dirname,
+    "..",
+    "..",
+    "reporteGenerado",
+    req.params.filename
+  );
+  try {
+    res.download(filePath);
+  } catch (error) {
+    res.status(404).json({
+      message: "Documento no encontrado",
+    });
+  }
+}
+
 module.exports = {
   getReporte,
+  downloadReporte,
 };

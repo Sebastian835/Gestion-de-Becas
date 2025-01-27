@@ -2,7 +2,7 @@
 import { onMounted, ref, toRaw, computed } from 'vue';
 import { getperiodosIstla, getCarrerasIstla } from '../../services/api_Istla';
 import { getTiposBecas } from '../../services/tiposBecas';
-import { postReportes } from '../../services/reportes';
+import { postReportes, downloadReport } from '../../services/reportes';
 import Swal from 'sweetalert2';
 
 import Select from 'primevue/select';
@@ -23,6 +23,7 @@ const toast = useToast();
 const periodos = ref([]);
 const carreras = ref([]);
 const tiposBecas = ref([]);
+const pdfPath = ref(null);
 
 const isOptionSelected = computed(() => !!selectedOptionPeriodo.value);
 
@@ -91,12 +92,6 @@ const opcionesConteo = [
 const selectedOptionConteo = ref(null);
 const inlcuirGraficosGenerales = () => {
       graficosGenerales.value = !graficosGenerales.value;
-};
-
-//Filtros graficos especificos
-const graficosEspecificos = ref(false);
-const inlcuirGraficosEspecificos = () => {
-      graficosEspecificos.value = !graficosEspecificos.value;
 };
 
 // Reportes
@@ -187,6 +182,10 @@ const reportes = async () => {
             }
       }
 
+      if (graficosGenerales.value) {
+            data = { ...data, graficosGenerales: true };
+      }
+
       try {
             tabla.value = false;
             Swal.fire({
@@ -197,12 +196,13 @@ const reportes = async () => {
                   }
             });
             const response = await postReportes(data);
+            pdfPath.value = response.pdfPath;
             if (response.length === 0) {
                   Swal.close();
                   toast.add({ severity: 'info', summary: 'Información', detail: 'No se encontraron registros', life: 3000 });
                   return;
             }
-            reportData.value = response;
+            reportData.value = response.report;
             columns.value = [
                   { field: 'CEDULA_ESTUDIANTE', header: 'Cédula' },
                   ...(response.length > 0 && 'NOMBRE' in response[0] ?
@@ -258,8 +258,6 @@ const generarGeneral = async () => {
             return;
       }
 
-  
-
       let data = {
             conteo: conteoPlano.map(conteo => conteo.id),
             data: false
@@ -289,6 +287,7 @@ const generarGeneral = async () => {
                         detail: 'Reporte generado con éxito',
                         life: 3000
                   });
+                  await download(response);
             } else {
                   toast.add({
                         severity: 'error',
@@ -308,6 +307,17 @@ const generarGeneral = async () => {
       }
 };
 
+const downloadEspecificos = async () => {
+      await download(pdfPath.value);
+};    
+
+const download = async (path) => {
+      try {
+            const response = await downloadReport(path);
+      } catch (error) {
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Error al descargar el reporte', life: 3000 });
+      }
+};
 
 const clearFilters = () => {
       selectedOptionPeriodo.value = null;
@@ -318,11 +328,14 @@ const clearFilters = () => {
       selectedTipoBeca.value = null;
       nombres.value = false;
       selectedOptionEstado.value = null;
-      selectedOptionConteo.value = null;
       tabla.value = false;
 };
 
-
+const clearFiltersGenerales = () => {
+      selectedOptionConteo.value = null;
+      tabla.value = false;
+      graficosGenerales.value = false;
+};
 
 onMounted(async () => {
       fechtPeriodos();
@@ -363,10 +376,16 @@ onMounted(async () => {
                                                 </div>
                                           </div>
 
-                                          <Button v-if="!isOptionSelected" icon="pi pi-file-pdf" label="Generar"
+                                          <Button icon="pi pi-eraser" label="Limpiar Filtros"
+                                                @click="clearFiltersGenerales" raised severity="secondary"
+                                                class="w-full md:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200" />
+
+                                          <Button v-if="!isOptionSelected" icon="pi pi-file-pdf" label="Generar PDF"
                                                 @click="generarGeneral" raised severity="secondary"
                                                 class="w-full md:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200"
                                                 v-tooltip.right="'Se generar el reporte de la informacion mostrada en el Home'" />
+
+
                                     </div>
                               </div>
 
@@ -426,20 +445,6 @@ onMounted(async () => {
                                                 </div>
                                           </div>
 
-                                          <div @click="inlcuirGraficosEspecificos"
-                                                class="group flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-gray-200 transition-all duration-200 max-w-md">
-                                                <div class="flex-1">
-                                                      <label class="text-gray-700 font-medium text-sm tracking-wide cursor-pointer"
-                                                            style="margin-right: 15px;">
-                                                            Incluir graficos
-                                                      </label>
-                                                </div>
-                                                <div class="relative inline-flex items-center ">
-                                                      <ToggleSwitch v-model="graficosEspecificos"
-                                                            @click="inlcuirGraficosEspecificos" />
-                                                </div>
-                                          </div>
-
                                           <Button icon="pi pi-eraser" label="Limpiar Filtros" @click="clearFilters"
                                                 raised severity="secondary"
                                                 class="w-full md:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200" />
@@ -448,8 +453,8 @@ onMounted(async () => {
                                                 severity="secondary"
                                                 class="w-full md:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200" />
 
-                                          <Button v-if="tabla" icon="pi pi-file-pdf" label="Generar" raised
-                                                severity="secondary"
+                                          <Button v-if="tabla" icon="pi pi-file-pdf" label="Generar PDF"
+                                                @click="downloadEspecificos" raised severity="secondary"
                                                 class="w-full md:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200" />
 
                                     </div>

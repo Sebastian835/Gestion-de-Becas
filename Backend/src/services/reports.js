@@ -22,6 +22,7 @@ async function obtenerReporte(filtros) {
     if (filtros.data === false) {
       dataNo = true;
     }
+
     let periodoConteo = null;
     let tipoBecaConteo = null;
     let carreraConteo = null;
@@ -97,16 +98,22 @@ async function obtenerReporte(filtros) {
       };
     });
 
-    // const report = await obtenerReporteCarreras(becasConPeriodo, filtros);
+    const report = await obtenerReporteCarreras(becasConPeriodo, filtros);
 
     const pdfPath = await handleReport(
-      becasConPeriodo,
+      report,
       periodoConteo,
       tipoBecaConteo,
-      carreraConteo
+      carreraConteo,
+      filtros.graficosGenerales || false
     );
 
-    return becasConPeriodo;
+    const data = {
+      report,
+      pdfPath,
+    };
+
+    return data;
   } catch (error) {
     throw new error();
   }
