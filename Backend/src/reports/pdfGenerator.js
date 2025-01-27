@@ -3,6 +3,20 @@ const { ChartJSNodeCanvas } = require("chartjs-node-canvas");
 const fs = require("fs");
 const path = require("path");
 
+async function cleanOldPDFs(folderPath) {
+  try {
+    const files = await fs.promises.readdir(folderPath);
+    for (const file of files) {
+      if (file.startsWith("report_") && file.endsWith(".pdf")) {
+        const filePath = path.join(folderPath, file);
+        await fs.promises.unlink(filePath);
+      }
+    }
+  } catch (error) {
+    throw new Error("Error al limpiar PDFs antiguos: " + error.message);
+  }
+}
+
 async function generatePDF(
   reportData,
   periodo,
@@ -11,20 +25,24 @@ async function generatePDF(
   graficosGenerales
 ) {
   const folderPath = path.join(__dirname, "../../reporteGenerado");
-  const filePath = path.join(folderPath, "report.pdf");
 
+  // Crear el directorio si no existe
   if (!fs.existsSync(folderPath)) {
     fs.mkdirSync(folderPath);
   }
-  if (fs.existsSync(filePath)) {
-    fs.unlinkSync(filePath);
-  }
+
+  // Limpiar PDFs antiguos antes de generar uno nuevo
+  await cleanOldPDFs(folderPath);
+
+  // Generar nuevo nombre con timestamp
+  const timestamp = Date.now();
+  const fileName = `report_${timestamp}.pdf`;
+  const filePath = path.join(folderPath, fileName);
+  const relativePath = fileName;
 
   const doc = new PDFDocument();
   const stream = fs.createWriteStream(filePath);
   doc.pipe(stream);
-
-  const relativePath = "report.pdf";
 
   // Encabezado
   //--Franja superior
@@ -369,7 +387,6 @@ async function generatePDF(
       currentY += 130;
     }
   }
-
 
   let enY = 0;
   if (reportData !== false) {
