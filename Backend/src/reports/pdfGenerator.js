@@ -370,6 +370,7 @@ async function generatePDF(
     }
   }
 
+
   let enY = 0;
   if (reportData !== false) {
     enY = generateTable(
@@ -410,7 +411,7 @@ async function graficoPeriodo(data, type) {
   const height = 300;
   const chartCallback = (ChartJS) => {
     ChartJS.defaults.color = "#666";
-    ChartJS.defaults.font.family = "Times";
+    ChartJS.defaults.font.family = "Sans";
   };
 
   const chartJSNodeCanvas = new ChartJSNodeCanvas({
@@ -465,7 +466,7 @@ async function graficoTipoBeca(data, type) {
   const height = 300;
   const chartCallback = (ChartJS) => {
     ChartJS.defaults.color = "#666";
-    ChartJS.defaults.font.family = "Times";
+    ChartJS.defaults.font.family = "Sans";
   };
 
   const chartJSNodeCanvas = new ChartJSNodeCanvas({

@@ -98,6 +98,9 @@ async function obtenerReporte(filtros) {
       };
     });
 
+    if(becasConPeriodo.length === 0){
+      return false;
+    }
     const report = await obtenerReporteCarreras(becasConPeriodo, filtros);
 
     const pdfPath = await handleReport(
@@ -108,6 +111,7 @@ async function obtenerReporte(filtros) {
       filtros.graficosGenerales || false
     );
 
+  
     const data = {
       report,
       pdfPath,

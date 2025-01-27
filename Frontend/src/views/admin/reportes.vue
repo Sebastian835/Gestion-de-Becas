@@ -196,6 +196,12 @@ const reportes = async () => {
                   }
             });
             const response = await postReportes(data);
+            if (!response) {
+                  Swal.close();
+                  toast.add({ severity: 'info', summary: 'Información', detail: 'No se encontraron registros', life: 3000 });
+                  return;
+            }
+
             pdfPath.value = response.pdfPath;
             if (response.length === 0) {
                   Swal.close();
@@ -205,7 +211,7 @@ const reportes = async () => {
             reportData.value = response.report;
             columns.value = [
                   { field: 'CEDULA_ESTUDIANTE', header: 'Cédula' },
-                  ...(response.length > 0 && 'NOMBRE' in response[0] ?
+                  ...(reportData.value?.length > 0 && 'NOMBRE' in reportData.value[0] ?
                         [{ field: 'NOMBRE', header: 'Nombre' }] :
                         []),
                   { field: 'TIPO_BECA', header: 'Tipo de Beca' },
@@ -309,10 +315,12 @@ const generarGeneral = async () => {
 
 const downloadEspecificos = async () => {
       await download(pdfPath.value);
-};    
+};
 
 const download = async (path) => {
       try {
+            console.log(path);
+            return;
             const response = await downloadReport(path);
       } catch (error) {
             toast.add({ severity: 'error', summary: 'Error', detail: 'Error al descargar el reporte', life: 3000 });
