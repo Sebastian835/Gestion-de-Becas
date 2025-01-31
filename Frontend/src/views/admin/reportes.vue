@@ -215,7 +215,11 @@ const reportes = async () => {
                         [{ field: 'NOMBRE', header: 'Nombre' }] :
                         []),
                   { field: 'TIPO_BECA', header: 'Tipo de Beca' },
-                  { field: 'PORCENTAJE', header: 'Porcentaje' },
+                  {
+                        field: 'PORCENTAJE',
+                        header: 'Porcentaje',
+                        body: (rowData) => rowData.PORCENTAJE === null ? 'No otorgada' : `${rowData.PORCENTAJE}%`
+                  },
                   { field: 'PERIODO', header: 'Periodo' },
                   { field: 'ESTADO', header: 'Estado' },
                   { field: 'CARRERA', header: 'Carrera' }
@@ -477,7 +481,7 @@ onMounted(async () => {
                   <Column v-for="col in columns" :key="col.field" :field="col.field" :header="col.header" sortable
                         :filter="true" filterMatchMode="contains">
                         <template #body="slotProps" v-if="col.field === 'PORCENTAJE'">
-                              {{ slotProps.data[col.field] }}%
+                              {{ slotProps.data[col.field] === null ? 'No otorgada' : `${slotProps.data[col.field]}%` }}
                         </template>
                   </Column>
             </DataTable>

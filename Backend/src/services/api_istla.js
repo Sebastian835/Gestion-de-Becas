@@ -97,11 +97,24 @@ async function loginIstla(username, password) {
   }
 }
 
+async function getMatriculasEstudiante(id) {
+  try {
+    const token = await getToken();
+    const response = await axios.get(`${baseURL}/ver-matriculas-estudiante/${id}`, {
+      headers: { Authorization: token },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   getUsuarios,
   getPeriodos,
   getEstudiantes,
   getCarreras,
   getCarreraEstudiante,
+  getMatriculasEstudiante,
   loginIstla,
 };

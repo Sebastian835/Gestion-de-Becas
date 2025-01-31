@@ -1,14 +1,13 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { initFlowbite } from 'flowbite';
-import { getperiodosIstla } from '../../services/api_Istla';
+import { getperiodosIstla, getUsuariosIstla } from '../../services/api_Istla';
 import {
   getSolicitudes,
   postSolicitud,
   putAprobarSolicitud,
   deleteRechazarSolicitud
 } from '../../services/solicitudBeca';
-import { getUsuariosIstla } from '../../services/api_Istla';
 import { getTiposBecas } from '../../services/tiposBecas';
 import { getPlazoBecasActivas } from '../../services/vigenciaBecas';
 
@@ -222,7 +221,17 @@ const aceptarSolicitud = async (id) => {
   }).then(async (result) => {
     if (result.isConfirmed) {
       try {
+        Swal.fire({
+          title: "Aprobando solicitud",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
         await putAprobarSolicitud(id);
+        Swal.close();
+        
         Swal.fire({
           title: 'Solicitud aprobada',
           text: 'Se emitirá el correo al estudiante.',
@@ -231,7 +240,12 @@ const aceptarSolicitud = async (id) => {
           refreshData();
         });
       } catch (error) {
-        throw error;
+        // En caso de error, cerrar la alerta de carga y mostrar error
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo procesar la solicitud',
+          icon: 'error'
+        });
       }
     }
   });
@@ -333,7 +347,7 @@ onMounted(() => {
             <Skeleton v-if="loading">
               <div class="h-8 w-full"></div>
             </Skeleton>
-            <span v-else>{{ slotProps.data.NOMBRES_USUARIOS }}</span>
+            <span v-else>{{ slotProps.data.NOMBRE_ESTUDIANTE }}</span>
           </template>
         </Column>
 

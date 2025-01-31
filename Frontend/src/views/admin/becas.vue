@@ -57,13 +57,14 @@ const onPageChange = (event) => {
 };
 
 const states = [
-    // { label: 'Finalizado', value: 6 },
+    { label: 'Finalizado', value: 6 },
     { label: 'Activo', value: 7 },
     { label: 'Inactivo', value: 8 },
 ];
 
 const fetchBecas = async () => {
     becas.value = await getBecasOtorgadas();
+    console.log(becas.value);
     if (becas.value.noHay === true) {
         toast.add({ severity: 'info', summary: 'Informacion', detail: 'No hay becas', life: 2000 });
         mostrarPaginacion.value = false;
@@ -85,12 +86,23 @@ const show = async () => {
     if (refresh === false) {
         return;
     }
-    
+
+    Swal.fire({
+        title: "Actualizando fechas de caducidad",
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+
     const sincronizacion = await updateSincronizar();
     if (!sincronizacion) {
         toast.add({ severity: 'info', summary: 'Error', detail: 'No hay becas para actualizar o aun no hay un nuevo perido', life: 4000 });
+        Swal.close();
         return;
     }
+    Swal.close();
     fetchBecas();
     toast.add({ severity: 'success', summary: 'Mensaje', detail: 'Se sincronizaron las fechas de caducidad de las becas', life: 2500 });
 };
@@ -102,7 +114,7 @@ const caducidad = async () => {
     }
     const result = await Swal.fire({
         title: '¿Estás seguro?',
-        text: 'Esta acción finalizara las becas expiradas, por lo tanto ya no se mostran en esta interfaz, ¿Desea continuar?',
+        text: 'Esta acción finalizara las becas expiradas, por lo tanto no se mostraran en esta interfaz, ¿Desea continuar?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sí',
@@ -113,14 +125,23 @@ const caducidad = async () => {
 
     if (result.isConfirmed) {
         try {
+            Swal.fire({
+                title: "Finalizando becas expiradas",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             const caducar = await updateCaducidad();
+            Swal.close();
+            fetchBecas();
             Swal.fire({
                 title: 'Finalizado',
                 text: 'Las becas expiradas han sido finalizadas exitosamente.',
                 icon: 'success',
                 confirmButtonColor: '#3085d6',
             });
-            fetchBecas();
         } catch (error) {
             Swal.fire({
                 title: 'Error',
@@ -175,6 +196,7 @@ const actualizarBeca = async (beca) => {
             toast.add({ severity: 'error', summary: 'Error', detail: 'El porcentaje debe ser entre 0 y 100', life: 3000 });
             return;
         }
+
         const actualizar = await updateBeca(data);
         showDialog.value = false;
         fetchBecas();
@@ -280,6 +302,12 @@ onMounted(() => {
                         <i class="pi pi-percentage text-green-500"></i>
                         <ProgressBar :value="beca.PORCENTAJE" :showValue="true" class="w-full" />
                     </div>
+
+                    <div class="flex items-center gap-2" v-if="beca.PROMEDIO_2 != null">
+                        <i class="pi pi-star text-yellow-500"></i>
+                        <span class="font-medium">{{ beca.PROMEDIO_2 }}</span>
+                    </div>
+
 
                     <Divider />
 

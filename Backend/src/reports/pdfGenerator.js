@@ -22,7 +22,8 @@ async function generatePDF(
   periodo,
   tipoBeca,
   carrera,
-  graficosGenerales
+  graficosGenerales,
+  conteoTotal
 ) {
   const folderPath = path.join(__dirname, "../../reporteGenerado");
 
@@ -396,7 +397,8 @@ async function generatePDF(
       periodoAumento,
       tipoBecaAumento,
       carreraAumento,
-      graficosGenerales
+      graficosGenerales,
+      conteoTotal
     );
   }
 
@@ -569,7 +571,8 @@ function generateTable(
   periodo,
   tipoBeca,
   carrera,
-  graficosGenerales
+  graficosGenerales,
+  conteoTotal
 ) {
   let startX = 70;
   let startY = 310;
@@ -637,6 +640,11 @@ function generateTable(
     .fontSize(12)
     .text("Detalle de becas", 60, startY - 25);
 
+  doc
+    .font("Times-Roman")
+    .fontSize(12)
+    .text("Registros Totales: " + conteoTotal, 400, startY - 25);
+
   if (colWidths.NOMBRE) startX = 20;
 
   const addHeaders = () => {
@@ -697,7 +705,11 @@ function generateTable(
     addText(row.CEDULA_ESTUDIANTE, colWidths.CEDULA);
     if (row.NOMBRE) addText(row.NOMBRE, colWidths.NOMBRE);
     addText(row.TIPO_BECA, colWidths.TIPO_BECA);
-    addText(`${row.PORCENTAJE}%`, colWidths.PORCENTAJE, { align: "center" });
+    addText(
+      row.PORCENTAJE === null ? "No otorgada" : `${row.PORCENTAJE}%`,
+      colWidths.PORCENTAJE,
+      { align: "center" }
+    );
     addText(row.PERIODO, colWidths.PERIODO);
     addText(row.ESTADO, colWidths.ESTADO);
     addText(row.CARRERA, colWidths.CARRERA);

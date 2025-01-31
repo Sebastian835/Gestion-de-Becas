@@ -70,15 +70,14 @@ async function obtenerReporte(filtros) {
         in: Array.isArray(estado) ? estado : [estado],
       };
     }
-
-    const becas = await prisma.vista_becas_otorgadas.findMany({
+    const becas = await prisma.vista_reporte.findMany({
       where,
       select: {
         CEDULA_ESTUDIANTE: true,
         TIPO_BECA: true,
         PORCENTAJE: true,
         ID_PERIODO: true,
-        ESTADO_BECA: true,
+        ESTADO: true,
       },
       orderBy: {
         ID_PERIODO: "asc",
@@ -94,24 +93,25 @@ async function obtenerReporte(filtros) {
         TIPO_BECA: beca.TIPO_BECA,
         PORCENTAJE: beca.PORCENTAJE,
         PERIODO: periodInfo.NOMBRE_PERIODO,
-        ESTADO: beca.ESTADO_BECA,
+        ESTADO: beca.ESTADO,
       };
     });
 
-    if(becasConPeriodo.length === 0){
+    if (becasConPeriodo.length === 0) {
       return false;
     }
     const report = await obtenerReporteCarreras(becasConPeriodo, filtros);
+    const conteoTotal = report.length;
 
     const pdfPath = await handleReport(
       report,
       periodoConteo,
       tipoBecaConteo,
       carreraConteo,
-      filtros.graficosGenerales || false
+      filtros.graficosGenerales || false,
+      conteoTotal
     );
 
-  
     const data = {
       report,
       pdfPath,

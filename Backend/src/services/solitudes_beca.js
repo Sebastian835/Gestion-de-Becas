@@ -1,6 +1,10 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const getUsuarios = require("./api_istla");
+const {
+  getUsuarios,
+  getEstudiantes,
+  getMatriculasEstudiante,
+} = require("./api_istla");
 const dayjs = require("dayjs");
 var customParseFormat = require("dayjs/plugin/customParseFormat");
 
@@ -23,6 +27,7 @@ async function postSolicitudBeca(req, res) {
     await prisma.istla_solicitudes_beca.create({
       data: {
         CEDULA_ESTUDIANTE: data["cedula_estudiante"],
+        NOMBRE_ESTUDIANTE: data["nombre_estudiante"],
         ID_TIPO_BECA: data["becaSeleccionada"],
         ID_VIGENCIA: data["periodoBeca"],
         FECHA: new Date(fechaFormateada),
@@ -42,36 +47,35 @@ async function getSolicitudes(req, res) {
     const solicitudes = await prisma.vista_solicitud_beca_detalle.findMany({
       where: {
         ESTADO: {
-          not: "Finalizado",
+          notIn: ["Finalizado", "Rechazada"],
         },
       },
     });
 
     if (solicitudes.length === 0) {
-      return res.json({ 'noHay': true });
+      return res.json({ noHay: true });
     }
-    
 
-    const usuarios = await getUsuarios.getUsuarios();
+    // const usuarios = await getUsuarios.getUsuarios();
 
-    const usuariosMap = new Map();
-    usuarios.forEach((usuario) => {
-      usuariosMap.set(usuario.DOCUMENTO_USUARIOS, usuario);
-    });
+    // const usuariosMap = new Map();
+    // usuarios.forEach((usuario) => {
+    //   usuariosMap.set(usuario.DOCUMENTO_USUARIOS, usuario);
+    // });
 
-    const solicitudesDetalles = solicitudes.map((solicitud) => {
-      const usuario = usuariosMap.get(solicitud.CEDULA_ESTUDIANTE);
-      if (usuario) {
-        return {
-          ...solicitud,
-          NOMBRES_USUARIOS:
-            usuario.NOMBRES_USUARIOS + " " + usuario.APELLIDOS_USUARIOS,
-          CORREO_USUARIOS: usuario.CORREO_USUARIOS,
-        };
-      }
-    });
+    // const solicitudesDetalles = solicitudes.map((solicitud) => {
+    //   const usuario = usuariosMap.get(solicitud.CEDULA_ESTUDIANTE);
+    //   if (usuario) {
+    //     return {
+    //       ...solicitud,
+    //       NOMBRES_USUARIOS:
+    //         usuario.NOMBRES_USUARIOS + " " + usuario.APELLIDOS_USUARIOS,
+    //       CORREO_USUARIOS: usuario.CORREO_USUARIOS,
+    //     };
+    //   }
+    // });
 
-    res.json(solicitudesDetalles);
+    res.json(solicitudes);
   } catch (error) {
     res.status(500).json({ error: "Error: " + error.message });
   }
@@ -103,6 +107,34 @@ async function aprobarSolicitud(req, res) {
   const { id } = req.params;
   const idFormat = parseInt(id, 10);
 
+  const solicitud = await prisma.istla_solicitudes_beca.findFirst({
+    where: {
+      ID_SOLICITUD: idFormat,
+    },
+  });
+
+  const estudiantes = await getEstudiantes();
+  const estudiante = estudiantes.find(
+    (est) => est.DOCUMENTO_ESTUDIANTES === solicitud.CEDULA_ESTUDIANTE
+  );
+
+  let promedioAnterior = null;
+
+  if (estudiante) {
+    const matriculas = await getMatriculasEstudiante(estudiante.ID_ESTUDIANTES);
+    const matriculasOrdenadas = matriculas.sort(
+      (a, b) =>
+        parseInt(b.ID_PERIODO_MATRICULA) - parseInt(a.ID_PERIODO_MATRICULA)
+    );
+
+    promedioAnterior =
+      matriculasOrdenadas.length > 1
+        ? matriculasOrdenadas[1].NOTA_PROMEDIO
+        : matriculasOrdenadas.length === 1
+        ? matriculasOrdenadas[0].NOTA_PROMEDIO
+        : null;
+  }
+
   try {
     const transaction = await prisma.$transaction([
       prisma.istla_solicitudes_beca.update({
@@ -114,6 +146,7 @@ async function aprobarSolicitud(req, res) {
         data: {
           ID_SOLICITUD: idFormat,
           ID_ESTADO: 1,
+          PROMEDIO_1: promedioAnterior.toString() || null,
         },
       }),
     ]);

@@ -1,11 +1,11 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const path = require("path");
-const fs = require("fs");
 const {
   getPeriodos,
   getEstudiantes,
   getCarreraEstudiante,
+  getMatriculasEstudiante,
 } = require("./api_istla");
 
 async function postBecas(id, porcentaje) {
@@ -107,9 +107,6 @@ async function getBecasById(cedula) {
     const becas = await prisma.vista_becas_otorgadas.findMany({
       where: {
         CEDULA_ESTUDIANTE: cedula,
-        ID_ESTADO: {
-          not: 6,
-        },
       },
     });
 
@@ -249,9 +246,49 @@ async function updateSincronizacionFechas() {
       },
     });
 
+    const estudiantes = await getEstudiantes();
+
+    const becasNotas = await Promise.all(
+      becas.map(async (doc) => {
+        const estudiante = estudiantes.find(
+          (est) =>
+            est.DOCUMENTO_ESTUDIANTES ===
+            doc.istla_solicitudes_beca.CEDULA_ESTUDIANTE
+        );
+
+        if (estudiante) {
+          const matriculas = await getMatriculasEstudiante(
+            estudiante.ID_ESTUDIANTES
+          );
+
+          const matriculasOrdenadas = matriculas.sort(
+            (a, b) =>
+              parseInt(b.ID_PERIODO_MATRICULA) -
+              parseInt(a.ID_PERIODO_MATRICULA)
+          );
+
+          promedioAnterior =
+            matriculasOrdenadas.length > 1
+              ? matriculasOrdenadas[1].NOTA_PROMEDIO
+              : matriculasOrdenadas.length === 1
+              ? matriculasOrdenadas[0].NOTA_PROMEDIO
+              : null;
+
+          return {
+            ...doc,
+            ID_ESTUDIANTE: estudiante.ID_ESTUDIANTES,
+            PROMEDIO_2: promedioAnterior,
+          };
+        }
+
+        // Si no encontramos el estudiante, retornamos el documento original
+        return doc;
+      })
+    );
+
     const periodos = await getPeriodos();
 
-    if (becas.length === 0) return false;
+    if (becasNotas.length === 0) return false;
 
     const periodoActualID =
       becas[0].istla_solicitudes_beca.istla_vigencia_beca.ID_PERIODO;
@@ -262,7 +299,7 @@ async function updateSincronizacionFechas() {
 
     if (!siguientePeriodo) return false;
 
-    const updatePromises = becas.map((beca) =>
+    const updatePromises = becasNotas.map((beca) =>
       prisma.istla_becas_otorgadas.update({
         where: {
           ID_BECA: beca.ID_BECA,
@@ -270,6 +307,7 @@ async function updateSincronizacionFechas() {
         data: {
           PERIODO_CADUCIDAD: siguientePeriodo.ID_PERIODO,
           ID_ESTADO: 8,
+          PROMEDIO_2: beca.PROMEDIO_2.toString(),
         },
       })
     );
@@ -278,6 +316,7 @@ async function updateSincronizacionFechas() {
 
     return true;
   } catch (error) {
+    console.log(error);
     throw new Error(
       "Error al actualizar períodos de caducidad: " + error.message
     );
@@ -291,9 +330,9 @@ async function updateCaducidad() {
         RENOVACION: {
           not: null,
         },
-        ID_ESTADO:{
+        ID_ESTADO: {
           not: 6,
-        }
+        },
       },
     });
 
@@ -491,6 +530,7 @@ async function postRenovacion(documento, cedula) {
       await prisma.istla_solicitudes_beca.findFirst({
         where: {
           CEDULA_ESTUDIANTE: cedula,
+          ID_ESTADO: { not: 6 },
         },
         select: {
           ID_SOLICITUD: true,

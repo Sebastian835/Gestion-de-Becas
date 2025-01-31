@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const { getPeriodos } = require("./api_istla");
 const { postBecas } = require("./becas_Otorgadas");
+const { getEstudiantes, getMatriculasEstudiante } = require("./api_istla");
 
 const eliminarCarpetaEstudiante = async (rutaCarpeta) => {
   try {
@@ -16,7 +17,7 @@ const eliminarCarpetaEstudiante = async (rutaCarpeta) => {
   } catch (error) {
     return false;
   }
- };
+};
 
 async function getEstadoDocumentos(req, res) {
   const { cedula } = req.query;
@@ -73,7 +74,7 @@ async function getDocumentos() {
       where: {
         istla_estado_solicitud: {
           ESTADO: {
-            not: "Finalizado",
+            notIn: ["Finalizado", "Rechazada"]
           },
         },
       },
@@ -102,7 +103,7 @@ async function getDocumentos() {
         },
       },
     });
-    
+
     if (documentos.length === 0) {
       return false;
     }

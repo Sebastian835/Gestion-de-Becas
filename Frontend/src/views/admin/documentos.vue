@@ -23,6 +23,7 @@ import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 
 const toast = useToast();
+const loading = ref(true)
 const globalFilter = ref('');
 const documentos = ref([]);
 const allDocumentos = ref([]);
@@ -75,6 +76,7 @@ const fetchDocumentos = async () => {
     const response = await getDocumentos();
     if (response.noHay === true) {
       toast.add({ severity: 'info', summary: 'Informacion', detail: 'No hay documentacion', life: 2000 });
+      loading.value = false;
       return;
     }
     const processedDocs = response.map(doc => {
@@ -108,6 +110,7 @@ const fetchDocumentos = async () => {
         doc.istla_solicitudes_beca?.istla_vigencia_beca?.ID_PERIODO === parseInt(periodoSeleccionado.value.ID_PERIODO)
       );
     }
+    loading.value = false;
   } catch (error) {
     throw new Error('Error al obtener los documentos:', error);
   }
@@ -356,7 +359,7 @@ onMounted(() => {
 
     <div class="rounded-lg overflow-hidden shadow-lg">
       <Toast />
-      <DataTable :value="documentos" :filters="filters" :globalFilterFields="[
+      <DataTable :value="documentos" :filters="filters" :loading="loading" :globalFilterFields="[
         'istla_solicitudes_beca.CEDULA_ESTUDIANTE',
         'istla_solicitudes_beca.istla_tipo_beca.TIPO_BECA',
         'istla_estado_solicitud.ESTADO'
@@ -378,6 +381,9 @@ onMounted(() => {
             </div>
           </template>
         </Column>
+
+        <Column field="PROMEDIO_1" header="Promedio" class="text-center"
+          :style="{ width: '90px', minWidth: '90px', maxWidth: '90px' }" />
 
         <Column header="Certificados" class="text-center" :style="{ width: '130px' }">
           <template #body="{ data }">

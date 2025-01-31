@@ -51,7 +51,7 @@ const chartBecasPeriodos = ref({
     dataLabels: {
         enabled: true,
         formatter: function (val) {
-            return val + ' becas';
+            return '';
         },
         offsetY: -20,
         style: {
@@ -149,7 +149,7 @@ const chartBecasTipos = ref({
     dataLabels: {
         enabled: true,
         formatter: function (val) {
-            return val + ' becas';
+            return '';
         },
         offsetX: 10,
         style: {
@@ -246,7 +246,7 @@ const chartBecasCarreras = ref({
     dataLabels: {
         enabled: true,
         formatter: function (val) {
-            return `${val} becas`;
+            return '';
         },
         offsetX: 10,
         style: {

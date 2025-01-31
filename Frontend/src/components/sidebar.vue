@@ -132,6 +132,19 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
+          <li v-if="isCoordinador || isSuperAdmin"
+            class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
+            <RouterLink to="/main/historico"
+              activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
+              <button
+                class="middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg text-white w-full flex items-center gap-4 px-4 capitalize"
+                type="button">
+                <i class="pi pi-history" style="font-size: 1rem"></i>
+                <p class="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">
+                  Historico</p>
+              </button>
+            </RouterLink>
+          </li>
           <li v-if="isCoordinador || isSuperAdmin || isReporte"
             class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/reportes"
@@ -175,7 +188,8 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-          <li v-if="isEstudiante" class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
+          <li v-if="isEstudiante"
+            class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/solicitud"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -187,7 +201,8 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-          <li v-if="isEstudiante" class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
+          <li v-if="isEstudiante"
+            class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/documentos"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button
@@ -199,7 +214,8 @@ const isEstudiante = computed(() => currentUser.value?.role === 'estudiante');
               </button>
             </RouterLink>
           </li>
-          <li v-if="isEstudiante && becaVigente" class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
+          <li v-if="isEstudiante && becaVigente"
+            class="hover:bg-gradient-to-tr hover:from-blue-600/40 hover:to-blue-400/40 hover:shadow-md hover:shadow-blue-500/10 rounded-lg transition-all duration-300">
             <RouterLink to="/main/beca"
               activeClass="bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] w-full flex items-center gap-4 px-4 capitalize rounded-lg">
               <button

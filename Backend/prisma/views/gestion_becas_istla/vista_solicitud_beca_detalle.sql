@@ -5,7 +5,8 @@ SELECT
   `gestion_becas_istla`.`istla_tipo_beca`.`TIPO_BECA` AS `TIPO_BECA`,
   `gestion_becas_istla`.`istla_solicitudes_beca`.`DOCUMENTO_SOLICITUD` AS `DOCUMENTO_SOLICITUD`,
   `gestion_becas_istla`.`istla_estado_solicitud`.`ESTADO` AS `ESTADO`,
-  `gestion_becas_istla`.`istla_vigencia_beca`.`ID_PERIODO` AS `ID_PERIODO`
+  `gestion_becas_istla`.`istla_vigencia_beca`.`ID_PERIODO` AS `ID_PERIODO`,
+  `gestion_becas_istla`.`istla_solicitudes_beca`.`NOMBRE_ESTUDIANTE` AS `NOMBRE_ESTUDIANTE`
 FROM
   (
     (

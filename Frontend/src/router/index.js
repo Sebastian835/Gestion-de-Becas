@@ -42,6 +42,11 @@ const routes = [
         meta: { requiresAuth: true, roles: ["Coordinador", "SuperAdmin"] },
       },
       {
+        path: "historico",
+        component: () => import("../views/admin/historico.vue"),
+        meta: { requiresAuth: true, roles: ["Coordinador", "SuperAdmin"] },
+      },
+      {
         path: "solicitudesBeca",
         component: () => import("../views/admin/solicitudes.vue"),
         meta: { requiresAuth: true, roles: ["Coordinador", "SuperAdmin"] },
