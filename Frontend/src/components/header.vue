@@ -43,6 +43,11 @@ const handleLogout = () => {
   router.push('/login');
 };
 
+const cerrarSesion = () => {
+  logout();
+  router.push('/login');
+};
+
 const dialogUsuario = () => {
   submitted.value = true;
   datosUsuario.value = true;
@@ -140,9 +145,10 @@ onMounted(() => {
       </button>
 
       <!-- AJUSTES y SALIR -->
-      <SplitButton icon="pi pi-user" dropdownIcon="pi pi-cog" label="Perfil" @click="dialogUsuario" :model="opciones"
-        size="small" severity="contrast" rounded />
+      <SplitButton v-if="docente" icon="pi pi-user" dropdownIcon="pi pi-cog" label="Perfil" @click="dialogUsuario"
+        :model="opciones" size="small" severity="contrast" rounded />
 
+      <Button v-else icon="pi pi-sign-out" label="Salir" @click="cerrarSesion" size="small" severity="contrast" rounded />
     </div>
   </div>
 

@@ -5,7 +5,7 @@ const { getPeriodos } = require("./api_istla");
 
 const BASE_URL =
   process.env.NODE_ENV === "production"
-    ? "https://tesis.apps-sebas.org"
+    ? "https://tesis.apps-sebas.org" //"https://becas.istla-sigala.edu.ec
     : "http://localhost:3000";
 
 const historicoService = {

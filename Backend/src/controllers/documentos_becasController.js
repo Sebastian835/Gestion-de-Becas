@@ -7,7 +7,7 @@ const {
 
 const baseURL =
   process.env.NODE_ENV === "production"
-    ? "https://tesis.apps-sebas.org/api/documentacionBeca/accesoDocumentosBecas"
+    ? "https://tesis.apps-sebas.org/api/documentacionBeca/accesoDocumentosBecas" //"https://becas.istla-sigala.edu.ec/api/documentacionBeca/accesoDocumentosBecas"
     : "http://localhost:3000/api/documentacionBeca/accesoDocumentosBecas";
 
 async function getDocumentosController(req, res) {

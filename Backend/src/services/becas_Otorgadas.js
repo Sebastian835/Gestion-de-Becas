@@ -316,7 +316,6 @@ async function updateSincronizacionFechas() {
 
     return true;
   } catch (error) {
-    console.log(error);
     throw new Error(
       "Error al actualizar períodos de caducidad: " + error.message
     );
