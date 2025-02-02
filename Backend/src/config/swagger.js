@@ -1,34 +1,33 @@
-const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerJSDoc = require("swagger-jsdoc");
 
 const swaggerDefinition = {
-  openapi: '3.0.0',
+  openapi: "3.0.0",
   info: {
-    title: 'API de Becas',
-    version: '1.0.0',
-    description: 'Documentación de la API del sistema de gestion de becas',
+    title: "API de Becas",
+    version: "1.0.0",
+    description: "Documentación de la API del sistema de gestion de becas",
   },
   servers: [
     {
-      url: 'http://localhost:3000', 
-      description: 'API GESTION DE BECAS',
+      url: "http://localhost:3000", // https://becas.istla-sigala.edu.ec o https://tesis.apps-sebas.org o http://localhost:3000
+      description: "API GESTION DE BECAS",
     },
   ],
   components: {
     securitySchemes: {
       bearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
       },
     },
   },
 };
 
 const options = {
-    swaggerDefinition,
-    apis: ['./src/routes/*.js'], 
-  };
-  
+  swaggerDefinition,
+  apis: ["./src/routes/*.js"],
+};
 
 const swaggerSpec = swaggerJSDoc(options);
 

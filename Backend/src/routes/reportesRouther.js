@@ -111,3 +111,65 @@ router.post("/generarReporte", getReporte);
 router.get("/:filename", downloadReporte);
 
 module.exports = router;
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     PDFGenerator:
+ *       description: |
+ *         Módulo para la generación de PDFs. La configuración del formato se encuentra en:
+ *         /reports/pdfGenerator.js
+ *
+ *         Para modificar el formato de los PDFs se pueden ajustar:
+ *         - Encabezados
+ *         - Márgenes
+ *         - Tablas
+ *         - Estilos de texto
+ *         - Logos e imágenes
+ *
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     PDFCustomization:
+ *       description: |
+ *         # Personalización de PDFs
+ *
+ *         ## Pasos para modificar el formato:
+ *         1. Ubicar el archivo /reports/pdfGenerator.js
+ *         2. Localizar la sección de configuración
+ *         3. Modificar los parámetros deseados
+ *
+ *         ## Elementos personalizables:
+ *         - **Encabezado**
+ *           - Logo institucional
+ *           - Título del documento
+ *           - Fecha de generación
+ *
+ *         - **Cuerpo del documento**
+ *           - Fuentes y tamaños
+ *           - Colores corporativos
+ *           - Espaciados y márgenes
+ *
+ *
+ *         ## Ejemplo de modificación:
+ *         ```javascript
+ *         doc
+ *           .font("Times-Bold")
+ *           .fill("Reporte de becas")
+ *           .fontSize(12)
+ *           .text("REPORTE DE CONCESIÓN DE BECAS", 60, 120, {
+ *             align: "center",
+ *           });
+ *
+ *         // Configuración de fecha
+ *         const fecha = new Date().toLocaleDateString("es-EC", {
+ *           day: "numeric",
+ *           month: "long",
+ *           year: "numeric",
+ *         });
+ *         ```
+ */
