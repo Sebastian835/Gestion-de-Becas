@@ -9,6 +9,8 @@ const becas_Otorgadas = require("./becasOtorgadasRouther");
 const usuariosRouther = require("./usuariosRouther");
 const reportesRouther = require("./reportesRouther");
 const historicoRouter = require("./historicoRouter");
+const documentacionAPIRouther = require("./documentacionAPIRouther");
+
 
 module.exports = {
   "/auth": authRoutes,
@@ -22,4 +24,5 @@ module.exports = {
   "/usuarios": usuariosRouther,
   "/reportes": reportesRouther,
   "/historico": historicoRouter,
+  "/documentacionAPI": documentacionAPIRouther,
 };

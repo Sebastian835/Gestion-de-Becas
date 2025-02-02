@@ -42,45 +42,6 @@ async function postSolicitudBeca(req, res) {
   }
 }
 
-async function getSolicitudes(req, res) {
-  try {
-    const solicitudes = await prisma.vista_solicitud_beca_detalle.findMany({
-      where: {
-        ESTADO: {
-          notIn: ["Finalizado", "Rechazada"],
-        },
-      },
-    });
-
-    if (solicitudes.length === 0) {
-      return res.json({ noHay: true });
-    }
-
-    // const usuarios = await getUsuarios.getUsuarios();
-
-    // const usuariosMap = new Map();
-    // usuarios.forEach((usuario) => {
-    //   usuariosMap.set(usuario.DOCUMENTO_USUARIOS, usuario);
-    // });
-
-    // const solicitudesDetalles = solicitudes.map((solicitud) => {
-    //   const usuario = usuariosMap.get(solicitud.CEDULA_ESTUDIANTE);
-    //   if (usuario) {
-    //     return {
-    //       ...solicitud,
-    //       NOMBRES_USUARIOS:
-    //         usuario.NOMBRES_USUARIOS + " " + usuario.APELLIDOS_USUARIOS,
-    //       CORREO_USUARIOS: usuario.CORREO_USUARIOS,
-    //     };
-    //   }
-    // });
-
-    res.json(solicitudes);
-  } catch (error) {
-    res.status(500).json({ error: "Error: " + error.message });
-  }
-}
-
 async function getSolicitudId(req, res) {
   const { cedula } = req.query;
   try {
@@ -98,6 +59,25 @@ async function getSolicitudId(req, res) {
     } else {
       return res.json({ existe: false });
     }
+  } catch (error) {
+    res.status(500).json({ error: "Error: " + error.message });
+  }
+}
+
+async function getSolicitudes(req, res) {
+  try {
+    const solicitudes = await prisma.vista_solicitud_beca_detalle.findMany({
+      where: {
+        ESTADO: {
+          notIn: ["Finalizado", "Rechazada"],
+        },
+      },
+    });
+
+    if (solicitudes.length === 0) {
+      return res.json({ noHay: true });
+    }
+    res.json(solicitudes);
   } catch (error) {
     res.status(500).json({ error: "Error: " + error.message });
   }

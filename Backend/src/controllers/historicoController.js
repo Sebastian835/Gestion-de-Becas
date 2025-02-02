@@ -47,12 +47,12 @@ const historicoController = {
       res.status(404).json({ message: error.message });
     }
   },
-  
+
   async getDocumentoArchivo(req, res) {
     try {
       const { ruta } = req.params;
       const rutaDecodificada = decodeURIComponent(ruta);
-      
+
       if (
         !rutaDecodificada.startsWith("Documentos_Becas") ||
         rutaDecodificada.includes("..") ||
@@ -63,21 +63,21 @@ const historicoController = {
 
       try {
         await fs.access(rutaDecodificada);
-        
+
         const archivo = await fs.readFile(rutaDecodificada);
-        
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'inline');
-        
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", "inline");
+
         // Enviar el archivo
         res.send(archivo);
       } catch (error) {
         return res.status(404).json({ message: "Archivo no encontrado" });
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
       res.status(500).json({ message: "Error al obtener el archivo" });
     }
-}
+  },
 };
 module.exports = { historicoController };
