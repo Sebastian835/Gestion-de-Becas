@@ -4,7 +4,6 @@ const fs = require("fs");
 const path = require("path");
 const { getPeriodos } = require("./api_istla");
 const { postBecas } = require("./becas_Otorgadas");
-const { getEstudiantes, getMatriculasEstudiante } = require("./api_istla");
 
 const eliminarCarpetaEstudiante = async (rutaCarpeta) => {
   try {

@@ -29,7 +29,6 @@ app.use(express.urlencoded({ limit: "5mb", extended: true }));
 app.use(cookieParser());
 app.use(cors(corsOptions));
 
-
 const routes = require("./src/routes");
 Object.entries(routes).forEach(([prefix, routeModule]) => {
   app.use(`/api${prefix}`, routeModule);

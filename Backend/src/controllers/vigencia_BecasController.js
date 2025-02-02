@@ -19,6 +19,24 @@ async function postVigenciaBecasController(req, res) {
   }
 }
 
+async function getVigenciaBecasController(req, res) {
+  try {
+    const vigencia = await getVigenciaBecas();
+    res.status(200).json(vigencia);
+  } catch (error) {
+    res.status(500).json({ error: "Error obteniendo los periodos" });
+  }
+}
+
+async function getVigenciaBecasActivasController(req, res) {
+  try {
+    const vigencia = await getVigenciaBecasActivas();
+    res.status(200).json(vigencia);
+  } catch (error) {
+    res.status(500).json({ error: "Error obteniendo los periodos" });
+  }
+}
+
 async function deleteVigenciaBecasController(req, res) {
   try {
     const vigencia = await deleteVigenciaBecas(req.params.id);
@@ -37,23 +55,7 @@ async function updateVigenciaBecasController(req, res) {
   }
 }
 
-async function getVigenciaBecasController(req, res) {
-  try {
-    const vigencia = await getVigenciaBecas();
-    res.status(200).json(vigencia);
-  } catch (error) {
-    res.status(500).json({ error: "Error obteniendo los periodos" });
-  }
-}
 
-async function getVigenciaBecasActivasController(req, res) {
-  try {
-    const vigencia = await getVigenciaBecasActivas();
-    res.status(200).json(vigencia);
-  } catch (error) {
-    res.status(500).json({ error: "Error obteniendo los periodos" });
-  }
-}
 
 module.exports = {
   postVigenciaBecasController,
