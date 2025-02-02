@@ -99,7 +99,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory("/gestionBecas/"),
+  history: createWebHistory("/gestionBecas/"), // Borrar para producción
   routes,
 });
 
