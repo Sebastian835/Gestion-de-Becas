@@ -109,6 +109,7 @@ model istla_becas_otorgadas {
   ID_ESTADO              Int?
   PROMEDIO_2             String?                 @db.VarChar(255)
   RENOVACION             String?                 @db.VarChar(255)
+  PORCENTAJE_VERIFICADO  Int?                    @db.TinyInt
   istla_solicitudes_beca istla_solicitudes_beca? @relation(fields: [ID_SOLICITUD], references: [ID_SOLICITUD], onDelete: NoAction, onUpdate: NoAction, map: "istla_becas_otorgadas_ibfk_1")
   istla_estado_solicitud istla_estado_solicitud? @relation(fields: [ID_ESTADO], references: [ID_ESTADO], onDelete: NoAction, onUpdate: NoAction, map: "istla_becas_otorgadas_ibfk_2")
 
@@ -162,16 +163,18 @@ view vista_usuarios {
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 view vista_becas_otorgadas {
-  ID_BECA           Int     @unique @default(0)
-  CEDULA_ESTUDIANTE String  @db.VarChar(20)
-  TIPO_BECA         String  @db.VarChar(255)
-  PORCENTAJE        Int?
-  ID_PERIODO        Int
-  PERIODO_CADUCIDAD String? @db.VarChar(255)
-  ID_ESTADO         Int?
-  ESTADO_BECA       String  @db.VarChar(15)
-  RENOVACION        String? @db.VarChar(255)
-  PROMEDIO_2        String? @db.VarChar(255)
+  ID_BECA               Int     @unique @default(0)
+  CEDULA_ESTUDIANTE     String  @db.VarChar(20)
+  NOMBRE_ESTUDIANTE     String? @db.VarChar(255)
+  TIPO_BECA             String  @db.VarChar(255)
+  PORCENTAJE            Int?
+  ID_PERIODO            Int
+  PERIODO_CADUCIDAD     String? @db.VarChar(255)
+  ID_ESTADO             Int?
+  ESTADO_BECA           String  @db.VarChar(15)
+  RENOVACION            String? @db.VarChar(255)
+  PROMEDIO_2            String? @db.VarChar(255)
+  PORCENTAJE_VERIFICADO Int?    @db.TinyInt
 }
 
 view vista_becas_por_tipo {
@@ -217,9 +220,21 @@ view vista_historico {
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 view vista_reporte {
-  CEDULA_ESTUDIANTE String @unique @db.VarChar(20)
+  CEDULA_ESTUDIANTE String  @unique @db.VarChar(20)
   ID_PERIODO        Int
   PORCENTAJE        Int?
-  TIPO_BECA         String @db.VarChar(255)
-  ESTADO            String @default("") @db.VarChar(15)
+  TIPO_BECA         String  @db.VarChar(255)
+  ESTADO            String  @default("") @db.VarChar(15)
+  NOMBRE            String? @db.VarChar(255)
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view view_becas_preliminar {
+  CEDULA_ESTUDIANTE    String   @unique @db.VarChar(20)
+  NOMBRE_ESTUDIANTE    String?  @db.VarChar(255)
+  ID_PERIODO           Int
+  FECHA_SOLICITUD      DateTime @db.Date
+  TIPO_BECA            String   @db.VarChar(255)
+  PROMEDIO             String?  @db.VarChar(255)
+  PORCENTAJE_PROPUESTO Int?
 }

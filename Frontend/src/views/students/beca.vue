@@ -28,6 +28,8 @@ const fetchBecaUser = async () => {
     try {
         usuario.value = await getUser();
         beca.value = await getBecasById(usuario.value.DOCUMENTO_USUARIOS);
+
+        console.log(beca.value);
     } catch (error) {
         return null;
     }

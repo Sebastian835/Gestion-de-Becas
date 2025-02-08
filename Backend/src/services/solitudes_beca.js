@@ -1,7 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const {
-  getUsuarios,
   getEstudiantes,
   getMatriculasEstudiante,
 } = require("./api_istla");

@@ -13,7 +13,7 @@ async function auth(usuario, password) {
     if (!user) {
       return null;
     }
-
+    
     const validPassword = await bcrypt.compare(password, user.PASSWORD);
     if (!validPassword) {
       return null;

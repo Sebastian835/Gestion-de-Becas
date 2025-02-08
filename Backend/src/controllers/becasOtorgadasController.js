@@ -12,6 +12,7 @@ const {
   getBecasByIdValidacionEstudiante,
   postRenovacion,
   updateCaducidad,
+  updatePorcentaje
 } = require("../services/becas_Otorgadas");
 
 async function getBecasOtorgadas(req, res) {
@@ -83,6 +84,15 @@ async function updateCaducidadBeca(req, res) {
   try {
     const caducar = await updateCaducidad();
     res.status(200).json(caducar);
+  } catch (error) {
+    res.status(500).json({ error: "Error obteniendo las becas" });
+  }
+}
+
+async function updatePorcentajeBeca(req, res) {
+  try {
+    const updateBecas = await updatePorcentaje();
+    res.status(200).json(updateBecas);
   } catch (error) {
     res.status(500).json({ error: "Error obteniendo las becas" });
   }
@@ -182,4 +192,5 @@ module.exports = {
   renovarBeca,
   verDocumentoRenovacion,
   updateCaducidadBeca,
+  updatePorcentajeBeca,
 };

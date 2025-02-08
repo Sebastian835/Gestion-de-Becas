@@ -119,7 +119,7 @@ const submitSolicitud = async () => {
                 fecha: fechaActual,
                 becaSeleccionada: selectedBeca.value,
                 cedula_estudiante: currentUser.DOCUMENTO_USUARIOS,
-                nombre_estudiante: currentUser.NOMBRES_USUARIOS + ' ' + currentUser.APELLIDOS_USUARIOS,
+                nombre_estudiante: currentUser.APELLIDOS_USUARIOS+ ' ' + currentUser.NOMBRES_USUARIOS,
                 periodo: periodo.value.ID_PERIODO,
                 documento: fileBase64,
                 periodoBeca: vigenciaBecas.value[0].ID_VIGENCIA

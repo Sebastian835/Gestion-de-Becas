@@ -109,6 +109,20 @@ export const updateCaducidad = async () => {
   }
 };
 
+export const updatePorcentaje = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/updatePorcentaje`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error("Error en la petición");
+  }
+};
+
 export const getPorcentajesBecas = async () => {
   try {
     const response = await axios.get(`${API_URL}/porcentajesBeca`, {

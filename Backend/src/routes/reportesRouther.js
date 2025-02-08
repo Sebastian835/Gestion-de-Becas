@@ -110,6 +110,7 @@ router.post("/generarReporte", getReporte);
  */
 router.get("/:filename", downloadReporte);
 
+
 module.exports = router;
 
 /**

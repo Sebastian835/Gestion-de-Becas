@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { getBecasOtorgadas, updateSincronizar, updateBeca, updateCaducidad } from '../../services/becasOtorgadas';
+import { getBecasOtorgadas, updateSincronizar, updateBeca, updateCaducidad, updatePorcentaje } from '../../services/becasOtorgadas';
 import { getTiposBecas } from '../../services/tiposBecas';
 import { getperiodosIstla } from '../../services/api_Istla';
 import Swal from 'sweetalert2';
@@ -64,6 +64,7 @@ const states = [
 
 const fetchBecas = async () => {
     becas.value = await getBecasOtorgadas();
+    console.log(becas.value)
     if (becas.value.noHay === true) {
         toast.add({ severity: 'info', summary: 'Informacion', detail: 'No hay becas', life: 2000 });
         mostrarPaginacion.value = false;
@@ -134,17 +135,63 @@ const caducidad = async () => {
 
             const caducar = await updateCaducidad();
             Swal.close();
-            fetchBecas();
             Swal.fire({
                 title: 'Finalizado',
                 text: 'Las becas expiradas han sido finalizadas exitosamente.',
                 icon: 'success',
                 confirmButtonColor: '#3085d6',
             });
+            fetchBecas();
         } catch (error) {
             Swal.fire({
                 title: 'Error',
                 text: 'Ocurrio un error al finalizar las becas expiradas, intentelo de nuevo.',
+                icon: 'error',
+                confirmButtonColor: '#d33',
+            });
+        }
+    }
+};
+
+const asignarPropuesta = async () => {
+    const refresh = await fetchBecas();
+    if (refresh === false) {
+        return;
+    }
+    const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta acción asignará el porcentaje de beca establecido al aceptar la documentación del solicitante. ¿Desea continuar?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+    });
+
+    if (result.isConfirmed) {
+        try {
+            Swal.fire({
+                title: "Asignando porcentaje de becas",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            const caducar = await updatePorcentaje();
+            Swal.close();
+            Swal.fire({
+                title: 'Finalizado',
+                text: 'El porcentaje de becas ha sido asignado exitosamente.',
+                icon: 'success',
+                confirmButtonColor: '#3085d6',
+            });
+            fetchBecas();
+        } catch (error) {
+            Swal.fire({
+                title: 'Error',
+                text: 'Ocurrio un error al asignar el porcentaje de becas, intentelo de nuevo.',
                 icon: 'error',
                 confirmButtonColor: '#d33',
             });
@@ -165,11 +212,13 @@ const filterBecas = () => {
         const matchesQuery =
             searchQuery.value === '' ||
             beca.CEDULA_ESTUDIANTE.toLowerCase().includes(searchQuery.value.toLowerCase());
+        const matchesQueryName =
+            searchQuery.value === '' ||
+            beca.NOMBRE_ESTUDIANTE.toLowerCase().includes(searchQuery.value.toLowerCase());
         const matchesState = filterState.value === null || beca.ID_ESTADO === filterState.value.value;
         const matchesTipoBeca = filterTipoBeca.value === null || beca.TIPO_BECA === filterTipoBeca.value.TIPO_BECA;
-        const matchesBecaInicio = filterBecaInicio.value === null || beca.NOMBRE_PERIODO === filterBecaInicio.value.NOMBRE_PERIODO;
 
-        return matchesQuery && matchesState && matchesTipoBeca && matchesBecaInicio;
+        return matchesQueryName && matchesQuery && matchesState && matchesTipoBeca;
     });
     first.value = 0;
     currentPage.value = 0;
@@ -239,14 +288,11 @@ onMounted(() => {
     <div class="flex flex-col gap-4 mb-6">
         <!-- Grid de 4 columnas para filtros -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <InputText v-model="searchQuery" @input="filterBecas" placeholder="Buscar por cédula"
+            <InputText v-model="searchQuery" @input="filterBecas" placeholder="Buscar por cédula o nombre"
                 class="p-2 border border-gray-300 rounded w-full" />
 
             <Select v-model="filterTipoBeca" :options="tiposBecas" @change="filterBecas" optionLabel="TIPO_BECA"
                 placeholder="Tipo de Beca" class="w-full" />
-
-            <Select v-model="filterBecaInicio" :options="periodosIstla" @change="filterBecas"
-                optionLabel="NOMBRE_PERIODO" placeholder="Inicio de la Beca" class="w-full" />
 
             <div class="flex gap-2 items-center">
                 <Select v-model="filterState" :options="states" @change="filterBecas" optionLabel="label"
@@ -261,6 +307,8 @@ onMounted(() => {
                     v-tooltip.left="'Sincroniza el periodo de caducidad de la beca'" />
                 <Button icon="pi pi-stop-circle" @click="caducidad" severity="secondary" raised class="h-12 w-12"
                     v-tooltip.right="'Se finalizaron las becas expiradas'" />
+                <Button icon="pi pi-check-circle" @click="asignarPropuesta" severity="secondary" raised
+                    class="h-12 w-12" v-tooltip.right="'Asignar propuesta de porcentaje de becas'" />
             </div>
         </div>
 
@@ -273,12 +321,13 @@ onMounted(() => {
             class="transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
             <template #header>
                 <div class="relative">
-                    <div class="absolute top-0 right-0 m-2">
-                        <Tag v-if="beca.ID_ESTADO == 7" icon="pi pi-check" value="Activa" severity="success" rounded />
-                        <Tag v-else-if="beca.ID_ESTADO == 8" icon="pi pi-ban" value="Inactiva" severity="warn"
-                            rounded />
-                        <Tag v-else="beca.ID_ESTADO == 6" icon="pi pi-times" value="Finalizada" severity="info"
-                            rounded />
+                    <div class="absolute top-0 right-0 m-0.5">
+                        <Tag v-if="beca.ID_ESTADO == 7" icon="pi pi-check" value="Activa" severity="success" rounded
+                            class="p-tag-sm py-0.5 text-xs" />
+                        <Tag v-else-if="beca.ID_ESTADO == 8" icon="pi pi-ban" value="Inactiva" severity="warn" rounded
+                            class="p-tag-sm py-0.5 text-xs" />
+                        <Tag v-else="beca.ID_ESTADO == 6" icon="pi pi-times" value="Finalizada" severity="info" rounded
+                            class="p-tag-sm py-0.5 text-xs" />
                     </div>
                 </div>
             </template>
@@ -286,6 +335,10 @@ onMounted(() => {
             <template #title>
                 <div class="flex items-center gap-2 mb-2">
                     <i class="pi pi-user text-primary"></i>
+                    <span class="text-xl font-semibold">{{ beca.NOMBRE_ESTUDIANTE }}</span>
+                </div>
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="pi pi-id-card text-primary"></i>
                     <span class="text-xl font-semibold">{{ beca.CEDULA_ESTUDIANTE }}</span>
                 </div>
             </template>

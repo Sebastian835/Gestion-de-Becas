@@ -1,5 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const { getPeriodos } = require("./api_istla");
 const dayjs = require("dayjs");
 
 function convertToISODate(fecha) {
@@ -14,19 +15,17 @@ function convertToISODate(fecha) {
 
 async function postVigenciaBecas(fecha_inicio, fecha_fin, periodo) {
   try {
-    const fechaInicio = convertToISODate(fecha_inicio);
-    const fechaFin = convertToISODate(fecha_fin);
 
     const estado = await prisma.istla_estado_solicitud.findFirst({
       where: {
         ESTADO: "En curso",
       },
     });
-
+    
     const vigencia = await prisma.istla_vigencia_beca.create({
       data: {
-        FECHA_INICIO: fechaInicio,
-        FECHA_FIN: fechaFin,
+        FECHA_INICIO: new Date(fecha_inicio),
+        FECHA_FIN: new Date(fecha_fin),
         ID_ESTADO: estado.ID_ESTADO,
         ID_PERIODO: parseInt(periodo, 10),
       },
@@ -103,7 +102,7 @@ async function updateVigenciaBecas(datos) {
 
 async function getVigenciaBecas() {
   try {
-    const vigenciaBecas = await prisma.istla_vigencia_beca.findMany({
+    let vigenciaBecas = await prisma.istla_vigencia_beca.findMany({
       include: {
         istla_estado_solicitud: {
           select: {
@@ -113,8 +112,20 @@ async function getVigenciaBecas() {
       },
     });
 
+    const periodos = await getPeriodos();
+    vigenciaBecas = vigenciaBecas.map((vigencia) => {
+      const periodo = periodos.find(
+        (periodo) => periodo.ID_PERIODO === String(vigencia.ID_PERIODO)
+      );
+      return {
+        ...vigencia,
+        PERIODO: periodo.NOMBRE_PERIODO,
+      };
+    });
+
     return vigenciaBecas;
   } catch (error) {
+    console.log(error);
     throw new Error("Error al obtener documentos: " + error.message);
   }
 }

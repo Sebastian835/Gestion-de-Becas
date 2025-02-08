@@ -12,7 +12,7 @@ const {
   obtenerBecasPorCarrera,
 } = require("./becas_Otorgadas");
 
-const { handleReport } = require("../reports/index");
+const { handleReport, handleReportPreliminar } = require("../reports/index");
 
 async function obtenerReporte(filtros) {
   try {
@@ -78,10 +78,11 @@ async function obtenerReporte(filtros) {
         PORCENTAJE: true,
         ID_PERIODO: true,
         ESTADO: true,
+        NOMBRE: filtros.nombres ? true : false,
       },
-      orderBy: {
-        ID_PERIODO: "asc",
-      },
+      orderBy: filtros.nombres
+        ? { NOMBRE: "asc" }
+        : { CEDULA_ESTUDIANTE: "asc" },
     });
 
     const becasConPeriodo = becas.map((beca) => {
@@ -94,6 +95,7 @@ async function obtenerReporte(filtros) {
         PORCENTAJE: beca.PORCENTAJE,
         PERIODO: periodInfo.NOMBRE_PERIODO,
         ESTADO: beca.ESTADO,
+        NOMBRE: beca.NOMBRE,
       };
     });
 
@@ -101,6 +103,7 @@ async function obtenerReporte(filtros) {
       return false;
     }
     const report = await obtenerReporteCarreras(becasConPeriodo, filtros);
+
     const conteoTotal = report.length;
 
     const pdfPath = await handleReport(
@@ -118,6 +121,18 @@ async function obtenerReporte(filtros) {
     };
 
     return data;
+  } catch (error) {
+    throw new error();
+  }
+}
+
+async function obtenerPreliminar() {
+  try {
+    const becasPreliminares = await prisma.view_becas_preliminar.findMany({
+      orderBy: { NOMBRE_ESTUDIANTE: "asc" },
+    });
+    const pdfPath = await handleReportPreliminar(becasPreliminares);
+    return pdfPath;
   } catch (error) {
     throw new error();
   }
@@ -150,8 +165,17 @@ async function obtenerReporteCarreras(data, filtros) {
         }
         return estudiante;
       });
+
       const estudiantesConCarrera = await Promise.all(promesasCarreras);
-      return obtenerReporteTipoBeca(estudiantesConCarrera, filtros);
+      const estudiantesOrdenados = estudiantesConCarrera.sort((a, b) => {
+        if (filtros.nombres) {
+          return a.NOMBRE.localeCompare(b.NOMBRE);
+        } else {
+          return a.CEDULA_ESTUDIANTE.localeCompare(b.CEDULA_ESTUDIANTE);
+        }
+      });
+
+      return obtenerReporteTipoBeca(estudiantesOrdenados, filtros);
     } else {
       const promesasCarreras = data.map(async (estudiante) => {
         const idEstudiante = cedulaToId[estudiante.CEDULA_ESTUDIANTE];
@@ -178,7 +202,16 @@ async function obtenerReporteCarreras(data, filtros) {
       const estudiantesConCarrera = (
         await Promise.all(promesasCarreras)
       ).filter((estudiante) => estudiante !== null);
-      return obtenerReporteTipoBeca(estudiantesConCarrera, filtros);
+
+      const estudiantesOrdenados = estudiantesConCarrera.sort((a, b) => {
+        if (filtros.nombres) {
+          return a.NOMBRE.localeCompare(b.NOMBRE);
+        } else {
+          return a.CEDULA_ESTUDIANTE.localeCompare(b.CEDULA_ESTUDIANTE);
+        }
+      });
+
+      return obtenerReporteTipoBeca(estudiantesOrdenados, filtros);
     }
   } catch (error) {
     throw new error();
@@ -187,51 +220,22 @@ async function obtenerReporteCarreras(data, filtros) {
 
 async function obtenerReporteTipoBeca(data, filtros) {
   try {
+    let resultado;
     if (!filtros.tiposBecas) {
-      return obtenerReporteNombres(data, filtros);
+      resultado = data;
     } else {
-      const estudiantesConTipoBeca = data.filter((estudiante) =>
+      resultado = data.filter((estudiante) =>
         filtros.tiposBecas.includes(estudiante.TIPO_BECA)
       );
-      return obtenerReporteNombres(estudiantesConTipoBeca, filtros);
     }
-  } catch (error) {
-    throw new error();
-  }
-}
 
-async function obtenerReporteNombres(data, filtros) {
-  try {
-    if (!filtros.nombres) {
-      return data;
-    } else {
-      const usuariosAPI = await getUsuarios();
-
-      const capitalizarPalabras = (texto) => {
-        return texto
-          .toLowerCase()
-          .split(" ")
-          .map((palabra) => palabra.charAt(0).toUpperCase() + palabra.slice(1))
-          .join(" ");
-      };
-
-      const dataNombres = data.map((beca) => {
-        const usuario = usuariosAPI.find(
-          (user) => user.DOCUMENTO_USUARIOS === beca.CEDULA_ESTUDIANTE
-        );
-
-        return {
-          ...beca,
-          NOMBRE: usuario
-            ? capitalizarPalabras(
-                `${usuario.NOMBRES_USUARIOS.trim()} ${usuario.APELLIDOS_USUARIOS.trim()}`
-              )
-            : "Usuario no encontrado",
-        };
-      });
-
-      return dataNombres;
-    }
+    return resultado.sort((a, b) => {
+      if (filtros.nombres) {
+        return a.NOMBRE.localeCompare(b.NOMBRE);
+      } else {
+        return a.CEDULA_ESTUDIANTE.localeCompare(b.CEDULA_ESTUDIANTE);
+      }
+    });
   } catch (error) {
     throw new error();
   }
@@ -239,4 +243,5 @@ async function obtenerReporteNombres(data, filtros) {
 
 module.exports = {
   obtenerReporte,
+  obtenerPreliminar,
 };

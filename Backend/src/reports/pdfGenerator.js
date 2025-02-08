@@ -3,7 +3,6 @@ const { ChartJSNodeCanvas } = require("chartjs-node-canvas");
 const fs = require("fs");
 const path = require("path");
 
-
 async function cleanOldPDFs(folderPath) {
   try {
     const files = await fs.promises.readdir(folderPath);
@@ -728,4 +727,201 @@ function generateTable(
   return startY;
 }
 
-module.exports = { generatePDF };
+async function generatePreliminarPDF(data) {
+  const folderPath = path.join(__dirname, "../../reporteGenerado");
+
+  // Crear el directorio si no existe
+  if (!fs.existsSync(folderPath)) {
+    fs.mkdirSync(folderPath);
+  }
+
+  // Limpiar PDFs antiguos antes de generar uno nuevo
+  await cleanOldPDFs(folderPath);
+
+  // Generar nuevo nombre con timestamp
+  const timestamp = Date.now();
+  const fileName = `report_${timestamp}.pdf`;
+  const filePath = path.join(folderPath, fileName);
+  const relativePath = fileName;
+
+  const doc = new PDFDocument();
+  const stream = fs.createWriteStream(filePath);
+  doc.pipe(stream);
+
+  // Encabezado
+  //--Franja superior
+  doc.rect(0, 0, doc.page.width, 20).fill("#940f4b");
+  //--Logo
+  const logoPath = path.join(__dirname, "../../assets/logo_istla.png");
+  doc.image(logoPath, 50, 30, { width: 75 });
+  //--Insituto
+  doc
+    .font("Times-Bold")
+    .fill("black")
+    .fontSize(16)
+    .text("INSTITUTO SUPERIOR TECNOLÓGICO LOS ANDES", 23, 50, {
+      align: "center",
+      width: doc.page.width,
+    })
+    .fill("black")
+    .fontSize(15)
+    .text("ISTLA", 23, 70, {
+      align: "center",
+      width: doc.page.width,
+    });
+
+  //--Línea separadora
+  doc.moveTo(50, 110).lineTo(550, 110).stroke();
+  // Título - Reducir espacio
+  doc
+    .font("Times-Bold")
+    .fill("Reporte de becas")
+    .fontSize(12)
+    .text("REPORTE DE CONCESIÓN DE BECAS", 60, 120, {
+      // Reducir Y
+      align: "center",
+    });
+
+  //--Fecha
+  const fecha = new Date().toLocaleDateString("es-EC", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  doc.fontSize(10).font("Times-Roman").text(fecha, 260, 140);
+
+  // Contenido
+  const contenido = `El presente informe preliminar detalla las solicitudes de becas que han completado satisfactoriamente la entrega de documentación requerida y tienen un porcentaje de beca propuesto, pendiente de aprobación por parte del comité del Instituto Superior Tecnológico Los Andes. Este documento servirá como base para la evaluación y validación final de las asignaciones de becas en la reunión del comité.`;
+  doc.fontSize(12).font("Times-Roman").text(contenido, 50, 190, {
+    align: "justify",
+    lineGap: 8,
+  });
+
+  let currentY = 290;
+
+  let enY = 0;
+  enY = generateTablePreliminar(doc, data);
+
+  const final = `Este informe preliminar presenta la propuesta de asignación de becas para los estudiantes que han completado satisfactoriamente la documentación requerida. Los datos incluyen la información académica relevante y el porcentaje de beca sugerido para cada caso. Este documento servirá como base para la evaluación y toma de decisiones en el comité de becas del Instituto Superior Tecnológico Los Andes.
+`;
+  if (enY > 0) {
+    doc
+      .fontSize(12)
+      .font("Times-Roman")
+      .text(final, 50, enY + 100, {
+        align: "justify",
+        lineGap: 8,
+      });
+  } else {
+    doc
+      .fontSize(12)
+      .font("Times-Roman")
+      .text(final, 50, currentY + 20, {
+        align: "justify",
+        lineGap: 8,
+      });
+  }
+  doc.end();
+  return relativePath;
+}
+
+function generateTablePreliminar(doc, data) {
+  let startX = 65; // Aumentado de 50 a 65 para mover la tabla a la derecha
+  let startY = 330;
+  const conteoTotal = data.length;
+  const rowHeight = 40; // Aumentado de 50 a 60 para dar más espacio vertical al encabezado
+  const pageHeight = doc.page.height - 50;
+  const colWidths = {
+    CEDULA_ESTUDIANTE: 65,
+    NOMBRE_ESTUDIANTE: 120,
+    FECHA_SOLICITUD: 100,
+    TIPO_BECA: 80,
+    PROMEDIO: 85,
+    PORCENTAJE_PROPUESTO: 100, // Aumentado de 90 a 100 para dar más espacio al texto
+  };
+  doc
+    .font("Times-Bold")
+    .fontSize(12)
+    .text("Propuesta de Asignación de Becas", 60, startY - 25);
+  doc
+    .font("Times-Roman")
+    .fontSize(12)
+    .text("Registros Totales: " + conteoTotal, 400, startY - 25);
+  if (colWidths.NOMBRE_ESTUDIANTE) startX = 35; // Ajustado de 20 a 35 para mover la tabla
+  const addHeaders = () => {
+    doc.font("Times-Bold").fontSize(10);
+    let currentX = startX;
+    Object.entries({
+      Cédula: colWidths.CEDULA_ESTUDIANTE,
+      Nombres: colWidths.NOMBRE_ESTUDIANTE,
+      "Fecha de solicitud": colWidths.FECHA_SOLICITUD,
+      "Tipo de beca": colWidths.TIPO_BECA,
+      Promedio: colWidths.PROMEDIO,
+      "Porcentaje propuesto": colWidths.PORCENTAJE_PROPUESTO,
+    }).forEach(([header, width]) => {
+      if (width > 0) {
+        doc
+          .rect(currentX, startY, width, 25) // Aumentado de 20 a 25 para dar más espacio vertical al encabezado
+          .fillAndStroke("#7fbf1f", "#000000");
+        doc.fillColor("black").text(header, currentX + 2, startY + 7, {
+          // Ajustado el padding vertical de 5 a 7
+          width: width - 4,
+          align: "center",
+        });
+        currentX += width;
+      }
+    });
+    doc.fillColor("black");
+    startY += 25; // Ajustado de 20 a 25 para mantener consistencia con el nuevo alto del encabezado
+  };
+  addHeaders();
+  doc.font("Times-Roman").fontSize(8);
+  data.forEach((row, i) => {
+    if (startY + rowHeight > pageHeight) {
+      doc.addPage();
+      startY = 50;
+      addHeaders();
+    }
+    let currentX = startX;
+    const y = startY;
+    const addText = (text, width, options = {}) => {
+      doc
+        .font("Times-Roman")
+        .fontSize(8)
+        .text(text, currentX + 2, y + 5, {
+          width: width - 4,
+          height: rowHeight - 10,
+          ellipsis: true,
+          lineBreak: true,
+          ...options,
+        });
+      currentX += width;
+    };
+    addText(row.CEDULA_ESTUDIANTE, colWidths.CEDULA_ESTUDIANTE);
+    addText(row.NOMBRE_ESTUDIANTE, colWidths.NOMBRE_ESTUDIANTE);
+    addText(
+      new Date(new Date(row.FECHA_SOLICITUD).getTime() + (24 * 60 * 60 * 1000)).toLocaleDateString("es-CO", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }),
+      colWidths.FECHA_SOLICITUD
+    );
+    addText(row.TIPO_BECA, colWidths.TIPO_BECA);
+    addText(row.PROMEDIO, colWidths.PROMEDIO, { align: "center" });
+    addText(row.PORCENTAJE_PROPUESTO + "%", colWidths.PORCENTAJE_PROPUESTO, {
+      align: "center",
+    });
+    doc
+      .moveTo(startX, y + rowHeight)
+      .lineTo(
+        startX + Object.values(colWidths).reduce((a, b) => a + b, 0),
+        y + rowHeight
+      )
+      .stroke();
+    startY += rowHeight;
+  });
+  return startY;
+}
+
+module.exports = { generatePDF, generatePreliminarPDF };

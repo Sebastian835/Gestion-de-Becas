@@ -27,24 +27,13 @@ async function postBecas(id, porcentaje) {
       },
     });
 
-    if (porcentaje > 0) {
-      await prisma.istla_becas_otorgadas.create({
-        data: {
-          ID_SOLICITUD: solicitud.ID_SOLICITUD,
-          PORCENTAJE: parseInt(porcentaje, 10),
-          PERIODO_CADUCIDAD: "Proximo Periodo",
-          ID_ESTADO: estado.ID_ESTADO,
-        },
-      });
-      return;
-    }
-
     await prisma.istla_becas_otorgadas.create({
       data: {
         ID_SOLICITUD: solicitud.ID_SOLICITUD,
-        PORCENTAJE: 0,
+        PORCENTAJE: parseInt(porcentaje, 10),
         PERIODO_CADUCIDAD: "Proximo Periodo",
         ID_ESTADO: estado.ID_ESTADO,
+        PORCENTAJE_VERIFICADO: 0,
       },
     });
 
@@ -107,6 +96,9 @@ async function getBecasById(cedula) {
     const becas = await prisma.vista_becas_otorgadas.findMany({
       where: {
         CEDULA_ESTUDIANTE: cedula,
+        PORCENTAJE_VERIFICADO: {
+          not: 0,
+        },
       },
     });
 
@@ -177,12 +169,17 @@ async function getBecaCedula(cedula) {
       },
     });
     if (!solicitud) return null;
-    const beca = await prisma.istla_becas_otorgadas.findFirst({
+    const beca = await prisma.istla_becas_otorgadas.findMany({
       where: {
         ID_SOLICITUD: solicitud.ID_SOLICITUD,
+        PORCENTAJE_VERIFICADO: {
+          not: 0,
+        },
       },
     });
-    if (!beca) return null;
+
+    if (beca.length === 0) return null;
+
     return beca;
   } catch (error) {
     throw new Error("Error al obtener becas");
@@ -200,22 +197,24 @@ async function updateDatoBeca(data) {
     if (!beca) return null;
 
     if (data.ID_ESTADO) {
-      const updateBeca = await prisma.istla_becas_otorgadas.update({
+      await prisma.istla_becas_otorgadas.update({
         where: {
           ID_BECA: beca.ID_BECA,
         },
         data: {
           PORCENTAJE: parseInt(data.PORCENTAJE, 10),
           ID_ESTADO: parseInt(data.ID_ESTADO, 10),
+          PORCENTAJE_VERIFICADO: 1,
         },
       });
     } else {
-      const updateBeca = await prisma.istla_becas_otorgadas.update({
+      await prisma.istla_becas_otorgadas.update({
         where: {
           ID_BECA: beca.ID_BECA,
         },
         data: {
           PORCENTAJE: parseInt(data.PORCENTAJE, 10),
+          PORCENTAJE_VERIFICADO: 1,
         },
       });
     }
@@ -375,6 +374,23 @@ async function updateCaducidad() {
     throw new Error(
       "Error al actualizar períodos de caducidad: " + error.message
     );
+  }
+}
+
+async function updatePorcentaje() {
+  try {
+    await prisma.istla_becas_otorgadas.updateMany({
+      where: {
+        PORCENTAJE_VERIFICADO: 0,
+      },
+      data: {
+        PORCENTAJE_VERIFICADO: 1,
+      },
+    });
+
+    return true;
+  } catch (error) {
+    throw new Error("Error al actualizar porcentajes: " + error.message);
   }
 }
 
@@ -590,4 +606,5 @@ module.exports = {
   getBecasByIdValidacionEstudiante,
   postRenovacion,
   updateCaducidad,
+  updatePorcentaje,
 };

@@ -6,7 +6,8 @@ SELECT
   coalesce(
     `istla_estado_solicitud_bo`.`ESTADO`,
     `istla_estado_solicitud_sb`.`ESTADO`
-  ) AS `ESTADO`
+  ) AS `ESTADO`,
+  `gestion_becas_istla`.`istla_solicitudes_beca`.`NOMBRE_ESTUDIANTE` AS `NOMBRE`
 FROM
   (
     (

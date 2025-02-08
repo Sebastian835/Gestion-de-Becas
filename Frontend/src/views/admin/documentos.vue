@@ -186,16 +186,28 @@ const aceptarDocumentacion = async (id) => {
       try {
         const rangeResult = await Swal.fire({
           title: 'Selecciona el porcentaje de beca',
-          input: 'range',
+          input: 'number',
           inputAttributes: {
-            min: 0,
-            max: 100,
-            step: 1,
+            min: '0',
+            max: '100',
+            step: '1'
           },
           inputValue: 50,
           showCancelButton: true,
           confirmButtonText: 'Aceptar',
           cancelButtonText: 'Cancelar',
+          inputValidator: (value) => {
+            const num = parseInt(value);
+            if (isNaN(num)) {
+              return 'Por favor ingrese un número válido';
+            }
+            if (num <= 0) {
+              return 'El porcentaje debe ser mayor a 0';
+            }
+            if (num > 100) {
+              return 'El porcentaje no puede ser mayor a 100';
+            }
+          }
         });
 
         if (rangeResult.isConfirmed) {
@@ -205,7 +217,7 @@ const aceptarDocumentacion = async (id) => {
 
           await Swal.fire({
             title: 'Beca creada',
-            text: `Se asigno la beca del ${porcentaje}%. Se emitirá el correo al estudiante.`,
+            text: `Se asigno la beca del ${porcentaje}%. Se emitirá el correo al estudiante una vez confirmado ese porcentaje de beca.`,
             icon: 'success',
           });
 

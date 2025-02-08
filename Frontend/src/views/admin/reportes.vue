@@ -2,7 +2,7 @@
 import { onMounted, ref, toRaw, computed } from 'vue';
 import { getperiodosIstla, getCarrerasIstla } from '../../services/api_Istla';
 import { getTiposBecas } from '../../services/tiposBecas';
-import { postReportes, downloadReport } from '../../services/reportes';
+import { postReportes, downloadReport, downloadPreliminar } from '../../services/reportes';
 import Swal from 'sweetalert2';
 
 import Select from 'primevue/select';
@@ -21,6 +21,7 @@ import { useToast } from 'primevue/usetoast';
 
 const toast = useToast();
 const periodos = ref([]);
+const ultimoPeriodo = ref([]);
 const carreras = ref([]);
 const tiposBecas = ref([]);
 const pdfPath = ref(null);
@@ -29,6 +30,7 @@ const isOptionSelected = computed(() => !!selectedOptionPeriodo.value);
 
 const fechtPeriodos = async () => {
       periodos.value = await getperiodosIstla();
+      ultimoPeriodo.value = periodos.value[0].NOMBRE_PERIODO;
 };
 
 const fechtCarreras = async () => {
@@ -323,7 +325,8 @@ const downloadEspecificos = async () => {
 
 const download = async (path) => {
       try {
-            const response = await downloadReport(path);
+            console.log(path)
+             const response = await downloadReport(path);
       } catch (error) {
             toast.add({ severity: 'error', summary: 'Error', detail: 'Error al descargar el reporte', life: 3000 });
       }
@@ -347,6 +350,49 @@ const clearFiltersGenerales = () => {
       graficosGenerales.value = false;
 };
 
+const downloadPreliminarReport = async () => {
+      try {
+            Swal.fire({
+                  title: "Generando reporte preliminar de becas",
+                  allowOutsideClick: false,
+                  didOpen: () => {
+                        Swal.showLoading();
+                  }
+            });
+
+            const response = await downloadPreliminar();
+
+            Swal.close();
+
+            if (response) {
+                  tabla.value = false;
+                  toast.add({
+                        severity: 'success',
+                        summary: 'Éxito',
+                        detail: 'Reporte generado con éxito',
+                        life: 3000
+                  });
+                  await download(response);
+            } else {
+                  toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: 'Error al generar el reporte',
+                        life: 3000
+                  });
+            }
+      } catch (error) {
+            Swal.close();
+            toast.add({
+                  severity: 'error',
+                  summary: 'Error',
+                  detail: 'Error al generar reporte',
+                  life: 3000
+            });
+      }
+};
+
+
 onMounted(async () => {
       fechtPeriodos();
       fechtCarreras();
@@ -362,7 +408,7 @@ onMounted(async () => {
       <Toast />
 
       <div class="card">
-            <Accordion :value="['0']" multiple>
+            <Accordion multiple>
                   <AccordionPanel value="0">
                         <AccordionHeader>Generales</AccordionHeader>
                         <AccordionContent>
@@ -401,6 +447,7 @@ onMounted(async () => {
 
                         </AccordionContent>
                   </AccordionPanel>
+
                   <AccordionPanel value="1">
                         <AccordionHeader>Filtros especificos</AccordionHeader>
                         <AccordionContent>
@@ -468,6 +515,26 @@ onMounted(async () => {
                                                 class="w-full md:w-auto px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200" />
 
                                     </div>
+                              </div>
+                        </AccordionContent>
+                  </AccordionPanel>
+
+                  <AccordionPanel value="2">
+                        <AccordionHeader>Preliminar de Asignación de Becas</AccordionHeader>
+                        <AccordionContent>
+                              <div class="space-y-6">
+                                    <div class="text-gray-600 mb-4">
+                                          Este reporte genera la propuesta de asignación de becas para revisión en
+                                          comité. Incluye los
+                                          estudiantes que han completado su documentación y tienen un porcentaje
+                                          asignado pendiente de
+                                          aprobación.
+                                    </div>
+                                    <div class="text-sm text-gray-500 mb-4">
+                                          Período actual: {{ ultimoPeriodo }}
+                                    </div>
+                                    <Button icon="pi pi-file-pdf" label="Generar Reporte Preliminar"
+                                          severity="secondary" @click="downloadPreliminarReport" />
                               </div>
                         </AccordionContent>
                   </AccordionPanel>

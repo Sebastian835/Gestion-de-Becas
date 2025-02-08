@@ -22,7 +22,7 @@ const vigenciaBecas = ref();
 
 const fetchPlazoBecas = async () => {
     const plazosData = await getPlazoBecas();
-    
+
     plazosData.sort((a, b) => {
         if (a.istla_estado_solicitud.ESTADO === 'En curso' && b.istla_estado_solicitud.ESTADO !== 'En curso') {
             return -1;
@@ -35,9 +35,18 @@ const fetchPlazoBecas = async () => {
 
     plazos.value = plazosData.map(plazo => ({
         ...plazo,
-        FECHA_INICIO: new Date(plazo.FECHA_INICIO).toLocaleDateString("es-ES"),
-        FECHA_FIN: new Date(plazo.FECHA_FIN).toLocaleDateString("es-ES")
+        FECHA_INICIO: new Date(new Date(plazo.FECHA_INICIO).getTime() + (24 * 60 * 60 * 1000)).toLocaleDateString('es-CO', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }),
+        FECHA_FIN: new Date(new Date(plazo.FECHA_FIN).getTime() + (24 * 60 * 60 * 1000)).toLocaleDateString('es-CO', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        })
     }));
+
 };
 
 const fetchPeriodosIstla = async () => {
@@ -249,7 +258,7 @@ onMounted(() => {
 <template>
     <h2 class="text-2xl font-bold text-gray-800 mb-8" style="color: #161E2D;">
         Periodos de Becas
-      </h2>
+    </h2>
     <div class="flex flex-wrap items-center justify-between" style="margin-bottom: 25px;">
         <div class="w-full">
             <div class="card">
@@ -285,6 +294,12 @@ onMounted(() => {
     <div class="rounded-lg overflow-hidden shadow-lg">
         <DataTable :value="plazos" responsiveLayout="stack" :paginator="true" :rows="5" :editingRows="editingRows"
             editMode="row">
+            <Column field="PERIODO" header="Periodo" :sortable="true">
+                <template #body="slotProps">
+                    {{ slotProps.data.PERIODO }}
+                </template>
+            </Column>
+
             <Column field="FECHA_INICIO" header="Fecha Inicio" :sortable="true">
                 <template #body="slotProps">
                     {{ slotProps.data.FECHA_INICIO }}

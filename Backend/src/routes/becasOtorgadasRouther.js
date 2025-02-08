@@ -16,7 +16,11 @@ const {
   renovarBeca,
   verDocumentoRenovacion,
   updateCaducidadBeca,
+  updatePorcentajeBeca,
 } = require("../controllers/becasOtorgadasController");
+
+const { getPreliminar } = require("../controllers/reportsController");
+
 const router = express.Router();
 
 router.use(fileUpload());
@@ -683,5 +687,9 @@ router.post("/becaExisteEstudiante", getBecasPorIdEstudiante);
  *                   example: "Error obteniendo las becas"
  */
 router.put("/actualizarBeca", updateBeca);
+
+router.get("/updatePorcentaje", updatePorcentajeBeca);
+
+router.get("/preliminar", getPreliminar);
 
 module.exports = router;

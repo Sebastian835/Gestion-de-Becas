@@ -101,6 +101,15 @@ const formatearNombreDocumento = (tipo) => {
 
 const verDocumento = (url, titulo) => {
     documentoUrl.value = url;
+    if(!documentoUrl.value){
+        toast.add({
+            severity: 'info',
+            summary: 'Info',
+            detail: 'No hay documento disponible',
+            life: 3000
+        });
+        return;
+    }
     documentoTitulo.value = titulo;
     dialogVisible.value = true;
 };
