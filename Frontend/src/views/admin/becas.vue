@@ -64,7 +64,6 @@ const states = [
 
 const fetchBecas = async () => {
     becas.value = await getBecasOtorgadas();
-    console.log(becas.value)
     if (becas.value.noHay === true) {
         toast.add({ severity: 'info', summary: 'Informacion', detail: 'No hay becas', life: 2000 });
         mostrarPaginacion.value = false;

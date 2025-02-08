@@ -325,8 +325,7 @@ const downloadEspecificos = async () => {
 
 const download = async (path) => {
       try {
-            console.log(path)
-             const response = await downloadReport(path);
+            const response = await downloadReport(path);
       } catch (error) {
             toast.add({ severity: 'error', summary: 'Error', detail: 'Error al descargar el reporte', life: 3000 });
       }

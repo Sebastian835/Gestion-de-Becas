@@ -125,7 +125,6 @@ async function getVigenciaBecas() {
 
     return vigenciaBecas;
   } catch (error) {
-    console.log(error);
     throw new Error("Error al obtener documentos: " + error.message);
   }
 }

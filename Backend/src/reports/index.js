@@ -28,7 +28,6 @@ async function handleReportPreliminar(data) {
     const pdfPath = await generatePreliminarPDF(data);
     return pdfPath;
   } catch (error) {
-    console.log(error)
     throw new Error("Error generando PDF");
   }
 }
