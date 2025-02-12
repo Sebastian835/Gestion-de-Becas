@@ -185,6 +185,12 @@ const reportes = async () => {
       }
 
       if (graficosGenerales.value) {
+            const conteoPlano = toRaw(selectedOptionConteo.value);
+            if (!conteoPlano) {
+                  toast.add({ severity: 'error', summary: 'Error', detail: 'Seleecione el conteo de becas', life: 2000 });
+                  return;
+
+            }
             data = { ...data, graficosGenerales: true };
       }
 

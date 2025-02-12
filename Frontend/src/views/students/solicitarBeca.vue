@@ -31,7 +31,7 @@ const fecthPeriodoBecas = async () => {
         }).then(() => {
             router.push('/main/requisitos');
         });
-    }else{
+    } else {
         becaActiva();
     }
 };
@@ -119,7 +119,7 @@ const submitSolicitud = async () => {
                 fecha: fechaActual,
                 becaSeleccionada: selectedBeca.value,
                 cedula_estudiante: currentUser.DOCUMENTO_USUARIOS,
-                nombre_estudiante: currentUser.APELLIDOS_USUARIOS+ ' ' + currentUser.NOMBRES_USUARIOS,
+                nombre_estudiante: currentUser.APELLIDOS_USUARIOS + ' ' + currentUser.NOMBRES_USUARIOS,
                 periodo: periodo.value.ID_PERIODO,
                 documento: fileBase64,
                 periodoBeca: vigenciaBecas.value[0].ID_VIGENCIA
@@ -165,9 +165,9 @@ const becaActiva = async () => {
         }).then(() => {
             router.push('/main/requisitos');
         });
-    }else{
+    } else {
         solicitudPendiente();
-    }   
+    }
 };
 
 const solicitudPendiente = async () => {
@@ -211,10 +211,11 @@ onMounted(() => {
             </p>
 
             <a href="https://www.istla.edu.ec/wp-content/uploads/2024/pdf/Bienestar-Estudiantil/Formulario-para-becas-actual.pdf"
-                download
+                download target="_blank" rel="noopener noreferrer"
                 class="mb-6 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded block text-center transition-all duration-200 ease-in-out transform hover:scale-105">
                 <i class="pi pi-download mr-2"></i> Descargar Formulario de Solicitud
             </a>
+
 
             <!-- Select para tipo de beca -->
             <label for="countries" class="block mb-2 text-sm font-medium text-gray-900">Tipo de Beca</label>
