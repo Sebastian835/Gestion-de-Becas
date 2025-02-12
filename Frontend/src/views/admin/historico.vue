@@ -178,16 +178,21 @@ onMounted(() => {
                                 <!-- Información de la beca -->
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="flex flex-col gap-1">
-                                        <div class="text-sm text-gray-600">Periodo Solicitud</div>
-                                        <div class="font-medium">{{ beca.PERIODO_SOLICITUD }}</div>
+                                        <div class="font-medium text-gray-600">Periodo Solicitud</div>
+                                        <div class="text-sm">{{ beca.PERIODO_SOLICITUD }}</div>
                                     </div>
                                     <div v-if="beca.PERIODO_CADUCIDAD" class="flex flex-col gap-1">
-                                        <div class="text-sm text-gray-600">Periodo Caducidad</div>
-                                        <div class="font-medium">{{ beca.PERIODO_CADUCIDAD }}</div>
+                                        <div class="font-medium text-gray-600">Periodo Caducidad</div>
+                                        <div class="text-sm">{{ beca.PERIODO_CADUCIDAD }}</div>
                                     </div>
-                                    <div class="col-span-2">
-                                        <div class="text-sm text-gray-600 mb-1">Porcentaje</div>
+                                    <div class="col-span-2" v-if="beca.PORCENTAJE">
+                                        <div class="font-medium text-gray-600 mb-1">Porcentaje</div>
                                         <ProgressBar :value="beca.PORCENTAJE" :showValue="true" class="w-full" />
+                                    </div>
+                                    <div class="col-span-2" v-if="beca.MOTIVO_RECHAZO">
+                                        <div class="font-medium text-gray-600 mb-1">Motivo de rechazo</div>
+                                        <div class="text-sm">{{ beca.MOTIVO_RECHAZO }}</div>
+
                                     </div>
                                 </div>
 
