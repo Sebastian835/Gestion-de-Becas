@@ -7,7 +7,6 @@ const historicoController = {
       const { cedula } = req.params;
 
       const historico = await historicoService.getHistorico(cedula);
-
       if (!historico) {
         return res.status(200).json(false);
       }
@@ -80,4 +79,8 @@ const historicoController = {
     }
   },
 };
+
 module.exports = { historicoController };
+
+
+
